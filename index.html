@@ -140,7 +140,7 @@
 
         .slideshow-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
         .slideshow-title {
@@ -169,6 +169,41 @@
             border-radius: 8px;
             box-shadow: 0 30px 80px rgba(0,0,0,0.3);
             overflow: hidden;
+        }
+
+        /* Transition Selector */
+        .transition-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .transition-btn {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid rgba(0,0,0,0.1);
+            color: #8b8680;
+            padding: 8px 16px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .transition-btn:hover {
+            background: #f0f0f0;
+            color: #2c2c2c;
+        }
+
+        .transition-btn.active {
+            background: #2c2c2c;
+            color: white;
+            border-color: #2c2c2c;
         }
 
         /* Book Cover */
@@ -249,7 +284,7 @@
             50% { opacity: 1; transform: translateX(5px); }
         }
 
-        /* Book Pages Container */
+        /* Book Container */
         .book-container {
             position: relative;
             width: 100%;
@@ -264,7 +299,7 @@
             transform-style: preserve-3d;
         }
 
-        /* Individual Page */
+        /* Base Page Styles */
         .page {
             position: absolute;
             width: 50%;
@@ -274,13 +309,12 @@
             background: #fff;
             transform-origin: left center;
             transform-style: preserve-3d;
-            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             border-radius: 0 4px 4px 0;
             overflow: hidden;
-            box-shadow: 
-                -5px 0 15px rgba(0,0,0,0.1),
-                inset 10px 0 20px rgba(0,0,0,0.02);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
             z-index: 1;
+            opacity: 0;
         }
 
         .page::before {
@@ -295,18 +329,200 @@
             z-index: 2;
         }
 
-        /* Page States */
-        .page.flipped {
+        /* ==================== */
+        /* TRANSITION: BOOK FLIP */
+        /* ==================== */
+        .transition-book .page {
+            transform: rotateY(180deg);
+        }
+
+        .transition-book .page.active {
+            transform: rotateY(0deg);
+            z-index: 10;
+            opacity: 1;
+        }
+
+        .transition-book .page.flipped {
             transform: rotateY(-180deg);
             z-index: 0;
         }
 
-        .page.flipping {
-            z-index: 50 !important;
+        .transition-book .page.prev {
+            transform: rotateY(0deg) translateX(-100%);
+            opacity: 0.3;
+            z-index: 5;
         }
 
-        .page.active {
+        /* ==================== */
+        /* TRANSITION: FADE */
+        /* ==================== */
+        .transition-fade .page {
+            transform: none;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+        }
+
+        .transition-fade .page.active {
+            opacity: 1;
             z-index: 10;
+        }
+
+        .transition-fade .page.prev {
+            opacity: 0;
+            z-index: 1;
+        }
+
+        /* ==================== */
+        /* TRANSITION: SLIDE */
+        /* ==================== */
+        .transition-slide .page {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        .transition-slide .page.active {
+            transform: translateX(0);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .transition-slide .page.prev {
+            transform: translateX(-100%);
+            opacity: 0.5;
+            z-index: 5;
+        }
+
+        /* ==================== */
+        /* TRANSITION: SCALE */
+        /* ==================== */
+        .transition-scale .page {
+            transform: scale(0.8) translateX(50px);
+            opacity: 0;
+        }
+
+        .transition-scale .page.active {
+            transform: scale(1) translateX(0);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .transition-scale .page.prev {
+            transform: scale(1.2) translateX(-50px);
+            opacity: 0;
+            z-index: 5;
+        }
+
+        /* ==================== */
+        /* TRANSITION: CUBE */
+        /* ==================== */
+        .transition-cube .pages-wrapper {
+            transform-style: preserve-3d;
+        }
+
+        .transition-cube .page {
+            transform: rotateY(90deg) translateZ(250px);
+            opacity: 0;
+            backface-visibility: hidden;
+        }
+
+        .transition-cube .page.active {
+            transform: rotateY(0deg) translateZ(250px);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .transition-cube .page.prev {
+            transform: rotateY(-90deg) translateZ(250px);
+            opacity: 0.5;
+            z-index: 5;
+        }
+
+        /* ==================== */
+        /* TRANSITION: CAROUSEL */
+        /* ==================== */
+        .transition-carousel .page {
+            transform: translateZ(-500px) rotateY(45deg);
+            opacity: 0;
+        }
+
+        .transition-carousel .page.active {
+            transform: translateZ(0) rotateY(0);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .transition-carousel .page.prev {
+            transform: translateZ(-300px) translateX(-60%) rotateY(35deg);
+            opacity: 0.4;
+            z-index: 5;
+        }
+
+        .transition-carousel .page.next {
+            transform: translateZ(-300px) translateX(60%) rotateY(-35deg);
+            opacity: 0.4;
+            z-index: 5;
+        }
+
+        /* ==================== */
+        /* TRANSITION: FLIP 3D */
+        /* ==================== */
+        .transition-flip3d .page {
+            transform: rotateX(90deg);
+            opacity: 0;
+            transform-origin: center bottom;
+        }
+
+        .transition-flip3d .page.active {
+            transform: rotateX(0deg);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .transition-flip3d .page.prev {
+            transform: rotateX(-90deg);
+            opacity: 0;
+            z-index: 5;
+        }
+
+        /* ==================== */
+        /* TRANSITION: SPLIT */
+        /* ==================== */
+        .transition-split .page {
+            clip-path: inset(0 50% 0 50%);
+            opacity: 0;
+        }
+
+        .transition-split .page.active {
+            clip-path: inset(0 0 0 0);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        .transition-split .page.prev {
+            clip-path: inset(0 0 0 100%);
+            opacity: 0;
+        }
+
+        /* ==================== */
+        /* TRANSITION: ZOOM */
+        /* ==================== */
+        .transition-zoom .page {
+            transform: scale(2);
+            opacity: 0;
+            filter: blur(10px);
+        }
+
+        .transition-zoom .page.active {
+            transform: scale(1);
+            opacity: 1;
+            filter: blur(0);
+            z-index: 10;
+        }
+
+        .transition-zoom .page.prev {
+            transform: scale(0.5);
+            opacity: 0;
+            filter: blur(20px);
         }
 
         /* Page Content */
@@ -348,6 +564,16 @@
 
         .page:hover img {
             transform: scale(1.02);
+        }
+
+        /* Ken Burns Effect */
+        .page.active img {
+            animation: kenBurns 8s ease-out forwards;
+        }
+
+        @keyframes kenBurns {
+            0% { transform: scale(1.1) translate(0, 0); }
+            100% { transform: scale(1) translate(-2%, -1%); }
         }
 
         .page-info {
@@ -861,6 +1087,15 @@
             .cover-title {
                 font-size: 32px;
             }
+
+            .transition-selector {
+                padding: 0 10px;
+            }
+
+            .transition-btn {
+                padding: 6px 12px;
+                font-size: 9px;
+            }
         }
     </style>
 </head>
@@ -909,10 +1144,23 @@
         <div class="slideshow-wrapper" id="slideshowWrapper">
             <div class="slideshow-header">
                 <h2 class="slideshow-title">Your Photo Book</h2>
-                <p class="slideshow-subtitle">Click cover to open</p>
+                <p class="slideshow-subtitle">Select a transition style</p>
+            </div>
+
+            <!-- Transition Selector -->
+            <div class="transition-selector">
+                <button class="transition-btn active" onclick="setTransition('book')">Book Flip</button>
+                <button class="transition-btn" onclick="setTransition('fade')">Fade</button>
+                <button class="transition-btn" onclick="setTransition('slide')">Slide</button>
+                <button class="transition-btn" onclick="setTransition('scale')">Scale</button>
+                <button class="transition-btn" onclick="setTransition('cube')">Cube</button>
+                <button class="transition-btn" onclick="setTransition('carousel')">Carousel</button>
+                <button class="transition-btn" onclick="setTransition('flip3d')">Flip 3D</button>
+                <button class="transition-btn" onclick="setTransition('split')">Split</button>
+                <button class="transition-btn" onclick="setTransition('zoom')">Zoom</button>
             </div>
             
-            <div class="slideshow-container" id="slideshow">
+            <div class="slideshow-container transition-book" id="slideshow">
                 <div class="book-container" id="bookContainer">
                     <!-- Book Cover -->
                     <div class="book-cover" id="bookCover" onclick="openBook()">
@@ -976,6 +1224,7 @@
         let isBookOpen = false;
         let autoPlayInterval = null;
         let progressInterval = null;
+        let currentTransition = 'book';
         let db;
         let currentView = 'gallery';
 
@@ -983,6 +1232,7 @@
         const fileInput = document.getElementById('fileInput');
         const gallery = document.getElementById('gallery');
         const slideshowWrapper = document.getElementById('slideshowWrapper');
+        const slideshowContainer = document.getElementById('slideshow');
         const bookCover = document.getElementById('bookCover');
         const pagesWrapper = document.getElementById('pagesWrapper');
         const modal = document.getElementById('modal');
@@ -1118,6 +1368,25 @@
             });
         }
 
+        // Transition Management
+        function setTransition(type) {
+            currentTransition = type;
+            
+            // Update buttons
+            document.querySelectorAll('.transition-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update container class
+            slideshowContainer.className = 'slideshow-container transition-' + type;
+            
+            // Re-render to apply new transition
+            if (photos.length > 0) {
+                renderSlideshow();
+            }
+        }
+
         // View Toggle
         function toggleView(view) {
             const slideshowToggle = document.getElementById('slideshowToggle');
@@ -1178,6 +1447,27 @@
             bookCover.style.pointerEvents = 'auto';
             updatePageIndicator();
             updateNavButtons();
+            
+            // Apply initial state based on transition
+            updatePageStates();
+        }
+
+        function updatePageStates() {
+            const pages = document.querySelectorAll('.page');
+            pages.forEach((page, index) => {
+                page.classList.remove('active', 'prev', 'next', 'flipped');
+                
+                if (index === currentSlide) {
+                    page.classList.add('active');
+                } else if (index < currentSlide) {
+                    page.classList.add('prev');
+                    if (currentTransition === 'book') {
+                        page.classList.add('flipped');
+                    }
+                } else if (index === currentSlide + 1) {
+                    page.classList.add('next');
+                }
+            });
         }
 
         function openBook() {
@@ -1188,7 +1478,7 @@
                 bookCover.style.opacity = '0';
                 bookCover.style.pointerEvents = 'none';
                 updateNavButtons();
-                // Auto-start autoplay when book opens
+                updatePageStates();
                 if (!autoPlayInterval) {
                     startAutoPlay();
                 }
@@ -1202,14 +1492,8 @@
             bookCover.style.pointerEvents = 'auto';
             bookCover.classList.remove('open');
             
-            // Reset all pages
-            photos.forEach((_, index) => {
-                const page = document.querySelector(`[data-page="${index}"]`);
-                if (page) {
-                    page.classList.remove('flipped', 'active');
-                }
-            });
             currentSlide = 0;
+            updatePageStates();
             updatePageIndicator();
             updateNavButtons();
         }
@@ -1221,27 +1505,16 @@
             }
 
             if (currentSlide < photos.length - 1) {
-                const currentPage = document.querySelector(`[data-page="${currentSlide}"]`);
-                if (currentPage) {
-                    currentPage.classList.add('flipping');
-                    currentPage.classList.add('flipped');
-                    currentPage.classList.remove('active');
-                    
-                    setTimeout(() => {
-                        currentPage.classList.remove('flipping');
-                        currentSlide++;
-                        
-                        // Activate next page
-                        const nextPage = document.querySelector(`[data-page="${currentSlide}"]`);
-                        if (nextPage) nextPage.classList.add('active');
-                        
-                        updatePageIndicator();
-                        updateNavButtons();
-                    }, 400);
-                }
+                currentSlide++;
+                updatePageStates();
+                updatePageIndicator();
+                updateNavButtons();
             } else {
                 // Loop back to beginning
-                resetSlideshow();
+                currentSlide = 0;
+                updatePageStates();
+                updatePageIndicator();
+                updateNavButtons();
             }
         }
 
@@ -1249,38 +1522,7 @@
             if (!isBookOpen || currentSlide <= 0) return;
 
             currentSlide--;
-            const currentPage = document.querySelector(`[data-page="${currentSlide}"]`);
-            
-            if (currentPage) {
-                currentPage.classList.add('flipping');
-                currentPage.classList.remove('flipped');
-                currentPage.classList.add('active');
-                
-                // Deactivate next page
-                const nextPage = document.querySelector(`[data-page="${currentSlide + 1}"]`);
-                if (nextPage) nextPage.classList.remove('active');
-                
-                setTimeout(() => {
-                    currentPage.classList.remove('flipping');
-                    updatePageIndicator();
-                    updateNavButtons();
-                }, 400);
-            }
-        }
-
-        function resetSlideshow() {
-            photos.forEach((_, index) => {
-                const page = document.querySelector(`[data-page="${index}"]`);
-                if (page) {
-                    page.classList.remove('flipped', 'active');
-                }
-            });
-            currentSlide = 0;
-            
-            // Activate first page
-            const firstPage = document.querySelector(`[data-page="0"]`);
-            if (firstPage) firstPage.classList.add('active');
-            
+            updatePageStates();
             updatePageIndicator();
             updateNavButtons();
         }
@@ -1316,7 +1558,7 @@
             
             // Progress bar animation
             let progress = 0;
-            const duration = 4000; // 4 seconds per slide
+            const duration = 4000;
             const interval = 50;
             const step = 100 / (duration / interval);
             
