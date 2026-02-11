@@ -3,25 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Personal Photo Gallery with persistent storage and elegant slideshow">
-    <title>LUMINA — Visual Archive</title>
+    <title>LUMINA — Cinematic Slideshow</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
 
         :root {
-            --bg-primary: #faf9f6;
-            --bg-secondary: #f5f3ef;
-            --bg-tertiary: #f0ede7;
-            --text-primary: #1a1a1a;
-            --text-secondary: #6b6b6b;
-            --text-muted: #9b9b9b;
+            --bg-dark: #0a0a0a;
+            --bg-light: #faf9f6;
             --accent: #c4a77d;
-            --accent-dark: #8b7355;
-            --shadow-soft: 0 4px 20px rgba(0,0,0,0.04);
-            --shadow-medium: 0 8px 30px rgba(0,0,0,0.08);
-            --shadow-heavy: 0 20px 60px rgba(0,0,0,0.12);
+            --accent-glow: rgba(196, 167, 125, 0.3);
+            --text-primary: #1a1a1a;
+            --text-light: #f5f5f5;
+            --transition-cinematic: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            --transition-bounce: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         * {
@@ -30,21 +24,16 @@
             box-sizing: border-box;
         }
 
-        html {
-            scroll-behavior: smooth;
-        }
-
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            min-height: 100vh;
-            overflow-x: hidden;
+            background: var(--bg-dark);
+            color: var(--text-light);
+            overflow: hidden;
+            height: 100vh;
         }
 
-        /* Animated Background */
-        .ambient-bg {
+        /* Ambient Background */
+        .ambient-light {
             position: fixed;
             top: 0;
             left: 0;
@@ -52,2017 +41,858 @@
             height: 100%;
             pointer-events: none;
             z-index: 0;
-            overflow: hidden;
+            background: radial-gradient(ellipse at 20% 50%, rgba(196, 167, 125, 0.15) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 50%, rgba(139, 115, 85, 0.1) 0%, transparent 50%);
+            animation: ambientPulse 8s ease-in-out infinite;
         }
 
-        .ambient-bg::before,
-        .ambient-bg::after {
-            content: '';
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: float 20s infinite ease-in-out;
+        @keyframes ambientPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 0.8; }
         }
 
-        .ambient-bg::before {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(196,167,125,0.15) 0%, transparent 70%);
-            top: -200px;
-            right: -200px;
-            animation-delay: 0s;
-        }
-
-        .ambient-bg::after {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, rgba(139,115,85,0.1) 0%, transparent 70%);
-            bottom: -150px;
-            left: -150px;
-            animation-delay: -10s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -30px) scale(1.1); }
-            66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-
-        /* Header */
-        .header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(250, 249, 246, 0.85);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid rgba(0,0,0,0.05);
-            z-index: 1000;
-            padding: 20px 0;
-            transition: var(--transition-smooth);
-        }
-
-        .header.scrolled {
-            padding: 15px 0;
-            background: rgba(250, 249, 246, 0.95);
-            box-shadow: var(--shadow-soft);
-        }
-
-        .nav {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 40px;
-        }
-
-        .logo {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 26px;
-            font-weight: 400;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            color: var(--text-primary);
+        /* Main Slideshow Container */
+        .slideshow-stage {
             position: relative;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-        }
-
-        .logo::after {
-            content: '';
-            position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--accent);
-            transition: width 0.3s ease;
-        }
-
-        .logo:hover::after {
-            width: 100%;
-        }
-
-        .nav-controls {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 30px;
-        }
-
-        .nav-link {
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            text-decoration: none;
-            position: relative;
-            padding: 5px 0;
-            transition: var(--transition-smooth);
-        }
-
-        .nav-link::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 1px;
-            background: var(--accent);
-            transition: width 0.3s ease;
-        }
-
-        .nav-link:hover, .nav-link.active {
-            color: var(--text-primary);
-        }
-
-        .nav-link:hover::before, .nav-link.active::before {
-            width: 100%;
-        }
-
-        .upload-btn {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            border: none;
-            padding: 12px 28px;
-            font-size: 10px;
-            font-weight: 600;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: var(--transition-bounce);
-            border-radius: 30px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--accent);
-            transition: left 0.3s ease;
-            z-index: 0;
-        }
-
-        .upload-btn:hover::before {
-            left: 0;
-        }
-
-        .upload-btn span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .upload-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        /* Main Container */
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 140px 40px 60px;
-            position: relative;
-            z-index: 1;
-        }
-
-        /* Hero Section */
-        .hero-section {
-            text-align: center;
-            margin-bottom: 60px;
-            padding: 40px 0;
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeUp 1s ease forwards;
-        }
-
-        @keyframes fadeUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .hero-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(36px, 8vw, 72px);
-            font-weight: 300;
-            color: var(--text-primary);
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            line-height: 1.1;
-        }
-
-        .hero-title span {
-            font-style: italic;
-            color: var(--accent-dark);
-        }
-
-        .hero-subtitle {
-            font-size: 13px;
-            font-weight: 400;
-            color: var(--text-muted);
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            margin-bottom: 50px;
-        }
-
-        /* Stats */
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 60px;
-            margin-bottom: 50px;
-        }
-
-        .stat-item {
-            text-align: center;
-            position: relative;
-            padding: 20px;
-        }
-
-        .stat-item::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: -30px;
-            width: 1px;
-            height: 40px;
-            background: linear-gradient(to bottom, transparent, var(--accent), transparent);
-            transform: translateY(-50%);
-            opacity: 0.3;
-        }
-
-        .stat-item:first-child::before {
-            display: none;
-        }
-
-        .stat-number {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 42px;
-            font-weight: 300;
-            color: var(--text-primary);
-            margin-bottom: 8px;
-            transition: var(--transition-smooth);
-        }
-
-        .stat-item:hover .stat-number {
-            transform: scale(1.1);
-            color: var(--accent-dark);
-        }
-
-        .stat-label {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--text-muted);
-            font-weight: 500;
-        }
-
-        /* View Toggle */
-        .view-toggle {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 40px;
-            background: rgba(255,255,255,0.6);
-            padding: 8px;
-            border-radius: 30px;
-            backdrop-filter: blur(10px);
-            width: fit-content;
-            margin-left: auto;
-            margin-right: auto;
-            border: 1px solid rgba(0,0,0,0.05);
-        }
-
-        .toggle-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-secondary);
-            padding: 10px 24px;
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: var(--transition-smooth);
-            border-radius: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .toggle-btn.active {
-            background: var(--text-primary);
-            color: var(--bg-primary);
-            box-shadow: var(--shadow-soft);
-        }
-
-        .toggle-btn:not(.active):hover {
-            color: var(--text-primary);
-            background: rgba(0,0,0,0.03);
-        }
-
-        /* Upload Area */
-        .upload-section {
-            margin-bottom: 60px;
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(196, 167, 125, 0.3);
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 80px 40px;
-            text-align: center;
-            transition: var(--transition-smooth);
-            cursor: pointer;
-            border-radius: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .upload-area::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, rgba(196,167,125,0.1) 0%, transparent 70%);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .upload-area:hover::before, .upload-area.dragover::before {
-            opacity: 1;
-        }
-
-        .upload-area:hover, .upload-area.dragover {
-            border-color: var(--accent);
-            background: rgba(255, 255, 255, 0.9);
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-heavy);
-        }
-
-        .upload-area.dragover {
-            border-style: solid;
-            background: rgba(196, 167, 125, 0.05);
-        }
-
-        .upload-icon {
-            width: 60px;
-            height: 60px;
-            margin: 0 auto 25px;
-            border: 2px solid var(--accent);
-            border-radius: 50%;
+            width: 100vw;
+            height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
-            color: var(--accent);
-            transition: var(--transition-bounce);
-        }
-
-        .upload-area:hover .upload-icon {
-            transform: scale(1.1) rotate(90deg);
-            background: var(--accent);
-            color: white;
-        }
-
-        .upload-text {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 24px;
-            font-weight: 400;
-            color: var(--text-primary);
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-        }
-
-        .upload-subtext {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 400;
-            letter-spacing: 1px;
-        }
-
-        .upload-hint {
-            margin-top: 20px;
-            font-size: 11px;
-            color: var(--text-muted);
-            opacity: 0;
-            transform: translateY(10px);
-            transition: var(--transition-smooth);
-        }
-
-        .upload-area:hover .upload-hint {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* Slideshow - 3D Book Effect */
-        .slideshow-container {
-            position: relative;
-            max-width: 1000px;
-            margin: 0 auto 80px;
-            background: transparent;
-            display: none;
             perspective: 2000px;
-            height: 650px;
-            opacity: 0;
-            transform: scale(0.95);
-            transition: all 0.6s ease;
+            overflow: hidden;
         }
 
-        .slideshow-container.active {
-            display: block;
-            opacity: 1;
-            transform: scale(1);
-            animation: fadeIn 0.6s ease;
+        /* Cinematic Frame */
+        .frame-container {
+            position: relative;
+            width: 85vw;
+            max-width: 1400px;
+            height: 75vh;
+            max-height: 900px;
+            transform-style: preserve-3d;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.95) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .book-wrapper {
+        /* The Film Strip */
+        .film-strip {
             position: relative;
             width: 100%;
             height: 100%;
             transform-style: preserve-3d;
+            transition: transform 0.1s linear;
         }
 
-        .book-cover {
+        /* Individual Slides */
+        .slide {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
-            border-radius: 4px 12px 12px 4px;
-            box-shadow: 
-                0 0 0 2px rgba(196,167,125,0.3),
-                0 25px 80px rgba(0,0,0,0.3),
-                inset 0 0 60px rgba(0,0,0,0.5);
-            transform-origin: left center;
-            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            z-index: 100;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .book-cover.open {
-            transform: rotateY(-160deg);
-        }
-
-        .cover-content {
-            text-align: center;
-            color: var(--bg-primary);
-            padding: 40px;
-        }
-
-        .cover-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 48px;
-            font-weight: 300;
-            letter-spacing: 4px;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--accent);
-            padding-bottom: 20px;
-        }
-
-        .cover-subtitle {
-            font-size: 12px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--accent);
-            margin-bottom: 40px;
-        }
-
-        .cover-hint {
-            font-size: 11px;
-            opacity: 0.6;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        .pages-container {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-        }
-
-        .page {
-            position: absolute;
-            width: 50%;
-            height: 100%;
-            background: #fff;
-            backface-visibility: hidden;
-            transform-style: preserve-3d;
-            transform-origin: right center;
-            transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            border-radius: 0 8px 8px 0;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transform: translateZ(-500px) rotateY(45deg) scale(0.8);
+            transition: var(--transition-cinematic);
+            border-radius: 8px;
             overflow: hidden;
-            box-shadow: 
-                0 4px 20px rgba(0,0,0,0.1),
-                inset -30px 0 40px rgba(0,0,0,0.02);
+            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
+            background: #1a1a1a;
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateZ(0) rotateY(0) scale(1);
+            z-index: 10;
+            box-shadow: 0 30px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(196, 167, 125, 0.1);
+        }
+
+        .slide.prev {
+            opacity: 0.3;
+            transform: translateX(-60%) translateZ(-300px) rotateY(35deg) scale(0.85);
+            z-index: 5;
+            filter: brightness(0.6);
+        }
+
+        .slide.next {
+            opacity: 0.3;
+            transform: translateX(60%) translateZ(-300px) rotateY(-35deg) scale(0.85);
+            z-index: 5;
+            filter: brightness(0.6);
+        }
+
+        .slide.far-prev {
+            opacity: 0;
+            transform: translateX(-100%) translateZ(-600px) rotateY(60deg) scale(0.7);
             z-index: 1;
         }
 
-        .page::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 40px;
-            background: linear-gradient(to right, rgba(0,0,0,0.03) 0%, transparent 100%);
-            pointer-events: none;
-            z-index: 2;
-        }
-
-        .page.flipped {
-            transform: rotateY(-180deg);
-            z-index: 0;
-        }
-
-        .page.flipping {
-            z-index: 50;
-            box-shadow: 0 0 40px rgba(0,0,0,0.2);
-        }
-
-        .page-content {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px;
-            position: relative;
-            background: #fefefe;
-        }
-
-        .page-image-wrapper {
-            flex: 1;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            border-radius: 4px;
-            background: #f5f5f5;
-        }
-
-        .page img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            transition: transform 0.5s ease;
-        }
-
-        .page:hover img {
-            transform: scale(1.02);
-        }
-
-        .page-info {
-            margin-top: 20px;
-            text-align: center;
-            opacity: 0.8;
-        }
-
-        .page-number {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 14px;
-            color: var(--text-muted);
-            letter-spacing: 2px;
-        }
-
-        .page-title {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 5px;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .book-spine {
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            background: linear-gradient(to bottom, 
-                rgba(0,0,0,0.2) 0%, 
-                rgba(0,0,0,0.3) 50%, 
-                rgba(0,0,0,0.2) 100%);
-            transform: translateX(-50%);
-            z-index: 5;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        .flip-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            border: none;
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 20px;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-bounce);
-            z-index: 200;
-            box-shadow: var(--shadow-medium);
-            backdrop-filter: blur(10px);
-        }
-
-        .flip-nav:hover {
-            background: var(--text-primary);
-            color: white;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .flip-nav:active {
-            transform: translateY(-50%) scale(0.95);
-        }
-
-        .flip-prev { left: -28px; }
-        .flip-next { right: -28px; }
-
-        .slideshow-controls {
-            position: absolute;
-            bottom: -60px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            background: rgba(255,255,255,0.9);
-            padding: 15px 25px;
-            border-radius: 30px;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-soft);
-        }
-
-        .page-counter {
-            font-size: 12px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            letter-spacing: 1px;
-            min-width: 60px;
-            text-align: center;
-        }
-
-        .auto-play-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-            color: var(--text-muted);
-            transition: var(--transition-smooth);
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-        }
-
-        .auto-play-btn:hover {
-            background: rgba(0,0,0,0.05);
-            color: var(--text-primary);
-        }
-
-        .auto-play-btn.active {
-            color: var(--accent);
-            background: rgba(196,167,125,0.1);
-        }
-
-        /* Gallery Grid */
-        .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
+        .slide.far-next {
             opacity: 0;
-            animation: fadeIn 0.8s ease forwards 0.3s;
+            transform: translateX(100%) translateZ(-600px) rotateY(-60deg) scale(0.7);
+            z-index: 1;
         }
 
-        .gallery.hidden {
-            display: none;
-        }
-
-        .photo-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-                        transition: var(--transition-smooth);
-            box-shadow: var(--shadow-soft);
+        /* Image Container with Ken Burns Effect */
+        .slide-image-wrapper {
             position: relative;
-            transform: translateY(0);
-        }
-
-        .photo-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: var(--shadow-heavy);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .photo-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent), var(--accent-dark));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
-        }
-
-        .photo-card:hover::before {
-            transform: scaleX(1);
-        }
-
-        .photo-container {
             width: 100%;
-            aspect-ratio: 4/3;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #f5f5f5 0%, #ebebeb 100%);
+            height: 100%;
             overflow: hidden;
-            position: relative;
         }
 
-        .photo-container::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.02) 100%);
-            pointer-events: none;
-        }
-
-        .photo-card img {
+        .slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: transform 6s ease;
         }
 
-        .photo-card:hover img {
-            transform: scale(1.08);
+        .slide.active img {
+            transform: scale(1.1);
+            animation: kenBurns 8s ease-out forwards;
         }
 
-        .photo-overlay {
+        @keyframes kenBurns {
+            0% { transform: scale(1.1) translate(0, 0); }
+            100% { transform: scale(1) translate(-2%, -1%); }
+        }
+
+        /* Slide Overlay with Gradient */
+        .slide-overlay {
             position: absolute;
-            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 50%);
+            height: 50%;
+            background: linear-gradient(to top, 
+                rgba(0,0,0,0.9) 0%, 
+                rgba(0,0,0,0.4) 40%, 
+                transparent 100%);
             opacity: 0;
-            transition: opacity 0.3s ease;
-            display: flex;
-            align-items: flex-end;
-            padding: 20px;
+            transition: opacity 0.6s ease;
         }
 
-        .photo-card:hover .photo-overlay {
+        .slide.active .slide-overlay {
             opacity: 1;
         }
 
-        .overlay-text {
-            color: white;
-            font-size: 12px;
-            letter-spacing: 1px;
-            transform: translateY(10px);
-            transition: transform 0.3s ease;
+        /* Slide Content */
+        .slide-content {
+            position: absolute;
+            bottom: 60px;
+            left: 60px;
+            right: 60px;
+            z-index: 20;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.6s ease 0.3s;
         }
 
-        .photo-card:hover .overlay-text {
+        .slide.active .slide-content {
+            opacity: 1;
             transform: translateY(0);
         }
 
-        .photo-info {
-            padding: 25px;
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .photo-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .photo-number {
+        .slide-number {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 36px;
-            font-weight: 300;
-            color: rgba(196, 167, 125, 0.3);
-            line-height: 1;
-            transition: var(--transition-smooth);
-        }
-
-        .photo-card:hover .photo-number {
+            font-size: 14px;
+            letter-spacing: 3px;
             color: var(--accent);
-            transform: scale(1.1);
+            margin-bottom: 15px;
+            text-transform: uppercase;
         }
 
-        .photo-date {
-            font-size: 10px;
-            color: var(--text-muted);
+        .slide-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(32px, 5vw, 56px);
+            font-weight: 300;
+            line-height: 1.1;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+
+        .slide-meta {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 12px;
             letter-spacing: 1.5px;
             text-transform: uppercase;
-            text-align: right;
-            line-height: 1.4;
+            color: rgba(255,255,255,0.6);
         }
 
-        .photo-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 20px;
-            font-weight: 500;
-            color: var(--text-primary);
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .photo-description {
-            font-size: 12px;
-            color: var(--text-secondary);
-            font-weight: 400;
-            line-height: 1.6;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .delete-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(255, 255, 255, 0.95);
-            color: var(--text-primary);
-            border: none;
-            width: 36px;
-            height: 36px;
-            cursor: pointer;
-            font-size: 18px;
+        .slide-meta span {
             display: flex;
             align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transform: scale(0.8);
-            transition: var(--transition-bounce);
-            border-radius: 50%;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-soft);
-            z-index: 10;
+            gap: 8px;
         }
 
-        .photo-card:hover .delete-btn {
-            opacity: 1;
-            transform: scale(1);
+        .slide-meta::before {
+            content: '';
+            width: 40px;
+            height: 1px;
+            background: var(--accent);
         }
 
-        .delete-btn:hover {
-            background: #ff4444;
-            color: white;
-            transform: scale(1.1) rotate(90deg);
-        }
-
-        /* Empty State */
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 120px 20px;
-            color: var(--text-muted);
-            background: rgba(255,255,255,0.6);
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            border: 2px dashed rgba(196, 167, 125, 0.2);
-        }
-
-        .empty-icon {
-            width: 100px;
-            height: 100px;
-            margin: 0 auto 30px;
-            border: 2px solid rgba(196, 167, 125, 0.3);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            color: var(--accent);
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .empty-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 32px;
-            font-weight: 300;
-            margin-bottom: 15px;
-            color: var(--text-secondary);
-        }
-
-        .empty-subtitle {
-            font-size: 13px;
-            font-weight: 400;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--text-muted);
-        }
-
-        /* Modal/Lightbox */
-        .modal {
-            display: none;
+        /* Navigation Controls */
+        .nav-controls {
             position: fixed;
-            z-index: 3000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(250, 249, 246, 0.98);
-            backdrop-filter: blur(20px);
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-
-        .modal.active {
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             display: flex;
-            opacity: 1;
             align-items: center;
-            justify-content: center;
+            gap: 30px;
+            z-index: 100;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(20px);
+            padding: 20px 40px;
+            border-radius: 50px;
+            border: 1px solid rgba(196, 167, 125, 0.2);
         }
 
-        .modal-content {
-            position: relative;
-            max-width: 90vw;
-            max-height: 90vh;
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.2);
-        }
-
-        .modal.active .modal-content {
-            transform: scale(1);
-        }
-
-        .modal img {
-            max-width: 90vw;
-            max-height: 90vh;
-            object-fit: contain;
-            display: block;
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 30px;
-            right: 40px;
-            color: var(--text-primary);
-            font-size: 32px;
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-light);
             cursor: pointer;
-            z-index: 3001;
-            font-weight: 300;
-            background: rgba(255, 255, 255, 0.9);
             width: 50px;
             height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            backdrop-filter: blur(10px);
+            font-size: 24px;
             transition: var(--transition-smooth);
-            box-shadow: var(--shadow-soft);
+            position: relative;
+            overflow: hidden;
         }
 
-        .modal-close:hover {
-            background: var(--text-primary);
-            color: white;
-            transform: scale(1.1) rotate(90deg);
-        }
-
-        .modal-nav {
+        .nav-btn::before {
+            content: '';
             position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(255, 255, 255, 0.9);
-            border: none;
+            inset: 0;
+            background: var(--accent);
+            border-radius: 50%;
+            transform: scale(0);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-btn:hover::before {
+            transform: scale(1);
+        }
+
+        .nav-btn span {
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-btn:hover span {
+            transform: scale(1.2);
+            color: var(--bg-dark);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Progress Indicator */
+        .progress-ring {
             width: 60px;
             height: 60px;
+            position: relative;
+        }
+
+        .progress-ring svg {
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(255,255,255,0.1);
+        }
+
+        .progress-ring .progress {
+            stroke: var(--accent);
+            stroke-dasharray: 157;
+            stroke-dashoffset: 157;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .play-pause {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Thumbnail Strip */
+        .thumbnail-strip {
+            position: fixed;
+            right: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .thumb {
+            width: 60px;
+            height: 45px;
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: var(--transition-smooth);
+            border: 2px solid transparent;
+            position: relative;
+        }
+
+        .thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .thumb.active {
+            opacity: 1;
+            border-color: var(--accent);
+            transform: scale(1.2);
+            box-shadow: 0 5px 20px rgba(196, 167, 125, 0.3);
+        }
+
+        .thumb:hover {
+            opacity: 0.8;
+            transform: scale(1.1);
+        }
+
+        .thumb:hover img {
+            transform: scale(1.1);
+        }
+
+        .thumb::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5));
+            pointer-events: none;
+        }
+
+        /* Top Info Bar */
+        .top-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 30px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            letter-spacing: 4px;
+            font-weight: 300;
+            color: var(--text-light);
+        }
+
+        .slide-counter {
+            font-size: 12px;
+            letter-spacing: 2px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .slide-counter span {
+            color: var(--accent);
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        /* Fullscreen Toggle */
+        .fullscreen-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            font-size: 24px;
-            color: var(--text-primary);
             display: flex;
             align-items: center;
             justify-content: center;
             transition: var(--transition-smooth);
             backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-medium);
         }
 
-        .modal-nav:hover {
-            background: var(--text-primary);
-            color: white;
-            transform: translateY(-50%) scale(1.1);
+        .fullscreen-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-dark);
         }
 
-        .modal-prev { left: 40px; }
-        .modal-next { right: 40px; }
-
-        .modal-info {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            padding: 20px 40px;
-            border-radius: 30px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .modal-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 18px;
-            color: var(--text-primary);
-            margin-bottom: 5px;
-        }
-
-        .modal-meta {
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        /* Toast Notifications */
-        .toast-container {
+        /* Loading State */
+        .loader {
             position: fixed;
-            bottom: 30px;
-            right: 30px;
-            z-index: 4000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .toast {
-            background: rgba(44, 44, 44, 0.95);
-            color: white;
-            padding: 16px 24px;
-            border-radius: 8px;
-            font-size: 13px;
-            letter-spacing: 0.5px;
-            transform: translateX(100%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            border: 2px solid rgba(196, 167, 125, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 1000;
             opacity: 0;
-            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            backdrop-filter: blur(10px);
-            box-shadow: var(--shadow-heavy);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 300px;
+            pointer-events: none;
+            transition: opacity 0.3s;
         }
 
-        .toast.show {
-            transform: translateX(0);
+        .loader.visible {
             opacity: 1;
         }
 
-        .toast-icon {
-            font-size: 18px;
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
-        .toast.success { border-left: 3px solid #4CAF50; }
-        .toast.error { border-left: 3px solid #f44336; }
-        .toast.info { border-left: 3px solid var(--accent); }
-
-        /* Loading States */
-        .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200% 100%;
-            animation: loading 1.5s infinite;
-            border-radius: 4px;
+        /* Transition Effects */
+        .fade-transition .slide {
+            transition: opacity 0.8s ease, transform 0.8s ease;
         }
 
-        @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+        .zoom-transition .slide.active img {
+            animation: zoomPulse 6s ease-out forwards;
         }
 
-        .upload-progress {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 3px;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.3s ease;
+        @keyframes zoomPulse {
+            0% { transform: scale(1.2); }
+            50% { transform: scale(1); }
+            100% { transform: scale(1.05); }
+        }
+
+        /* Keyboard Hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .slideshow-stage:hover .keyboard-hint {
+            opacity: 1;
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .nav {
-                padding: 0 20px;
+            .frame-container {
+                width: 95vw;
+                height: 60vh;
             }
-            
-            .nav-links {
-                display: none;
+
+            .slide-content {
+                bottom: 30px;
+                left: 30px;
+                right: 30px;
             }
-            
-            .container {
-                padding: 120px 20px 40px;
+
+            .slide-title {
+                font-size: 24px;
             }
-            
-            .hero-title {
-                font-size: 36px;
+
+            .thumbnail-strip {
+                right: 15px;
+                gap: 10px;
             }
-            
-            .stats {
-                gap: 30px;
+
+            .thumb {
+                width: 45px;
+                height: 35px;
             }
-            
-            .stat-item::before {
-                left: -15px;
-            }
-            
-            .gallery {
-                grid-template-columns: 1fr;
+
+            .nav-controls {
+                bottom: 20px;
+                padding: 15px 25px;
                 gap: 20px;
             }
-            
-            .slideshow-container {
-                height: 400px;
-            }
-            
-            .flip-nav {
-                width: 45px;
-                height: 45px;
-                font-size: 18px;
-            }
-            
-            .flip-prev { left: 10px; }
-            .flip-next { right: 10px; }
-            
-            .modal-nav {
-                display: none;
-            }
-            
-            .modal-info {
-                width: 90%;
-                padding: 15px 20px;
+
+            .top-bar {
+                padding: 20px;
             }
         }
 
-        /* Print Styles */
-        @media print {
-            .header, .upload-section, .view-toggle, .delete-btn {
-                display: none !important;
-            }
-            
-            .gallery {
-                display: block;
-            }
-            
-            .photo-card {
-                page-break-inside: avoid;
-                margin-bottom: 20px;
-                box-shadow: none;
-                border: 1px solid #ddd;
-            }
+        /* Hide cursor in fullscreen after inactivity */
+        .cursor-hidden {
+            cursor: none;
         }
 
-        /* Selection Color */
-        ::selection {
-            background: rgba(196, 167, 125, 0.3);
-            color: var(--text-primary);
+        .cursor-hidden .nav-controls,
+        .cursor-hidden .thumbnail-strip,
+        .cursor-hidden .top-bar {
+            opacity: 0;
+            transition: opacity 0.3s;
         }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-secondary);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--accent);
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-dark);
+        .slideshow-stage:hover .nav-controls,
+        .slideshow-stage:hover .thumbnail-strip,
+        .slideshow-stage:hover .top-bar {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
-    <div class="ambient-bg"></div>
+    <div class="ambient-light"></div>
+    <div class="loader" id="loader"></div>
 
-    <header class="header" id="header">
-        <nav class="nav">
-            <div class="logo" onclick="scrollToTop()">Lumina</div>
-            <div class="nav-controls">
-                <div class="nav-links">
-                    <a href="#" class="nav-link active" onclick="showSection('gallery')">Collection</a>
-                    <a href="#" class="nav-link" onclick="showSection('archive')">Archive</a>
-                    <a href="#" class="nav-link" onclick="showSection('about')">About</a>
-                </div>
-                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
-                    <span>+ Upload</span>
-                </button>
-            </div>
-        </nav>
-    </header>
-
-    <div class="container">
-        <section class="hero-section">
-            <h1 class="hero-title">Visual <span>Stories</span></h1>
-            <p class="hero-subtitle">Curated Moments & Memories</p>
-            
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-number" id="photoCount">00</div>
-                    <div class="stat-label">Photographs</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="storageSize">0.0</div>
-                    <div class="stat-label">Megabytes</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" id="albumYears">0</div>
-                    <div class="stat-label">Years Active</div>
-                </div>
-            </div>
-        </section>
-
-        <div class="view-toggle">
-            <button class="toggle-btn" id="slideshowToggle" onclick="toggleView('slideshow')">
-                ▶ Slideshow
-            </button>
-            <button class="toggle-btn active" id="galleryToggle" onclick="toggleView('gallery')">
-                ⊞ Gallery
-            </button>
+    <div class="top-bar">
+        <div class="logo">Lumina</div>
+        <div class="slide-counter">
+            <span id="currentNum">01</span> / <span id="totalNum">05</span>
         </div>
+        <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
+            ⛶
+        </button>
+    </div>
 
-        <section class="upload-section">
-            <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-                <div class="upload-icon">+</div>
-                <div class="upload-text">Add Photographs</div>
-                <div class="upload-subtext">Drag & drop images here or click to browse</div>
-                <div class="upload-hint">Supports JPG, PNG, WebP • Max 10MB each</div>
-                <div class="upload-progress" id="uploadProgress"></div>
-            </div>
-        </section>
-
-        <input type="file" id="fileInput" multiple accept="image/*" style="display: none;">
-
-        <!-- 3D Book Slideshow -->
-        <div class="slideshow-container" id="slideshow">
-            <div class="book-wrapper" id="bookWrapper">
-                <div class="book-cover" id="bookCover" onclick="openBook()">
-                    <div class="cover-content">
-                        <div class="cover-title">Lumina</div>
-                        <div class="cover-subtitle">Personal Archive</div>
-                        <div class="cover-hint">Click to Open →</div>
-                    </div>
-                </div>
-                <div class="pages-container" id="pagesContainer">
-                    <div class="book-spine"></div>
-                </div>
-            </div>
-            <button class="flip-nav flip-prev" onclick="flipPrevPage()">‹</button>
-            <button class="flip-nav flip-next" onclick="flipNextPage()">›</button>
-            <div class="slideshow-controls">
-                <button class="auto-play-btn" id="autoPlayBtn" onclick="toggleAutoPlay()" title="Auto-play">▶</button>
-                <div class="page-counter" id="pageCounter">0 / 0</div>
-            </div>
-        </div>
-
-        <!-- Gallery Grid -->
-        <div class="gallery" id="gallery">
-            <div class="empty-state">
-                <div class="empty-icon">◯</div>
-                <div class="empty-title">Your Collection Awaits</div>
-                <div class="empty-subtitle">Upload your first photograph to begin</div>
+    <div class="slideshow-stage" id="stage">
+        <div class="frame-container">
+            <div class="film-strip" id="filmStrip">
+                <!-- Slides will be injected here -->
             </div>
         </div>
     </div>
 
-    <!-- Lightbox Modal -->
-    <div class="modal" id="modal" onclick="closeModalOnBackground(event)">
-        <span class="modal-close" onclick="closeModal()">&times;</span>
-        <button class="modal-nav modal-prev" onclick="changeModalImage(-1)">‹</button>
-        <button class="modal-nav modal-next" onclick="changeModalImage(1)">›</button>
-        <div class="modal-content">
-            <img id="modalImg" src="" alt="">
+    <!-- Thumbnail Navigation -->
+    <div class="thumbnail-strip" id="thumbnails"></div>
+
+    <!-- Bottom Controls -->
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="prevSlide()" title="Previous (←)">
+            <span>‹</span>
+        </button>
+
+        <div class="progress-ring">
+            <svg width="60" height="60">
+                <circle class="bg" cx="30" cy="30" r="25"></circle>
+                <circle class="progress" id="progressCircle" cx="30" cy="30" r="25"></circle>
+            </svg>
+            <button class="play-pause" id="playPauseBtn" onclick="togglePlay()">
+                ❚❚
+            </button>
         </div>
-        <div class="modal-info">
-            <div class="modal-title" id="modalTitle">Untitled</div>
-            <div class="modal-meta" id="modalMeta">Added recently</div>
-        </div>
+
+        <button class="nav-btn" onclick="nextSlide()" title="Next (→)">
+            <span>›</span>
+        </button>
     </div>
 
-    <!-- Toast Container -->
-    <div class="toast-container" id="toastContainer"></div>
+    <div class="keyboard-hint">Use ← → arrow keys or swipe to navigate</div>
 
     <script>
-        // Application State
-        const AppState = {
-            photos: [],
-            currentView: 'gallery',
-            currentSlide: 0,
-            isBookOpen: false,
-            autoPlay: false,
-            autoPlayInterval: null,
-            db: null,
-            modalIndex: 0,
-            touchStartX: 0,
-            totalSize: 0
-        };
-
-        // DOM Elements
-        const Elements = {
-            fileInput: document.getElementById('fileInput'),
-            gallery: document.getElementById('gallery'),
-            slideshow: document.getElementById('slideshow'),
-            bookWrapper: document.getElementById('bookWrapper'),
-            bookCover: document.getElementById('bookCover'),
-            pagesContainer: document.getElementById('pagesContainer'),
-            modal: document.getElementById('modal'),
-            modalImg: document.getElementById('modalImg'),
-            modalTitle: document.getElementById('modalTitle'),
-            modalMeta: document.getElementById('modalMeta'),
-            uploadArea: document.getElementById('uploadArea'),
-            uploadProgress: document.getElementById('uploadProgress'),
-            header: document.getElementById('header'),
-            toastContainer: document.getElementById('toastContainer'),
-            photoCount: document.getElementById('photoCount'),
-            storageSize: document.getElementById('storageSize'),
-            albumYears: document.getElementById('albumYears'),
-            pageCounter: document.getElementById('pageCounter'),
-            autoPlayBtn: document.getElementById('autoPlayBtn')
-        };
-
-        // Initialize Application
-        async function init() {
-            try {
-                await initIndexedDB();
-                await loadPhotos();
-                setupEventListeners();
-                updateStats();
-                showToast('Welcome to Lumina', 'info');
-            } catch (error) {
-                console.error('Initialization failed:', error);
-                showToast('Failed to initialize gallery', 'error');
-            }
-        }
-
-        // IndexedDB Setup
-        function initIndexedDB() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('LuminaGalleryDB', 1);
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    AppState.db = request.result;
-                    resolve(AppState.db);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('photos')) {
-                        const store = db.createObjectStore('photos', { keyPath: 'id' });
-                        store.createIndex('date', 'uploadDate', { unique: false });
-                    }
-                };
-            });
-        }
-
-        // Database Operations
-        const DB = {
-            async save(photo) {
-                return new Promise((resolve, reject) => {
-                    const tx = AppState.db.transaction(['photos'], 'readwrite');
-                    const store = tx.objectStore('photos');
-                    const request = store.put(photo);
-                    request.onsuccess = () => resolve(photo);
-                    request.onerror = () => reject(request.error);
-                });
+        // Slideshow Data - Replace with your images
+        const slidesData = [
+            {
+                src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
+                title: 'Mountain Whispers',
+                location: 'Swiss Alps',
+                date: 'Winter 2024'
             },
-
-            async loadAll() {
-                return new Promise((resolve, reject) => {
-                    const tx = AppState.db.transaction(['photos'], 'readonly');
-                    const store = tx.objectStore('photos');
-                    const request = store.getAll();
-                    request.onsuccess = () => {
-                        const photos = request.result.sort((a, b) => 
-                            new Date(b.uploadDate) - new Date(a.uploadDate)
-                        );
-                        resolve(photos);
-                    };
-                    request.onerror = () => reject(request.error);
-                });
+            {
+                src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80',
+                title: 'Urban Solitude',
+                location: 'Tokyo, Japan',
+                date: 'Spring 2024'
             },
-
-            async delete(id) {
-                return new Promise((resolve, reject) => {
-                    const tx = AppState.db.transaction(['photos'], 'readwrite');
-                    const store = tx.objectStore('photos');
-                    const request = store.delete(id);
-                    request.onsuccess = () => resolve();
-                    request.onerror = () => reject(request.error);
-                });
+            {
+                src: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80',
+                title: 'Forest Dreams',
+                location: 'Black Forest',
+                date: 'Autumn 2023'
+            },
+            {
+                src: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=1920&q=80',
+                title: 'Ocean Memories',
+                location: 'Big Sur, California',
+                date: 'Summer 2023'
+            },
+            {
+                src: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80',
+                title: 'Morning Mist',
+                location: 'Scottish Highlands',
+                date: 'Winter 2023'
             }
-        };
+        ];
 
-        // Photo Management
-        async function loadPhotos() {
-            try {
-                AppState.photos = await DB.loadAll();
-                AppState.totalSize = AppState.photos.reduce((sum, p) => sum + (p.size || 0), 0);
-                renderGallery();
-                renderSlideshow();
-                updateStats();
-            } catch (error) {
-                showToast('Error loading photos', 'error');
-            }
+        // State
+        let currentIndex = 0;
+        let isPlaying = true;
+        let autoPlayInterval;
+        let progressInterval;
+        let slideDuration = 5000; // 5 seconds per slide
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let cursorTimeout;
+
+        // Elements
+        const filmStrip = document.getElementById('filmStrip');
+        const thumbnails = document.getElementById('thumbnails');
+        const currentNum = document.getElementById('currentNum');
+        const totalNum = document.getElementById('totalNum');
+        const progressCircle = document.getElementById('progressCircle');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const loader = document.getElementById('loader');
+        const stage = document.getElementById('stage');
+
+        // Initialize
+        function init() {
+            renderSlides();
+            renderThumbnails();
+            updateCounter();
+            startAutoPlay();
+            setupEventListeners();
+            preloadImages();
         }
 
-        async function processFiles(files) {
-            const validFiles = Array.from(files).filter(file => 
-                file.type.startsWith('image/') && file.size <= 10 * 1024 * 1024
-            );
-
-            if (validFiles.length === 0) {
-                showToast('Please select valid image files (max 10MB)', 'error');
-                return;
-            }
-
-            for (let i = 0; i < validFiles.length; i++) {
-                const file = validFiles[i];
-                try {
-                    updateUploadProgress((i / validFiles.length) * 100);
-                    await processImageFile(file);
-                } catch (error) {
-                    showToast(`Failed to process ${file.name}`, 'error');
-                }
-            }
-            
-            updateUploadProgress(100);
-            setTimeout(() => updateUploadProgress(0), 500);
-            showToast(`Added ${validFiles.length} photo${validFiles.length > 1 ? 's' : ''}`, 'success');
-        }
-
-        function processImageFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                
-                reader.onload = async (e) => {
-                    try {
-                        // Compress image if needed
-                        const compressedSrc = await compressImage(e.target.result);
-                        
-                        const photo = {
-                            id: `photo_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                            name: file.name.replace(/\.[^/.]+$/, ""),
-                            src: compressedSrc,
-                            size: file.size,
-                            uploadDate: new Date().toISOString(),
-                            date: new Date().toLocaleDateString('en-US', { 
-                                month: 'long', day: 'numeric', year: 'numeric' 
-                            }),
-                            dimensions: await getImageDimensions(compressedSrc)
-                        };
-
-                        await DB.save(photo);
-                        AppState.photos.unshift(photo);
-                        AppState.totalSize += photo.size;
-                        
-                        renderGallery();
-                        renderSlideshow();
-                        updateStats();
-                        
-                        resolve(photo);
-                    } catch (err) {
-                        reject(err);
-                    }
-                };
-                
-                reader.onerror = () => reject(new Error('File read error'));
-                reader.readAsDataURL(file);
-            });
-        }
-
-        function compressImage(src) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    const ctx = canvas.getContext('2d');
-                    
-                    // Max dimensions
-                    const maxWidth = 1920;
-                    const maxHeight = 1080;
-                    
-                    let { width, height } = img;
-                    
-                    if (width > maxWidth || height > maxHeight) {
-                        const ratio = Math.min(maxWidth / width, maxHeight / height);
-                        width *= ratio;
-                        height *= ratio;
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    ctx.drawImage(img, 0, 0, width, height);
-                    
-                    resolve(canvas.toDataURL('image/jpeg', 0.9));
-                };
-                img.src = src;
-            });
-        }
-
-        function getImageDimensions(src) {
-            return new Promise((resolve) => {
-                const img = new Image();
-                img.onload = () => resolve({ width: img.width, height: img.height });
-                img.src = src;
-            });
-        }
-
-        // Rendering
-        function renderGallery() {
-            if (AppState.photos.length === 0) {
-                Elements.gallery.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">◯</div>
-                        <div class="empty-title">Your Collection Awaits</div>
-                        <div class="empty-subtitle">Upload your first photograph to begin</div>
+        function renderSlides() {
+            filmStrip.innerHTML = slidesData.map((slide, index) => `
+                <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
+                    <div class="slide-image-wrapper">
+                        <img src="${slide.src}" alt="${slide.title}" loading="${index < 2 ? 'eager' : 'lazy'}">
                     </div>
-                `;
-                return;
-            }
-
-            Elements.gallery.innerHTML = AppState.photos.map((photo, index) => `
-                <article class="photo-card" data-id="${photo.id}" onclick="openModal('${photo.id}')">
-                    <div class="photo-container">
-                        <img src="${photo.src}" alt="${photo.name}" loading="lazy">
-                        <div class="photo-overlay">
-                            <span class="overlay-text">View Details →</span>
+                    <div class="slide-overlay"></div>
+                    <div class="slide-content">
+                        <div class="slide-number">${String(index + 1).padStart(2, '0')} — ${slide.date}</div>
+                        <h2 class="slide-title">${slide.title}</h2>
+                        <div class="slide-meta">
+                            <span>📍 ${slide.location}</span>
                         </div>
                     </div>
-                    <button class="delete-btn" onclick="deletePhoto(event, '${photo.id}')" title="Remove photo">
-                        ×
-                    </button>
-                    <div class="photo-info">
-                        <div class="photo-meta">
-                            <div class="photo-number">${String(index + 1).padStart(2, '0')}</div>
-                            <div class="photo-date">${photo.date}</div>
-                        </div>
-                        <h3 class="photo-title">${photo.name || 'Untitled'}</h3>
-                        <p class="photo-description">Added to your personal archive. ${photo.dimensions ? 
-                            `${photo.dimensions.width}×${photo.dimensions.height}px` : ''}</p>
-                    </div>
-                </article>
+                </div>
             `).join('');
         }
 
-        function renderSlideshow() {
-            const spine = Elements.pagesContainer.querySelector('.book-spine');
-            Elements.pagesContainer.innerHTML = '';
-            Elements.pagesContainer.appendChild(spine);
+        function renderThumbnails() {
+            thumbnails.innerHTML = slidesData.map((slide, index) => `
+                <div class="thumb ${index === 0 ? 'active' : ''}" data-index="${index}" onclick="goToSlide(${index})">
+                    <img src="${slide.src}" alt="">
+                </div>
+            `).join('');
+        }
 
-            AppState.photos.forEach((photo, index) => {
-                const page = document.createElement('div');
-                page.className = `page ${index > 0 ? 'flipped' : ''}`;
-                page.setAttribute('data-page', index);
-                
-                page.innerHTML = `
-                    <div class="page-content">
-                        <div class="page-image-wrapper">
-                            <img src="${photo.src}" alt="${photo.name}">
-                        </div>
-                        <div class="page-info">
-                            <div class="page-number">${String(index + 1).padStart(2, '0')} / ${String(AppState.photos.length).padStart(2, '0')}</div>
-                            <div class="page-title">${photo.name || 'Untitled'}</div>
-                        </div>
-                    </div>
-                `;
-                
-                Elements.pagesContainer.appendChild(page);
+        function updateClasses() {
+            const slides = document.querySelectorAll('.slide');
+            const thumbs = document.querySelectorAll('.thumb');
+
+            slides.forEach((slide, index) => {
+                slide.className = 'slide';
+                if (index === currentIndex) slide.classList.add('active');
+                else if (index === currentIndex - 1) slide.classList.add('prev');
+                else if (index === currentIndex + 1) slide.classList.add('next');
+                else if (index < currentIndex - 1) slide.classList.add('far-prev');
+                else if (index > currentIndex + 1) slide.classList.add('far-next');
             });
 
-            AppState.currentSlide = 0;
-            updatePageCounter();
-        }
-
-        // View Management
-        function toggleView(view) {
-            const slideshowToggle = document.getElementById('slideshowToggle');
-            const galleryToggle = document.getElementById('galleryToggle');
-
-            if (view === 'slideshow' && AppState.photos.length > 0) {
-                AppState.currentView = 'slideshow';
-                Elements.slideshow.classList.add('active');
-                Elements.gallery.classList.add('hidden');
-                slideshowToggle.classList.add('active');
-                galleryToggle.classList.remove('active');
-                
-                if (!AppState.isBookOpen) {
-                    Elements.bookCover.style.transform = 'rotateY(-20deg)';
-                }
-            } else {
-                AppState.currentView = 'gallery';
-                Elements.slideshow.classList.remove('active');
-                Elements.gallery.classList.remove('hidden');
-                slideshowToggle.classList.remove('active');
-                galleryToggle.classList.add('active');
-                stopAutoPlay();
-            }
-        }
-
-        function openBook() {
-            AppState.isBookOpen = true;
-            Elements.bookCover.classList.add('open');
-            setTimeout(() => {
-                Elements.bookCover.style.opacity = '0';
-                Elements.bookCover.style.pointerEvents = 'none';
-            }, 800);
-        }
-
-        // Slideshow Navigation
-        function flipNextPage() {
-            if (!AppState.isBookOpen) {
-                openBook();
-                return;
-            }
-
-            if (AppState.currentSlide < AppState.photos.length - 1) {
-                const page = document.querySelector(`[data-page="${AppState.currentSlide}"]`);
-                if (page) {
-                    page.classList.add('flipping');
-                    setTimeout(() => {
-                        page.classList.add('flipped');
-                        page.classList.remove('flipping');
-                        AppState.currentSlide++;
-                        updatePageCounter();
-                    }, 350);
-                }
-            } else {
-                resetSlideshow();
-            }
-        }
-
-        function flipPrevPage() {
-            if (!AppState.isBookOpen || AppState.currentSlide <= 0) return;
-
-            AppState.currentSlide--;
-            const page = document.querySelector(`[data-page="${AppState.currentSlide}"]`);
-            if (page) {
-                page.classList.add('flipping');
-                setTimeout(() => {
-                    page.classList.remove('flipped');
-                    page.classList.remove('flipping');
-                    updatePageCounter();
-                }, 350);
-            }
-        }
-
-        function resetSlideshow() {
-            AppState.photos.forEach((_, index) => {
-                const page = document.querySelector(`[data-page="${index}"]`);
-                if (page && index > 0) {
-                    setTimeout(() => page.classList.remove('flipped'), index * 50);
-                }
+            thumbs.forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === currentIndex);
             });
-            AppState.currentSlide = 0;
-            setTimeout(updatePageCounter, AppState.photos.length * 50);
+
+            updateCounter();
         }
 
-        function updatePageCounter() {
-            Elements.pageCounter.textContent = AppState.photos.length > 0 
-                ? `${AppState.currentSlide + 1} / ${AppState.photos.length}` 
-                : '0 / 0';
+        function updateCounter() {
+            currentNum.textContent = String(currentIndex + 1).padStart(2, '0');
+            totalNum.textContent = String(slidesData.length).padStart(2, '0');
         }
 
-        // Auto-play
-        function toggleAutoPlay() {
-            AppState.autoPlay = !AppState.autoPlay;
-            Elements.autoPlayBtn.classList.toggle('active', AppState.autoPlay);
-            Elements.autoPlayBtn.textContent = AppState.autoPlay ? '⏸' : '▶';
-            
-            if (AppState.autoPlay) {
-                startAutoPlay();
-            } else {
-                stopAutoPlay();
-            }
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % slidesData.length;
+            updateClasses();
+            resetProgress();
         }
 
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + slidesData.length) % slidesData.length;
+            updateClasses();
+            resetProgress();
+        }
+
+        function goToSlide(index) {
+            if (index === currentIndex) return;
+            currentIndex = index;
+            updateClasses();
+            resetProgress();
+            if (!isPlaying) startAutoPlay();
+        }
+
+        // Auto Play with Progress Ring
         function startAutoPlay() {
-            stopAutoPlay();
-            AppState.autoPlayInterval = setInterval(() => {
-                if (AppState.currentView === 'slideshow') {
-                    flipNextPage();
+            if (autoPlayInterval) clearInterval(autoPlayInterval);
+            if (progressInterval) clearInterval(progressInterval);
+            
+            isPlaying = true;
+            playPauseBtn.textContent = '❚❚';
+            
+            let progress = 0;
+            const circumference = 2 * Math.PI * 25; // r=25
+            const step = circumference / (slideDuration / 50); // Update every 50ms
+            
+            progressInterval = setInterval(() => {
+                progress += step;
+                if (progress >= circumference) {
+                    progress = 0;
+                    nextSlide();
                 }
-            }, 3000);
+                progressCircle.style.strokeDashoffset = circumference - progress;
+            }, 50);
+
+            autoPlayInterval = setInterval(() => {
+                nextSlide();
+            }, slideDuration);
         }
 
         function stopAutoPlay() {
-            if (AppState.autoPlayInterval) {
-                clearInterval(AppState.autoPlayInterval);
-                AppState.autoPlayInterval = null;
-            }
-            AppState.autoPlay = false;
-            Elements.autoPlayBtn.classList.remove('active');
-            Elements.autoPlayBtn.textContent = '▶';
+            isPlaying = false;
+            playPauseBtn.textContent = '▶';
+            clearInterval(autoPlayInterval);
+            clearInterval(progressInterval);
+            progressCircle.style.strokeDashoffset = 157; // Reset to empty
         }
 
-        // Modal/Lightbox
-        function openModal(photoId) {
-            const index = AppState.photos.findIndex(p => p.id === photoId);
-            if (index === -1) return;
-
-            AppState.modalIndex = index;
-            updateModalContent();
-            
-            Elements.modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+        function togglePlay() {
+            if (isPlaying) stopAutoPlay();
+            else startAutoPlay();
         }
 
-        function updateModalContent() {
-            const photo = AppState.photos[AppState.modalIndex];
-            Elements.modalImg.src = photo.src;
-            Elements.modalTitle.textContent = photo.name || 'Untitled';
-            Elements.modalMeta.textContent = `${photo.date} • ${AppState.modalIndex + 1} of ${AppState.photos.length}`;
-        }
-
-        function closeModal() {
-            Elements.modal.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        function closeModalOnBackground(event) {
-            if (event.target === Elements.modal) {
-                closeModal();
+        function resetProgress() {
+            if (isPlaying) {
+                clearInterval(autoPlayInterval);
+                clearInterval(progressInterval);
+                startAutoPlay();
             }
         }
 
-        function changeModalImage(direction) {
-            const newIndex = AppState.modalIndex + direction;
-            if (newIndex >= 0 && newIndex < AppState.photos.length) {
-                AppState.modalIndex = newIndex;
-                updateModalContent();
-            }
-        }
-
-        // Photo Deletion
-        async function deletePhoto(event, id) {
-            event.stopPropagation();
-            
-            if (!confirm('Remove this photograph from your collection?')) return;
-
-            try {
-                await DB.delete(id);
-                const index = AppState.photos.findIndex(p => p.id === id);
-                if (index > -1) {
-                    AppState.totalSize -= AppState.photos[index].size;
-                    AppState.photos.splice(index, 1);
+        // Preload Images
+        function preloadImages() {
+            slidesData.forEach((slide, index) => {
+                if (index > 2) { // Don't preload first 3 (already loaded)
+                    const img = new Image();
+                    img.src = slide.src;
                 }
-                
-                renderGallery();
-                renderSlideshow();
-                updateStats();
-                showToast('Photograph removed', 'info');
-                
-                if (AppState.photos.length === 0) {
-                    toggleView('gallery');
-                }
-            } catch (error) {
-                showToast('Failed to remove photograph', 'error');
-            }
-        }
-
-        // Statistics
-        function updateStats() {
-            // Animate numbers
-            animateNumber(Elements.photoCount, AppState.photos.length, 2);
-            animateNumber(Elements.storageSize, (AppState.totalSize / (1024 * 1024)).toFixed(1), 1, true);
-            
-            // Calculate years
-            if (AppState.photos.length > 0) {
-                const dates = AppState.photos.map(p => new Date(p.uploadDate));
-                const oldest = new Date(Math.min(...dates));
-                const years = Math.max(1, Math.floor((new Date() - oldest) / (365 * 24 * 60 * 60 * 1000)));
-                animateNumber(Elements.albumYears, years, 0);
-            } else {
-                Elements.albumYears.textContent = '0';
-            }
-        }
-
-        function animateNumber(element, target, decimals, isFloat = false) {
-            const start = parseFloat(element.textContent) || 0;
-            const duration = 800;
-            const startTime = performance.now();
-
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeProgress = 1 - Math.pow(1 - progress, 3); // Ease out cubic
-                
-                const current = start + (target - start) * easeProgress;
-                element.textContent = isFloat ? current.toFixed(decimals) : String(Math.floor(current)).padStart(2, '0');
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                }
-            }
-            
-            requestAnimationFrame(update);
-        }
-
-        // UI Utilities
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            const icons = {
-                success: '✓',
-                error: '✕',
-                info: 'ℹ'
-            };
-            
-            toast.innerHTML = `
-                <span class="toast-icon">${icons[type]}</span>
-                <span>${message}</span>
-            `;
-            
-            Elements.toastContainer.appendChild(toast);
-            
-            // Trigger animation
-            requestAnimationFrame(() => {
-                toast.classList.add('show');
             });
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => toast.remove(), 400);
-            }, 3000);
         }
 
-        function updateUploadProgress(percent) {
-            Elements.uploadProgress.style.width = `${percent}%`;
-        }
-
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function showSection(section) {
-            // Placeholder for future section navigation
-            showToast(`${section} section coming soon`, 'info');
+        // Fullscreen
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+                stage.classList.add('cursor-hidden');
+            } else {
+                document.exitFullscreen();
+                stage.classList.remove('cursor-hidden');
+            }
         }
 
         // Event Listeners
         function setupEventListeners() {
-            // File input
-            Elements.fileInput.addEventListener('change', (e) => processFiles(e.target.files));
-
-            // Drag and drop
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                Elements.uploadArea.addEventListener(eventName, preventDefaults, false);
-            });
-
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-
-            Elements.uploadArea.addEventListener('dragenter', () => {
-                Elements.uploadArea.classList.add('dragover');
-            });
-
-            Elements.uploadArea.addEventListener('dragleave', () => {
-                Elements.uploadArea.classList.remove('dragover');
-            });
-
-            Elements.uploadArea.addEventListener('drop', (e) => {
-                Elements.uploadArea.classList.remove('dragover');
-                processFiles(e.dataTransfer.files);
-            });
-
-            // Header scroll effect
-            let lastScroll = 0;
-            window.addEventListener('scroll', () => {
-                const currentScroll = window.pageYOffset;
-                
-                if (currentScroll > 100) {
-                    Elements.header.classList.add('scrolled');
-                } else {
-                    Elements.header.classList.remove('scrolled');
-                }
-                
-                lastScroll = currentScroll;
-            });
-
-            // Keyboard navigation
+            // Keyboard
             document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape') {
-                    closeModal();
-                } else if (Elements.modal.classList.contains('active')) {
-                    if (e.key === 'ArrowLeft') changeModalImage(-1);
-                    if (e.key === 'ArrowRight') changeModalImage(1);
-                } else if (AppState.currentView === 'slideshow') {
-                    if (e.key === 'ArrowLeft') flipPrevPage();
-                    if (e.key === 'ArrowRight') flipNextPage();
-                    if (e.key === ' ') {
-                        e.preventDefault();
-                        toggleAutoPlay();
-                    }
+                if (e.key === 'ArrowRight') {
+                    nextSlide();
+                    if (isPlaying) stopAutoPlay();
+                } else if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                    if (isPlaying) stopAutoPlay();
+                } else if (e.key === ' ') {
+                    e.preventDefault();
+                    togglePlay();
+                } else if (e.key === 'f') {
+                    toggleFullscreen();
                 }
             });
 
-            // Touch gestures for slideshow
-            Elements.slideshow.addEventListener('touchstart', (e) => {
-                AppState.touchStartX = e.changedTouches[0].screenX;
+            // Touch/Swipe
+            stage.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
             }, { passive: true });
 
-            Elements.slideshow.addEventListener('touchend', (e) => {
-                const touchEndX = e.changedTouches[0].screenX;
-                const diff = AppState.touchStartX - touchEndX;
-                
-                if (Math.abs(diff) > 50) {
-                    if (diff > 0) flipNextPage();
-                    else flipPrevPage();
-                }
+            stage.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
             }, { passive: true });
 
-            // Pause auto-play on hover
-            Elements.slideshow.addEventListener('mouseenter', stopAutoPlay);
-            Elements.slideshow.addEventListener('mouseleave', () => {
-                if (AppState.autoPlay && AppState.currentView === 'slideshow') {
-                    startAutoPlay();
+            // Mouse wheel
+            let wheelTimeout;
+            stage.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                clearTimeout(wheelTimeout);
+                wheelTimeout = setTimeout(() => {
+                    if (e.deltaY > 0) nextSlide();
+                    else prevSlide();
+                    if (isPlaying) stopAutoPlay();
+                }, 50);
+            }, { passive: false });
+
+            // Cursor hide in fullscreen
+            document.addEventListener('mousemove', () => {
+                if (document.fullscreenElement) {
+                    stage.classList.remove('cursor-hidden');
+                    clearTimeout(cursorTimeout);
+                    cursorTimeout = setTimeout(() => {
+                        stage.classList.add('cursor-hidden');
+                    }, 3000);
                 }
             });
 
-            // Visibility API - pause when tab hidden
+            // Visibility change
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
                     stopAutoPlay();
-                } else if (AppState.autoPlay && AppState.currentView === 'slideshow') {
+                } else if (isPlaying) {
                     startAutoPlay();
                 }
             });
         }
 
-        // Initialize when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
+        function handleSwipe() {
+            const diff = touchStartX - touchEndX;
+            const threshold = 50;
+
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) nextSlide();
+                else prevSlide();
+                if (isPlaying) stopAutoPlay();
+            }
         }
+
+        // Initialize on load
+        window.addEventListener('load', init);
     </script>
 </body>
 </html>
