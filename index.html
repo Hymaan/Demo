@@ -3,20 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LUMINA — Cinematic Slideshow</title>
+    <meta name="description" content="Personal Photo Gallery with persistent storage and elegant slideshow">
+    <meta name="author" content="Your Name">
+    <title>GALLERY - Photo Collection</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Inter:wght@300;400;500&display=swap');
-
-        :root {
-            --bg-dark: #0a0a0a;
-            --bg-light: #faf9f6;
-            --accent: #c4a77d;
-            --accent-glow: rgba(196, 167, 125, 0.3);
-            --text-primary: #1a1a1a;
-            --text-light: #f5f5f5;
-            --transition-cinematic: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-            --transition-smooth: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&family=Playfair+Display:wght@300;400;500;600&family=Cormorant+Garamond:wght@300;400;500&display=swap');
 
         * {
             margin: 0;
@@ -26,873 +17,1458 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--bg-dark);
-            color: var(--text-light);
-            overflow: hidden;
-            height: 100vh;
+            background: linear-gradient(135deg, #faf9f6 0%, #f5f3ef 50%, #f0ede7 100%);
+            color: #2c2c2c;
+            line-height: 1.6;
+            min-height: 100vh;
         }
 
-        /* Ambient Background */
-        .ambient-light {
-            position: fixed;
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 25px 0;
+            border-bottom: 1px solid rgba(44, 44, 44, 0.08);
+            position: sticky;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            background: radial-gradient(ellipse at 20% 50%, rgba(196, 167, 125, 0.15) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 50%, rgba(139, 115, 85, 0.1) 0%, transparent 50%);
-            animation: ambientPulse 8s ease-in-out infinite;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.02);
         }
 
-        @keyframes ambientPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 0.8; }
-        }
-
-        /* Main Slideshow Container */
-        .slideshow-stage {
-            position: relative;
-            width: 100vw;
-            height: 100vh;
+        .nav {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            perspective: 2000px;
-            overflow: hidden;
+            padding: 0 40px;
         }
 
-        /* Cinematic Frame */
-        .frame-container {
-            position: relative;
-            width: 85vw;
-            max-width: 1400px;
-            height: 75vh;
-            max-height: 900px;
-            transform-style: preserve-3d;
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 28px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #2c2c2c;
         }
 
-        /* The Film Strip */
-        .film-strip {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.1s linear;
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            align-items: center;
         }
 
-        /* Individual Slides */
-        .slide {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
+        .nav-link {
+            font-size: 11px;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: #8b8680;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            color: #2c2c2c;
+        }
+
+        .upload-btn {
+            background: linear-gradient(135deg, #8b8680 0%, #2c2c2c 100%);
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+            box-shadow: 0 4px 15px rgba(44, 44, 44, 0.15);
+        }
+
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(44, 44, 44, 0.2);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 40px;
+        }
+
+        .hero-section {
+            text-align: center;
+            margin-bottom: 80px;
+            padding: 40px 0;
+        }
+
+        .hero-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 52px;
+            font-weight: 300;
+            color: #2c2c2c;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .hero-subtitle {
+            font-size: 14px;
+            font-weight: 300;
+            color: #8b8680;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+
+        /* Enhanced Slideshow Styles */
+        .slideshow-wrapper {
+            display: none;
+            margin-bottom: 80px;
             opacity: 0;
-            transform: translateZ(-500px) rotateY(45deg) scale(0.8);
-            transition: var(--transition-cinematic);
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.5);
-            background: #1a1a1a;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
         }
 
-        .slide.active {
-            opacity: 1;
-            transform: translateZ(0) rotateY(0) scale(1);
-            z-index: 10;
-            box-shadow: 0 30px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(196, 167, 125, 0.1);
-        }
-
-        .slide.prev {
-            opacity: 0.3;
-            transform: translateX(-60%) translateZ(-300px) rotateY(35deg) scale(0.85);
-            z-index: 5;
-            filter: brightness(0.6);
-        }
-
-        .slide.next {
-            opacity: 0.3;
-            transform: translateX(60%) translateZ(-300px) rotateY(-35deg) scale(0.85);
-            z-index: 5;
-            filter: brightness(0.6);
-        }
-
-        .slide.far-prev {
-            opacity: 0;
-            transform: translateX(-100%) translateZ(-600px) rotateY(60deg) scale(0.7);
-            z-index: 1;
-        }
-
-        .slide.far-next {
-            opacity: 0;
-            transform: translateX(100%) translateZ(-600px) rotateY(-60deg) scale(0.7);
-            z-index: 1;
-        }
-
-        /* Image Container with Ken Burns Effect */
-        .slide-image-wrapper {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .slide img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 6s ease;
-        }
-
-        .slide.active img {
-            transform: scale(1.1);
-            animation: kenBurns 8s ease-out forwards;
-        }
-
-        @keyframes kenBurns {
-            0% { transform: scale(1.1) translate(0, 0); }
-            100% { transform: scale(1) translate(-2%, -1%); }
-        }
-
-        /* Slide Overlay with Gradient */
-        .slide-overlay {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(to top, 
-                rgba(0,0,0,0.9) 0%, 
-                rgba(0,0,0,0.4) 40%, 
-                transparent 100%);
-            opacity: 0;
-            transition: opacity 0.6s ease;
-        }
-
-        .slide.active .slide-overlay {
-            opacity: 1;
-        }
-
-        /* Slide Content */
-        .slide-content {
-            position: absolute;
-            bottom: 60px;
-            left: 60px;
-            right: 60px;
-            z-index: 20;
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.6s ease 0.3s;
-        }
-
-        .slide.active .slide-content {
+        .slideshow-wrapper.active {
+            display: block;
             opacity: 1;
             transform: translateY(0);
         }
 
-        .slide-number {
+        .slideshow-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .slideshow-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 24px;
+            font-weight: 300;
+            color: #2c2c2c;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .slideshow-subtitle {
+            font-size: 11px;
+            color: #8b8680;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .slideshow-container {
+            position: relative;
+            max-width: 1000px;
+            margin: 0 auto;
+            height: 650px;
+            perspective: 2000px;
+            background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
+            border-radius: 8px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        /* Book Cover */
+        .book-cover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3a3a3a 0%, #1a1a1a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            transform-origin: left center;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .book-cover.open {
+            transform: rotateY(-160deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .book-cover::before {
+            content: '';
+            position: absolute;
+            left: 20px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, 
+                rgba(196, 167, 125, 0.3) 0%, 
+                rgba(196, 167, 125, 0.6) 50%, 
+                rgba(196, 167, 125, 0.3) 100%);
+        }
+
+        .cover-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 300;
+            color: #f5f3ef;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(196, 167, 125, 0.5);
+            padding-bottom: 20px;
+        }
+
+        .cover-subtitle {
+            font-size: 12px;
+            color: #c4a77d;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+        }
+
+        .cover-hint {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 2px;
+            animation: pulse 2s infinite;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cover-hint::after {
+            content: '→';
+            font-size: 16px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(5px); }
+        }
+
+        /* Book Pages Container */
+        .book-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        .pages-wrapper {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+        }
+
+        /* Individual Page */
+        .page {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            top: 0;
+            right: 0;
+            background: #fff;
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 0 4px 4px 0;
+            overflow: hidden;
+            box-shadow: 
+                -5px 0 15px rgba(0,0,0,0.1),
+                inset 10px 0 20px rgba(0,0,0,0.02);
+            z-index: 1;
+        }
+
+        .page::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            background: linear-gradient(to right, rgba(0,0,0,0.05) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        /* Page States */
+        .page.flipped {
+            transform: rotateY(-180deg);
+            z-index: 0;
+        }
+
+        .page.flipping {
+            z-index: 50 !important;
+        }
+
+        .page.active {
+            z-index: 10;
+        }
+
+        /* Page Content */
+        .page-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            background: #fefefe;
+            position: relative;
+        }
+
+        .page-image-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 4px;
+            background: #f5f5f5;
+            position: relative;
+        }
+
+        .page-image-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.05);
+            pointer-events: none;
+        }
+
+        .page img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.6s ease;
+        }
+
+        .page:hover img {
+            transform: scale(1.02);
+        }
+
+        .page-info {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .page-number {
             font-family: 'Cormorant Garamond', serif;
             font-size: 14px;
+            color: #c4a77d;
             letter-spacing: 3px;
-            color: var(--accent);
-            margin-bottom: 15px;
-            text-transform: uppercase;
+            margin-bottom: 8px;
         }
 
-        .slide-title {
+        .page-title {
             font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(32px, 5vw, 56px);
-            font-weight: 300;
-            line-height: 1.1;
-            margin-bottom: 20px;
+            font-size: 22px;
+            font-weight: 400;
+            color: #2c2c2c;
+            margin-bottom: 5px;
+        }
+
+        .page-date {
+            font-size: 11px;
+            color: #8b8680;
             letter-spacing: 1px;
-        }
-
-        .slide-meta {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 12px;
-            letter-spacing: 1.5px;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.6);
         }
 
-        .slide-meta span {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .slide-meta::before {
-            content: '';
-            width: 40px;
-            height: 1px;
-            background: var(--accent);
+        /* Book Spine */
+        .book-spine {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                #3a3a3a 0%, 
+                #2c2c2c 50%, 
+                #3a3a3a 100%);
+            z-index: 5;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.3);
         }
 
         /* Navigation Controls */
-        .nav-controls {
-            position: fixed;
-            bottom: 40px;
+        .slideshow-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            color: #2c2c2c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 200;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .slideshow-nav:hover {
+            background: #2c2c2c;
+            color: white;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .slideshow-nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: translateY(-50%);
+        }
+
+        .slideshow-nav.prev {
+            left: -25px;
+        }
+
+        .slideshow-nav.next {
+            right: -25px;
+        }
+
+        /* Bottom Controls */
+        .slideshow-controls {
+            position: absolute;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             align-items: center;
-            gap: 30px;
-            z-index: 100;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(20px);
-            padding: 20px 40px;
-            border-radius: 50px;
-            border: 1px solid rgba(196, 167, 125, 0.2);
+            gap: 25px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px 30px;
+            border-radius: 30px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            z-index: 200;
         }
 
-        .nav-btn {
-            background: transparent;
+        .control-btn {
+            background: none;
             border: none;
-            color: var(--text-light);
             cursor: pointer;
+            font-size: 16px;
+            color: #8b8680;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(0,0,0,0.05);
+            color: #2c2c2c;
+        }
+
+        .control-btn.active {
+            color: #c4a77d;
+            background: rgba(196, 167, 125, 0.1);
+        }
+
+        .page-indicator {
+            font-size: 13px;
+            color: #2c2c2c;
+            letter-spacing: 2px;
+            min-width: 80px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: #c4a77d;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* Gallery Styles */
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .toggle-btn {
+            background: transparent;
+            border: 1px solid rgba(139, 134, 128, 0.3);
+            color: #8b8680;
+            padding: 8px 20px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .toggle-btn.active, .toggle-btn:hover {
+            background: #8b8680;
+            color: white;
+            border-color: #8b8680;
+        }
+
+        .upload-area {
+            border: 2px dashed rgba(139, 134, 128, 0.3);
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 60px 40px;
+            text-align: center;
+            margin-bottom: 60px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #8b8680;
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .upload-icon {
+            font-size: 28px;
+            color: #c4bfb8;
+            margin-bottom: 20px;
+        }
+
+        .upload-text {
+            font-size: 13px;
+            color: #8b8680;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            font-size: 11px;
+            color: #a39d95;
+            font-weight: 300;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-top: 60px;
+        }
+
+        .photo-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-radius: 6px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+        }
+
+        .photo-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .photo-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            min-height: 200px;
+            max-height: 500px;
+            overflow: hidden;
+        }
+
+        .photo-card img {
+            max-width: 100%;
+            max-height: 500px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            transition: all 0.4s ease;
+        }
+
+        .photo-card:hover img {
+            transform: scale(1.02);
+        }
+
+        .photo-info {
+            padding: 25px 20px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .photo-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+
+        .photo-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 48px;
+            font-weight: 300;
+            color: rgba(139, 134, 128, 0.2);
+            line-height: 1;
+        }
+
+        .photo-date {
+            font-size: 10px;
+            color: #a39d95;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        .photo-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-weight: 400;
+            color: #2c2c2c;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        .photo-description {
+            font-size: 11px;
+            color: #8b8680;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(44, 44, 44, 0.8);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.3s ease;
+            border-radius: 50%;
+            backdrop-filter: blur(10px);
+        }
+
+        .photo-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: rgba(44, 44, 44, 1);
+            transform: scale(1.1);
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 120px 20px;
+            color: #a39d95;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 30px;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 15px;
+            color: #8b8680;
+        }
+
+        .empty-subtitle {
+            font-size: 12px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: #a39d95;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(250, 249, 246, 0.98);
+            backdrop-filter: blur(20px);
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.15);
+        }
+
+        .modal img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+            background: #fff;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+            color: #2c2c2c;
+            font-size: 32px;
+            cursor: pointer;
+            z-index: 2001;
+            font-weight: 100;
+            background: rgba(255, 255, 255, 0.9);
             width: 50px;
             height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            transition: var(--transition-smooth);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .nav-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: var(--accent);
-            border-radius: 50%;
-            transform: scale(0);
-            transition: transform 0.3s ease;
-        }
-
-        .nav-btn:hover::before {
-            transform: scale(1);
-        }
-
-        .nav-btn span {
-            position: relative;
-            z-index: 1;
-            transition: transform 0.3s ease;
-        }
-
-        .nav-btn:hover span {
-            transform: scale(1.2);
-            color: var(--bg-dark);
-        }
-
-        .nav-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Progress Indicator */
-        .progress-ring {
-            width: 60px;
-            height: 60px;
-            position: relative;
-        }
-
-        .progress-ring svg {
-            transform: rotate(-90deg);
-        }
-
-        .progress-ring circle {
-            fill: none;
-            stroke-width: 2;
-        }
-
-        .progress-ring .bg {
-            stroke: rgba(255,255,255,0.1);
-        }
-
-        .progress-ring .progress {
-            stroke: var(--accent);
-            stroke-dasharray: 157;
-            stroke-dashoffset: 157;
-            transition: stroke-dashoffset 0.1s linear;
-        }
-
-        .play-pause {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: none;
-            border: none;
-            color: white;
-            font-size: 16px;
-            cursor: pointer;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Thumbnail Strip */
-        .thumbnail-strip {
-            position: fixed;
-            right: 40px;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            z-index: 100;
-        }
-
-        .thumb {
-            width: 60px;
-            height: 45px;
-            border-radius: 4px;
-            overflow: hidden;
-            cursor: pointer;
-            opacity: 0.4;
-            transition: var(--transition-smooth);
-            border: 2px solid transparent;
-            position: relative;
-        }
-
-        .thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.3s ease;
-        }
-
-        .thumb.active {
-            opacity: 1;
-            border-color: var(--accent);
-            transform: scale(1.2);
-            box-shadow: 0 5px 20px rgba(196, 167, 125, 0.3);
-        }
-
-        .thumb:hover {
-            opacity: 0.8;
-            transform: scale(1.1);
-        }
-
-        .thumb:hover img {
-            transform: scale(1.1);
-        }
-
-        .thumb::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.5));
-            pointer-events: none;
-        }
-
-        /* Top Info Bar */
-        .top-bar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            padding: 30px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            z-index: 100;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
-        }
-
-        .logo {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 24px;
-            letter-spacing: 4px;
-            font-weight: 300;
-            color: var(--text-light);
-        }
-
-        .slide-counter {
-            font-size: 12px;
-            letter-spacing: 2px;
-            color: rgba(255,255,255,0.6);
-        }
-
-        .slide-counter span {
-            color: var(--accent);
-            font-size: 18px;
-            font-weight: 500;
-        }
-
-        /* Fullscreen Toggle */
-        .fullscreen-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: var(--transition-smooth);
             backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
 
-        .fullscreen-btn:hover {
-            background: var(--accent);
-            border-color: var(--accent);
-            color: var(--bg-dark);
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.1);
         }
 
-        /* Loading State */
-        .loader {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            border: 2px solid rgba(196, 167, 125, 0.2);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            z-index: 1000;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
+        #fileInput {
+            display: none;
         }
 
-        .loader.visible {
-            opacity: 1;
+        .section-divider {
+            width: 80px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #c4bfb8, transparent);
+            margin: 60px auto;
         }
 
-        @keyframes spin {
-            to { transform: translate(-50%, -50%) rotate(360deg); }
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 80px;
+            margin-bottom: 40px;
         }
 
-        /* Transition Effects */
-        .fade-transition .slide {
-            transition: opacity 0.8s ease, transform 0.8s ease;
+        .stat-item {
+            text-align: center;
         }
 
-        .zoom-transition .slide.active img {
-            animation: zoomPulse 6s ease-out forwards;
+        .stat-number {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 32px;
+            font-weight: 300;
+            color: #2c2c2c;
+            margin-bottom: 8px;
         }
 
-        @keyframes zoomPulse {
-            0% { transform: scale(1.2); }
-            50% { transform: scale(1); }
-            100% { transform: scale(1.05); }
-        }
-
-        /* Keyboard Hint */
-        .keyboard-hint {
-            position: fixed;
-            bottom: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 11px;
-            color: rgba(255,255,255,0.4);
-            letter-spacing: 2px;
+        .stat-label {
+            font-size: 10px;
             text-transform: uppercase;
-            opacity: 0;
-            transition: opacity 0.3s;
+            letter-spacing: 2px;
+            color: #a39d95;
+            font-weight: 400;
         }
 
-        .slideshow-stage:hover .keyboard-hint {
-            opacity: 1;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .frame-container {
-                width: 95vw;
-                height: 60vh;
+            .nav {
+                padding: 0 20px;
             }
-
-            .slide-content {
-                bottom: 30px;
-                left: 30px;
-                right: 30px;
+            
+            .container {
+                padding: 40px 20px;
             }
-
-            .slide-title {
-                font-size: 24px;
+            
+            .hero-title {
+                font-size: 36px;
             }
-
-            .thumbnail-strip {
-                right: 15px;
-                gap: 10px;
+            
+            .stats {
+                gap: 40px;
             }
-
-            .thumb {
-                width: 45px;
-                height: 35px;
+            
+            .gallery {
+                grid-template-columns: 1fr;
+                gap: 30px;
             }
-
-            .nav-controls {
-                bottom: 20px;
-                padding: 15px 25px;
+            
+            .nav-links {
                 gap: 20px;
             }
 
-            .top-bar {
+            .nav-link {
+                display: none;
+            }
+
+            .slideshow-container {
+                height: 450px;
+            }
+
+            .page-content {
                 padding: 20px;
             }
-        }
 
-        /* Hide cursor in fullscreen after inactivity */
-        .cursor-hidden {
-            cursor: none;
-        }
+            .slideshow-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
 
-        .cursor-hidden .nav-controls,
-        .cursor-hidden .thumbnail-strip,
-        .cursor-hidden .top-bar {
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
+            .slideshow-nav.prev { left: 10px; }
+            .slideshow-nav.next { right: 10px; }
 
-        .slideshow-stage:hover .nav-controls,
-        .slideshow-stage:hover .thumbnail-strip,
-        .slideshow-stage:hover .top-bar {
-            opacity: 1;
+            .cover-title {
+                font-size: 32px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="ambient-light"></div>
-    <div class="loader" id="loader"></div>
-
-    <div class="top-bar">
-        <div class="logo">Lumina</div>
-        <div class="slide-counter">
-            <span id="currentNum">01</span> / <span id="totalNum">05</span>
-        </div>
-        <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen">
-            ⛶
-        </button>
+    <div class="header">
+        <nav class="nav">
+            <div class="logo">Gallery</div>
+            <div class="nav-links">
+                <a href="#" class="nav-link active">Collections</a>
+                <a href="#" class="nav-link">Archive</a>
+                <a href="#" class="nav-link">About</a>
+                <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                    Upload
+                </button>
+            </div>
+        </nav>
     </div>
 
-    <div class="slideshow-stage" id="stage">
-        <div class="frame-container">
-            <div class="film-strip" id="filmStrip">
-                <!-- Slides will be injected here -->
+    <div class="container">
+        <div class="hero-section">
+            <h1 class="hero-title">Personal Collection</h1>
+            <p class="hero-subtitle">Curated Visual Stories</p>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="photoCount">00</div>
+                    <div class="stat-label">Images</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="storageSize">0.0</div>
+                    <div class="stat-label">MB Storage</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="currentDate">2025</div>
+                    <div class="stat-label">Est.</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="view-toggle">
+            <button class="toggle-btn" id="slideshowToggle" onclick="toggleView('slideshow')">Slideshow</button>
+            <button class="toggle-btn active" id="galleryToggle" onclick="toggleView('gallery')">Gallery</button>
+        </div>
+
+        <!-- Enhanced Slideshow Section -->
+        <div class="slideshow-wrapper" id="slideshowWrapper">
+            <div class="slideshow-header">
+                <h2 class="slideshow-title">Your Photo Book</h2>
+                <p class="slideshow-subtitle">Click cover to open</p>
+            </div>
+            
+            <div class="slideshow-container" id="slideshow">
+                <div class="book-container" id="bookContainer">
+                    <!-- Book Cover -->
+                    <div class="book-cover" id="bookCover" onclick="openBook()">
+                        <div class="cover-title">Memories</div>
+                        <div class="cover-subtitle">Personal Collection</div>
+                        <div class="cover-hint">Click to Open</div>
+                    </div>
+                    
+                    <!-- Pages Container -->
+                    <div class="pages-wrapper" id="pagesWrapper">
+                        <div class="book-spine"></div>
+                    </div>
+                </div>
+                
+                <!-- Navigation -->
+                <button class="slideshow-nav prev" id="prevBtn" onclick="flipPrevPage()" disabled>‹</button>
+                <button class="slideshow-nav next" id="nextBtn" onclick="flipNextPage()" disabled>›</button>
+                
+                <!-- Controls -->
+                <div class="slideshow-controls">
+                    <button class="control-btn" id="playPauseBtn" onclick="toggleAutoPlay()" title="Auto-play">▶</button>
+                    <span class="page-indicator" id="pageIndicator">0 / 0</span>
+                    <button class="control-btn" onclick="resetBook()" title="Close book">✕</button>
+                </div>
+                
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+            <div class="upload-icon">⊕</div>
+            <div class="upload-text">Add to Collection</div>
+            <div class="upload-subtext">Drag images here or click to browse</div>
+        </div>
+
+        <input type="file" id="fileInput" multiple accept="image/*">
+
+        <div class="section-divider"></div>
+
+        <div class="gallery" id="gallery">
+            <div class="empty-state">
+                <div class="empty-icon">◯</div>
+                <div class="empty-title">Begin Your Collection</div>
+                <div class="empty-subtitle">Upload your first image to start</div>
             </div>
         </div>
     </div>
 
-    <!-- Thumbnail Navigation -->
-    <div class="thumbnail-strip" id="thumbnails"></div>
-
-    <!-- Bottom Controls -->
-    <div class="nav-controls">
-        <button class="nav-btn" onclick="prevSlide()" title="Previous (←)">
-            <span>‹</span>
-        </button>
-
-        <div class="progress-ring">
-            <svg width="60" height="60">
-                <circle class="bg" cx="30" cy="30" r="25"></circle>
-                <circle class="progress" id="progressCircle" cx="30" cy="30" r="25"></circle>
-            </svg>
-            <button class="play-pause" id="playPauseBtn" onclick="togglePlay()">
-                ❚❚
-            </button>
+    <div class="modal" id="modal">
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+        <div class="modal-content">
+            <img id="modalImg">
         </div>
-
-        <button class="nav-btn" onclick="nextSlide()" title="Next (→)">
-            <span>›</span>
-        </button>
     </div>
 
-    <div class="keyboard-hint">Use ← → arrow keys or swipe to navigate</div>
-
     <script>
-        // Slideshow Data - Replace with your images
-        const slidesData = [
-            {
-                src: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80',
-                title: 'Mountain Whispers',
-                location: 'Swiss Alps',
-                date: 'Winter 2024'
-            },
-            {
-                src: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=1920&q=80',
-                title: 'Urban Solitude',
-                location: 'Tokyo, Japan',
-                date: 'Spring 2024'
-            },
-            {
-                src: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80',
-                title: 'Forest Dreams',
-                location: 'Black Forest',
-                date: 'Autumn 2023'
-            },
-            {
-                src: 'https://images.unsplash.com/photo-1439066615861-d1af74d74000?w=1920&q=80',
-                title: 'Ocean Memories',
-                location: 'Big Sur, California',
-                date: 'Summer 2023'
-            },
-            {
-                src: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=1920&q=80',
-                title: 'Morning Mist',
-                location: 'Scottish Highlands',
-                date: 'Winter 2023'
-            }
-        ];
+        // State Management
+        let photos = [];
+        let totalSize = 0;
+        let currentSlide = 0;
+        let isBookOpen = false;
+        let autoPlayInterval = null;
+        let progressInterval = null;
+        let db;
+        let currentView = 'gallery';
 
-        // State
-        let currentIndex = 0;
-        let isPlaying = true;
-        let autoPlayInterval;
-        let progressInterval;
-        let slideDuration = 5000; // 5 seconds per slide
-        let touchStartX = 0;
-        let touchEndX = 0;
-        let cursorTimeout;
-
-        // Elements
-        const filmStrip = document.getElementById('filmStrip');
-        const thumbnails = document.getElementById('thumbnails');
-        const currentNum = document.getElementById('currentNum');
-        const totalNum = document.getElementById('totalNum');
-        const progressCircle = document.getElementById('progressCircle');
+        // DOM Elements
+        const fileInput = document.getElementById('fileInput');
+        const gallery = document.getElementById('gallery');
+        const slideshowWrapper = document.getElementById('slideshowWrapper');
+        const bookCover = document.getElementById('bookCover');
+        const pagesWrapper = document.getElementById('pagesWrapper');
+        const modal = document.getElementById('modal');
+        const modalImg = document.getElementById('modalImg');
+        const photoCountEl = document.getElementById('photoCount');
+        const storageSizeEl = document.getElementById('storageSize');
+        const uploadArea = document.querySelector('.upload-area');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageIndicator = document.getElementById('pageIndicator');
         const playPauseBtn = document.getElementById('playPauseBtn');
-        const loader = document.getElementById('loader');
-        const stage = document.getElementById('stage');
+        const progressBar = document.getElementById('progressBar');
 
-        // Initialize
-        function init() {
-            renderSlides();
-            renderThumbnails();
-            updateCounter();
-            startAutoPlay();
-            setupEventListeners();
-            preloadImages();
+        document.getElementById('currentDate').textContent = new Date().getFullYear();
+
+        // Initialize IndexedDB
+        function initIndexedDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('PhotoGalleryDB', 2);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    db = request.result;
+                    resolve(db);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    db = event.target.result;
+                    if (!db.objectStoreNames.contains('photos')) {
+                        const photosStore = db.createObjectStore('photos', { keyPath: 'id' });
+                        photosStore.createIndex('uploadDate', 'uploadDate', { unique: false });
+                    }
+                    if (!db.objectStoreNames.contains('settings')) {
+                        db.createObjectStore('settings', { keyPath: 'key' });
+                    }
+                };
+            });
         }
 
-        function renderSlides() {
-            filmStrip.innerHTML = slidesData.map((slide, index) => `
-                <div class="slide ${index === 0 ? 'active' : ''}" data-index="${index}">
-                    <div class="slide-image-wrapper">
-                        <img src="${slide.src}" alt="${slide.title}" loading="${index < 2 ? 'eager' : 'lazy'}">
-                    </div>
-                    <div class="slide-overlay"></div>
-                    <div class="slide-content">
-                        <div class="slide-number">${String(index + 1).padStart(2, '0')} — ${slide.date}</div>
-                        <h2 class="slide-title">${slide.title}</h2>
-                        <div class="slide-meta">
-                            <span>📍 ${slide.location}</span>
+        function savePhotoToDB(photo) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['photos'], 'readwrite');
+                const store = transaction.objectStore('photos');
+                const request = store.put(photo);
+                request.onsuccess = () => resolve(photo);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function loadPhotosFromDB() {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['photos'], 'readonly');
+                const store = transaction.objectStore('photos');
+                const request = store.getAll();
+                request.onsuccess = () => {
+                    const loadedPhotos = request.result || [];
+                    loadedPhotos.sort((a, b) => new Date(a.uploadDate) - new Date(b.uploadDate));
+                    resolve(loadedPhotos);
+                };
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        function deletePhotoFromDB(photoId) {
+            return new Promise((resolve, reject) => {
+                const transaction = db.transaction(['photos'], 'readwrite');
+                const store = transaction.objectStore('photos');
+                const request = store.delete(photoId);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // File Handling
+        fileInput.addEventListener('change', handleFiles);
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('dragover'));
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            handleFiles({ target: { files: e.dataTransfer.files } });
+        });
+
+        async function handleFiles(event) {
+            const files = Array.from(event.target.files);
+            for (const file of files) {
+                if (file.type.startsWith('image/')) {
+                    try {
+                        await processImageFile(file);
+                    } catch (error) {
+                        console.error('Error processing file:', error);
+                    }
+                }
+            }
+            fileInput.value = '';
+        }
+
+        function processImageFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = async function(e) {
+                    const photo = {
+                        id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                        name: file.name.replace(/\.[^/.]+$/, ""),
+                        src: e.target.result,
+                        size: file.size,
+                        uploadDate: new Date().toISOString(),
+                        date: new Date().toLocaleDateString('en-US', { 
+                            month: 'short', day: 'numeric', year: 'numeric'
+                        }),
+                        uploadTime: new Date().toLocaleDateString('en-US', { 
+                            month: 'long', year: 'numeric'
+                        })
+                    };
+                    
+                    try {
+                        await savePhotoToDB(photo);
+                        photos.push(photo);
+                        totalSize += file.size;
+                        renderGallery();
+                        renderSlideshow();
+                        updateStats();
+                        resolve(photo);
+                    } catch (error) {
+                        reject(error);
+                    }
+                };
+                reader.onerror = () => reject(new Error('File read error'));
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // View Toggle
+        function toggleView(view) {
+            const slideshowToggle = document.getElementById('slideshowToggle');
+            const galleryToggle = document.getElementById('galleryToggle');
+            
+            if (view === 'slideshow' && photos.length > 0) {
+                currentView = 'slideshow';
+                slideshowWrapper.classList.add('active');
+                gallery.style.display = 'none';
+                slideshowToggle.classList.add('active');
+                galleryToggle.classList.remove('active');
+                renderSlideshow();
+            } else {
+                currentView = 'gallery';
+                slideshowWrapper.classList.remove('active');
+                gallery.style.display = 'grid';
+                slideshowToggle.classList.remove('active');
+                galleryToggle.classList.add('active');
+                stopAutoPlay();
+            }
+        }
+
+        // Slideshow Functions
+        function renderSlideshow() {
+            if (photos.length === 0) return;
+
+            // Clear existing pages except spine
+            const spine = pagesWrapper.querySelector('.book-spine');
+            pagesWrapper.innerHTML = '';
+            pagesWrapper.appendChild(spine);
+
+            // Create pages
+            photos.forEach((photo, index) => {
+                const page = document.createElement('div');
+                page.className = 'page';
+                page.setAttribute('data-page', index);
+                
+                page.innerHTML = `
+                    <div class="page-content">
+                        <div class="page-image-container">
+                            <img src="${photo.src}" alt="${photo.name}">
+                        </div>
+                        <div class="page-info">
+                            <div class="page-number">Page ${String(index + 1).padStart(2, '0')}</div>
+                            <div class="page-title">${photo.name || 'Untitled'}</div>
+                            <div class="page-date">${photo.date}</div>
                         </div>
                     </div>
-                </div>
-            `).join('');
-        }
-
-        function renderThumbnails() {
-            thumbnails.innerHTML = slidesData.map((slide, index) => `
-                <div class="thumb ${index === 0 ? 'active' : ''}" data-index="${index}" onclick="goToSlide(${index})">
-                    <img src="${slide.src}" alt="">
-                </div>
-            `).join('');
-        }
-
-        function updateClasses() {
-            const slides = document.querySelectorAll('.slide');
-            const thumbs = document.querySelectorAll('.thumb');
-
-            slides.forEach((slide, index) => {
-                slide.className = 'slide';
-                if (index === currentIndex) slide.classList.add('active');
-                else if (index === currentIndex - 1) slide.classList.add('prev');
-                else if (index === currentIndex + 1) slide.classList.add('next');
-                else if (index < currentIndex - 1) slide.classList.add('far-prev');
-                else if (index > currentIndex + 1) slide.classList.add('far-next');
+                `;
+                
+                pagesWrapper.appendChild(page);
             });
 
-            thumbs.forEach((thumb, index) => {
-                thumb.classList.toggle('active', index === currentIndex);
-            });
-
-            updateCounter();
+            currentSlide = 0;
+            isBookOpen = false;
+            bookCover.classList.remove('open');
+            bookCover.style.opacity = '1';
+            bookCover.style.pointerEvents = 'auto';
+            updatePageIndicator();
+            updateNavButtons();
         }
 
-        function updateCounter() {
-            currentNum.textContent = String(currentIndex + 1).padStart(2, '0');
-            totalNum.textContent = String(slidesData.length).padStart(2, '0');
-        }
-
-        function nextSlide() {
-            currentIndex = (currentIndex + 1) % slidesData.length;
-            updateClasses();
-            resetProgress();
-        }
-
-        function prevSlide() {
-            currentIndex = (currentIndex - 1 + slidesData.length) % slidesData.length;
-            updateClasses();
-            resetProgress();
-        }
-
-        function goToSlide(index) {
-            if (index === currentIndex) return;
-            currentIndex = index;
-            updateClasses();
-            resetProgress();
-            if (!isPlaying) startAutoPlay();
-        }
-
-        // Auto Play with Progress Ring
-        function startAutoPlay() {
-            if (autoPlayInterval) clearInterval(autoPlayInterval);
-            if (progressInterval) clearInterval(progressInterval);
-            
-            isPlaying = true;
-            playPauseBtn.textContent = '❚❚';
-            
-            let progress = 0;
-            const circumference = 2 * Math.PI * 25; // r=25
-            const step = circumference / (slideDuration / 50); // Update every 50ms
-            
-            progressInterval = setInterval(() => {
-                progress += step;
-                if (progress >= circumference) {
-                    progress = 0;
-                    nextSlide();
+        function openBook() {
+            if (photos.length === 0) return;
+            isBookOpen = true;
+            bookCover.classList.add('open');
+            setTimeout(() => {
+                bookCover.style.opacity = '0';
+                bookCover.style.pointerEvents = 'none';
+                updateNavButtons();
+                // Auto-start autoplay when book opens
+                if (!autoPlayInterval) {
+                    startAutoPlay();
                 }
-                progressCircle.style.strokeDashoffset = circumference - progress;
-            }, 50);
-
-            autoPlayInterval = setInterval(() => {
-                nextSlide();
-            }, slideDuration);
+            }, 400);
         }
 
-        function stopAutoPlay() {
-            isPlaying = false;
-            playPauseBtn.textContent = '▶';
-            clearInterval(autoPlayInterval);
-            clearInterval(progressInterval);
-            progressCircle.style.strokeDashoffset = 157; // Reset to empty
+        function resetBook() {
+            stopAutoPlay();
+            isBookOpen = false;
+            bookCover.style.opacity = '1';
+            bookCover.style.pointerEvents = 'auto';
+            bookCover.classList.remove('open');
+            
+            // Reset all pages
+            photos.forEach((_, index) => {
+                const page = document.querySelector(`[data-page="${index}"]`);
+                if (page) {
+                    page.classList.remove('flipped', 'active');
+                }
+            });
+            currentSlide = 0;
+            updatePageIndicator();
+            updateNavButtons();
         }
 
-        function togglePlay() {
-            if (isPlaying) stopAutoPlay();
-            else startAutoPlay();
+        function flipNextPage() {
+            if (!isBookOpen) {
+                openBook();
+                return;
+            }
+
+            if (currentSlide < photos.length - 1) {
+                const currentPage = document.querySelector(`[data-page="${currentSlide}"]`);
+                if (currentPage) {
+                    currentPage.classList.add('flipping');
+                    currentPage.classList.add('flipped');
+                    currentPage.classList.remove('active');
+                    
+                    setTimeout(() => {
+                        currentPage.classList.remove('flipping');
+                        currentSlide++;
+                        
+                        // Activate next page
+                        const nextPage = document.querySelector(`[data-page="${currentSlide}"]`);
+                        if (nextPage) nextPage.classList.add('active');
+                        
+                        updatePageIndicator();
+                        updateNavButtons();
+                    }, 400);
+                }
+            } else {
+                // Loop back to beginning
+                resetSlideshow();
+            }
         }
 
-        function resetProgress() {
-            if (isPlaying) {
-                clearInterval(autoPlayInterval);
-                clearInterval(progressInterval);
+        function flipPrevPage() {
+            if (!isBookOpen || currentSlide <= 0) return;
+
+            currentSlide--;
+            const currentPage = document.querySelector(`[data-page="${currentSlide}"]`);
+            
+            if (currentPage) {
+                currentPage.classList.add('flipping');
+                currentPage.classList.remove('flipped');
+                currentPage.classList.add('active');
+                
+                // Deactivate next page
+                const nextPage = document.querySelector(`[data-page="${currentSlide + 1}"]`);
+                if (nextPage) nextPage.classList.remove('active');
+                
+                setTimeout(() => {
+                    currentPage.classList.remove('flipping');
+                    updatePageIndicator();
+                    updateNavButtons();
+                }, 400);
+            }
+        }
+
+        function resetSlideshow() {
+            photos.forEach((_, index) => {
+                const page = document.querySelector(`[data-page="${index}"]`);
+                if (page) {
+                    page.classList.remove('flipped', 'active');
+                }
+            });
+            currentSlide = 0;
+            
+            // Activate first page
+            const firstPage = document.querySelector(`[data-page="0"]`);
+            if (firstPage) firstPage.classList.add('active');
+            
+            updatePageIndicator();
+            updateNavButtons();
+        }
+
+        function updatePageIndicator() {
+            pageIndicator.textContent = photos.length > 0 
+                ? `${currentSlide + 1} / ${photos.length}` 
+                : '0 / 0';
+        }
+
+        function updateNavButtons() {
+            prevBtn.disabled = !isBookOpen || currentSlide === 0;
+            nextBtn.disabled = !isBookOpen;
+        }
+
+        // Auto Play
+        function toggleAutoPlay() {
+            if (autoPlayInterval) {
+                stopAutoPlay();
+            } else {
                 startAutoPlay();
             }
         }
 
-        // Preload Images
-        function preloadImages() {
-            slidesData.forEach((slide, index) => {
-                if (index > 2) { // Don't preload first 3 (already loaded)
-                    const img = new Image();
-                    img.src = slide.src;
-                }
-            });
+        function startAutoPlay() {
+            if (!isBookOpen) {
+                openBook();
+                return;
+            }
+            
+            playPauseBtn.textContent = '⏸';
+            playPauseBtn.classList.add('active');
+            
+            // Progress bar animation
+            let progress = 0;
+            const duration = 4000; // 4 seconds per slide
+            const interval = 50;
+            const step = 100 / (duration / interval);
+            
+            progressInterval = setInterval(() => {
+                progress += step;
+                progressBar.style.width = `${Math.min(progress, 100)}%`;
+            }, interval);
+            
+            autoPlayInterval = setInterval(() => {
+                flipNextPage();
+                progress = 0;
+                progressBar.style.width = '0%';
+            }, duration);
         }
 
-        // Fullscreen
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-                stage.classList.add('cursor-hidden');
-            } else {
-                document.exitFullscreen();
-                stage.classList.remove('cursor-hidden');
+        function stopAutoPlay() {
+            playPauseBtn.textContent = '▶';
+            playPauseBtn.classList.remove('active');
+            clearInterval(autoPlayInterval);
+            clearInterval(progressInterval);
+            autoPlayInterval = null;
+            progressInterval = null;
+            progressBar.style.width = '0%';
+        }
+
+        // Gallery Functions
+        function renderGallery() {
+            if (photos.length === 0) {
+                gallery.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">◯</div>
+                        <div class="empty-title">Begin Your Collection</div>
+                        <div class="empty-subtitle">Upload your first image to start</div>
+                    </div>
+                `;
+                return;
             }
+
+            gallery.innerHTML = photos.map((photo, index) => `
+                <div class="photo-card">
+                    <div class="photo-container">
+                        <img src="${photo.src}" alt="${photo.name}" onclick="openModal('${photo.src}')">
+                    </div>
+                    <button class="delete-btn" onclick="deletePhoto('${photo.id}')" title="Remove from collection">×</button>
+                    <div class="photo-info">
+                        <div class="photo-meta">
+                            <div class="photo-number">${String(index + 1).padStart(2, '0')}</div>
+                            <div class="photo-date">${photo.uploadTime}<br>Est. 2025</div>
+                        </div>
+                        <div class="photo-title">${photo.name}</div>
+                        <div class="photo-description">Added to personal collection on ${photo.date}.</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deletePhoto(id) {
+            const photoIndex = photos.findIndex(p => p.id === id);
+            if (photoIndex > -1) {
+                const photo = photos[photoIndex];
+                try {
+                    await deletePhotoFromDB(id);
+                    totalSize -= photo.size;
+                    photos.splice(photoIndex, 1);
+                    renderGallery();
+                    renderSlideshow();
+                    updateStats();
+                    
+                    if (photos.length === 0) {
+                        toggleView('gallery');
+                    }
+                    
+                    if (currentSlide >= photos.length && photos.length > 0) {
+                        currentSlide = photos.length - 1;
+                        updatePageIndicator();
+                    }
+                } catch (error) {
+                    console.error('Error deleting photo:', error);
+                }
+            }
+        }
+
+        function updateStats() {
+            photoCountEl.textContent = String(photos.length).padStart(2, '0');
+            storageSizeEl.textContent = (totalSize / (1024 * 1024)).toFixed(1);
+        }
+
+        function openModal(src) {
+            modalImg.src = src;
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
         }
 
         // Event Listeners
-        function setupEventListeners() {
-            // Keyboard
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'ArrowRight') {
-                    nextSlide();
-                    if (isPlaying) stopAutoPlay();
-                } else if (e.key === 'ArrowLeft') {
-                    prevSlide();
-                    if (isPlaying) stopAutoPlay();
-                } else if (e.key === ' ') {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (currentView === 'slideshow' && photos.length > 0) {
+                if (e.key === 'ArrowLeft') flipPrevPage();
+                else if (e.key === 'ArrowRight') flipNextPage();
+                else if (e.key === ' ') {
                     e.preventDefault();
-                    togglePlay();
-                } else if (e.key === 'f') {
-                    toggleFullscreen();
+                    toggleAutoPlay();
                 }
-            });
+                else if (e.key === 'Escape') resetBook();
+            }
+            if (e.key === 'Escape' && modal.style.display === 'block') {
+                closeModal();
+            }
+        });
 
-            // Touch/Swipe
-            stage.addEventListener('touchstart', (e) => {
-                touchStartX = e.changedTouches[0].screenX;
-            }, { passive: true });
+        // Touch support
+        let touchStartX = 0;
+        slideshowWrapper.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        });
 
-            stage.addEventListener('touchend', (e) => {
-                touchEndX = e.changedTouches[0].screenX;
-                handleSwipe();
-            }, { passive: true });
-
-            // Mouse wheel
-            let wheelTimeout;
-            stage.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                clearTimeout(wheelTimeout);
-                wheelTimeout = setTimeout(() => {
-                    if (e.deltaY > 0) nextSlide();
-                    else prevSlide();
-                    if (isPlaying) stopAutoPlay();
-                }, 50);
-            }, { passive: false });
-
-            // Cursor hide in fullscreen
-            document.addEventListener('mousemove', () => {
-                if (document.fullscreenElement) {
-                    stage.classList.remove('cursor-hidden');
-                    clearTimeout(cursorTimeout);
-                    cursorTimeout = setTimeout(() => {
-                        stage.classList.add('cursor-hidden');
-                    }, 3000);
-                }
-            });
-
-            // Visibility change
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    stopAutoPlay();
-                } else if (isPlaying) {
-                    startAutoPlay();
-                }
-            });
-        }
-
-        function handleSwipe() {
+        slideshowWrapper.addEventListener('touchend', (e) => {
+            const touchEndX = e.changedTouches[0].screenX;
             const diff = touchStartX - touchEndX;
-            const threshold = 50;
+            if (Math.abs(diff) > 50) {
+                if (diff > 0) flipNextPage();
+                else flipPrevPage();
+            }
+        });
 
-            if (Math.abs(diff) > threshold) {
-                if (diff > 0) nextSlide();
-                else prevSlide();
-                if (isPlaying) stopAutoPlay();
+        // Initialize
+        async function initializeApp() {
+            try {
+                await initIndexedDB();
+                const loadedPhotos = await loadPhotosFromDB();
+                photos = loadedPhotos;
+                totalSize = photos.reduce((sum, photo) => sum + (photo.size || 0), 0);
+                renderGallery();
+                updateStats();
+            } catch (error) {
+                console.error('Failed to initialize:', error);
             }
         }
 
-        // Initialize on load
-        window.addEventListener('load', init);
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
     </script>
 </body>
 </html>
