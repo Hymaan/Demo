@@ -14,59 +14,51 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");}
 
 /* ── HEADER ── */
-header{position:fixed;top:0;left:0;right:0;z-index:200;padding:22px 48px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(5,5,5,.96),transparent);backdrop-filter:blur(3px);transition:padding .4s,background .4s;}
+header{position:fixed;top:0;left:0;right:0;z-index:200;padding:22px 48px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(5,5,5,.95),transparent);backdrop-filter:blur(4px);transition:padding .4s,background .4s;}
 header.scrolled{padding:14px 48px;background:rgba(5,5,5,.98);}
-.logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;position:relative;text-decoration:none;}
-.logo em{font-style:italic;color:var(--white);font-weight:300;}
+.logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;text-decoration:none;position:relative;}
+.logo em{font-style:italic;color:var(--white);}
 .logo::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
-nav{display:flex;gap:32px;align-items:center;}
+nav{display:flex;gap:32px;}
 nav a{color:var(--muted);text-decoration:none;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;transition:color .3s;position:relative;padding-bottom:4px;}
 nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width .4s;}
 nav a:hover{color:var(--gold);}
 nav a:hover::after{width:100%;}
-
-/* SYNC DOT */
 #sync-wrap{display:flex;align-items:center;gap:8px;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
-#sync-dot{width:7px;height:7px;border-radius:50%;background:#444;flex-shrink:0;transition:background .5s,box-shadow .5s;}
-#sync-dot.connecting{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.5);animation:blink 1.2s ease-in-out infinite;}
+#sync-dot{width:7px;height:7px;border-radius:50%;background:#555;flex-shrink:0;transition:background .5s,box-shadow .5s;}
+#sync-dot.syncing{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.55);animation:blink 1.1s ease-in-out infinite;}
 #sync-dot.ok{background:#48bb78;box-shadow:0 0 7px rgba(72,187,120,.5);}
-#sync-dot.error{background:#e53e3e;box-shadow:0 0 7px rgba(229,62,62,.5);}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+#sync-dot.err{background:#e53e3e;box-shadow:0 0 7px rgba(229,62,62,.5);}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
 
-/* ── HERO ── */
+/* ── HERO — visible immediately, no JS needed ── */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;position:relative;z-index:1;}
-.hero-eye{font-size:.62rem;letter-spacing:.45em;color:var(--gold);text-transform:uppercase;margin-bottom:24px;animation:fadeUp .9s .2s both;}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3.8rem,9vw,8.5rem);font-weight:300;line-height:.92;letter-spacing:-.02em;animation:fadeUp .9s .45s both;}
+.hero-eye{font-size:.62rem;letter-spacing:.45em;color:var(--gold);text-transform:uppercase;margin-bottom:24px;animation:fadeUp .85s .15s both;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3.8rem,9vw,8.5rem);font-weight:300;line-height:.93;letter-spacing:-.02em;animation:fadeUp .85s .35s both;}
 .hero h1 em{font-style:italic;color:var(--gold);}
-.hero-sub{margin-top:28px;font-size:.78rem;letter-spacing:.14em;color:var(--muted);max-width:380px;line-height:1.8;animation:fadeUp .9s .7s both;}
-.hero-line{width:1px;height:72px;background:linear-gradient(to bottom,var(--gold),transparent);margin:44px auto 0;animation:fadeUp .9s .95s both;}
-.hero-cta{margin-top:14px;font-size:.6rem;letter-spacing:.3em;color:rgba(201,168,76,.45);text-transform:uppercase;animation:fadeUp .9s 1.15s both;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+.hero-sub{margin-top:28px;font-size:.78rem;letter-spacing:.14em;color:var(--muted);max-width:380px;line-height:1.8;animation:fadeUp .85s .55s both;}
+.hero-line{width:1px;height:70px;background:linear-gradient(to bottom,var(--gold),transparent);margin:42px auto 0;animation:fadeUp .85s .75s both;}
+.hero-cta{margin-top:12px;font-size:.6rem;letter-spacing:.3em;color:rgba(201,168,76,.4);text-transform:uppercase;animation:fadeUp .85s .95s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
-/* ── SECTIONS ── */
-section.content{padding:88px 48px;position:relative;z-index:1;}
+/* ── CONTENT SECTIONS — visible immediately ── */
+.sec{padding:88px 48px;position:relative;z-index:1;}
 .sec-eye{font-size:.6rem;letter-spacing:.45em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:14px;}
 .sec-title{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;text-align:center;margin-bottom:52px;letter-spacing:.04em;}
-
-/* reveal */
-.reveal{opacity:0;transform:translateY(28px);transition:opacity .75s cubic-bezier(.22,1,.36,1),transform .75s cubic-bezier(.22,1,.36,1);}
-.reveal.in{opacity:1;transform:translateY(0);}
 
 /* ── DROP ZONE ── */
 #drop-zone{max-width:680px;margin:0 auto;border:1px dashed rgba(201,168,76,.28);border-radius:3px;padding:68px 48px;text-align:center;position:relative;background:var(--card);transition:all .5s cubic-bezier(.22,1,.36,1);overflow:hidden;cursor:pointer;}
 #drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,var(--glow),transparent 70%);opacity:0;transition:opacity .4s;}
-#drop-zone.drag-over{border-color:var(--gold);box-shadow:0 0 50px var(--glow),inset 0 0 30px var(--glow);}
-#drop-zone.drag-over::before{opacity:1;}
-#drop-zone.drag-over .dz-icon{transform:scale(1.2) rotate(8deg);border-color:var(--gold);}
+#drop-zone.over{border-color:var(--gold);box-shadow:0 0 50px var(--glow),inset 0 0 30px var(--glow);}
+#drop-zone.over::before{opacity:1;}
 .dz-icon{width:54px;height:54px;border-radius:50%;border:1px solid rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;transition:transform .5s cubic-bezier(.22,1,.36,1),border-color .4s;}
+#drop-zone.over .dz-icon{transform:scale(1.18) rotate(8deg);border-color:var(--gold);}
 .dz-icon svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.3;}
 .dz-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:300;margin-bottom:8px;}
 .dz-sub{font-size:.7rem;color:var(--muted);letter-spacing:.09em;line-height:1.7;}
-.dz-btn{display:inline-block;margin-top:26px;padding:11px 34px;border:1px solid var(--gold);color:var(--gold);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;background:transparent;font-family:'Montserrat',sans-serif;position:relative;overflow:hidden;transition:color .4s;}
+.dz-btn{display:inline-flex;align-items:center;margin-top:26px;padding:11px 34px;border:1px solid var(--gold);color:var(--gold);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;background:transparent;font-family:'Montserrat',sans-serif;position:relative;overflow:hidden;transition:color .4s;}
 .dz-btn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform .4s cubic-bezier(.22,1,.36,1);}
 .dz-btn:hover::before{transform:translateX(0);}
 .dz-btn:hover{color:var(--black);}
@@ -77,9 +69,9 @@ section.content{padding:88px 48px;position:relative;z-index:1;}
 #stats-bar{max-width:680px;margin:20px auto 0;display:flex;gap:1px;}
 .stat{flex:1;background:var(--card2);padding:14px 16px;text-align:center;font-size:.62rem;letter-spacing:.14em;color:var(--muted);transition:background .3s;}
 .stat:hover{background:#1c1c1c;}
-.stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--gold);font-style:normal;}
-.stat.bump b{animation:bump .4s cubic-bezier(.22,1,.36,1);}
-@keyframes bump{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+.stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--gold);}
+.stat.bump b{animation:sbump .4s cubic-bezier(.22,1,.36,1);}
+@keyframes sbump{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
 
 /* CLOUD NOTICE */
 #cloud-notice{max-width:680px;margin:14px auto 0;padding:11px 18px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.14);display:flex;align-items:center;gap:10px;font-size:.66rem;letter-spacing:.07em;color:var(--muted);}
@@ -90,10 +82,10 @@ section.content{padding:88px 48px;position:relative;z-index:1;}
 .filter-tabs{display:flex;gap:2px;}
 .ftab{padding:9px 22px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .3s;font-family:'Montserrat',sans-serif;}
 .ftab.active,.ftab:hover{border-color:var(--gold);color:var(--gold);}
-.ctrl-right{display:flex;gap:8px;align-items:center;}
+.ctrl-r{display:flex;gap:8px;align-items:center;}
 select.srt{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:9px 18px;font-size:.63rem;letter-spacing:.09em;cursor:pointer;font-family:'Montserrat',sans-serif;outline:none;appearance:none;}
 select.srt:hover{border-color:rgba(201,168,76,.3);}
-.vtoggle{display:flex;gap:1px;}
+.vtog{display:flex;gap:1px;}
 .vbtn{width:38px;height:38px;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .3s;}
 .vbtn.active,.vbtn:hover{background:var(--card);color:var(--gold);}
 .vbtn svg{width:16px;height:16px;fill:currentColor;}
@@ -104,37 +96,37 @@ select.srt:hover{border-color:rgba(201,168,76,.3);}
 #gallery.masonry .card{break-inside:avoid;margin-bottom:14px;}
 
 /* CARD */
-.card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;animation:cardIn .55s cubic-bezier(.22,1,.36,1) both;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s,border-color .4s,opacity .35s;}
-.card:hover{transform:translateY(-7px) scale(1.018);border-color:rgba(201,168,76,.32);box-shadow:0 28px 60px rgba(0,0,0,.8),0 0 35px rgba(201,168,76,.07);}
-@keyframes cardIn{from{opacity:0;transform:translateY(28px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+.card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;animation:cardIn .55s cubic-bezier(.22,1,.36,1) both;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s,border-color .4s;}
+.card:hover{transform:translateY(-6px) scale(1.015);border-color:rgba(201,168,76,.3);box-shadow:0 24px 55px rgba(0,0,0,.75),0 0 30px rgba(201,168,76,.06);}
+@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
 .card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:transform .7s cubic-bezier(.22,1,.36,1),filter .5s;filter:brightness(.87) saturate(.72);}
 #gallery.masonry .card img{aspect-ratio:unset;height:auto;}
-.card:hover img{transform:scale(1.07);filter:brightness(1) saturate(1.05);}
-.card-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,.22) 52%,transparent);opacity:0;transition:opacity .4s;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;}
+.card:hover img{transform:scale(1.07);filter:brightness(1) saturate(1.04);}
+.card-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,.2) 52%,transparent);opacity:0;transition:opacity .4s;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;}
 .card:hover .card-ov{opacity:1;}
 .card-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;transform:translateY(12px);transition:transform .4s cubic-bezier(.22,1,.36,1) .03s;}
 .card-date{font-size:.6rem;letter-spacing:.09em;color:var(--muted);transform:translateY(12px);transition:transform .4s cubic-bezier(.22,1,.36,1) .08s;}
 .card:hover .card-name,.card:hover .card-date{transform:translateY(0);}
-.card-acts{position:absolute;top:12px;right:12px;display:flex;gap:5px;opacity:0;transform:translateY(-9px);transition:opacity .38s,transform .38s cubic-bezier(.22,1,.36,1);}
+.card-acts{position:absolute;top:12px;right:12px;display:flex;gap:5px;opacity:0;transform:translateY(-8px);transition:opacity .35s,transform .35s cubic-bezier(.22,1,.36,1);}
 .card:hover .card-acts{opacity:1;transform:translateY(0);}
-.cbtn{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--white);backdrop-filter:blur(8px);transition:all .3s cubic-bezier(.22,1,.36,1);}
-.cbtn:hover{background:var(--gold);border-color:var(--gold);color:var(--black);transform:scale(1.14);}
+.cbtn{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--white);backdrop-filter:blur(8px);transition:all .3s cubic-bezier(.22,1,.36,1);}
+.cbtn:hover{background:var(--gold);border-color:var(--gold);color:var(--black);transform:scale(1.13);}
 .cbtn svg{width:13px;height:13px;fill:currentColor;}
 .cbtn.faved svg{fill:#e53e3e;}
 .cbtn.faved{border-color:rgba(229,62,62,.4);}
 .cbtn.del-btn:hover{background:#c0392b;border-color:#c0392b;color:#fff;}
 
 /* EMPTY */
-#empty{grid-column:1/-1;text-align:center;padding:90px 20px;}
+#empty{grid-column:1/-1;text-align:center;padding:90px 20px;display:none;}
 .empty-ico{font-size:2.8rem;margin-bottom:14px;opacity:.2;animation:pulse 3s ease-in-out infinite;}
 @keyframes pulse{0%,100%{opacity:.2}50%{opacity:.45}}
 .empty-txt{font-family:'Cormorant Garamond',serif;font-size:1.75rem;color:var(--muted);font-weight:300;}
 .empty-s{font-size:.7rem;color:rgba(245,240,235,.18);letter-spacing:.09em;margin-top:7px;}
 
 /* LIGHTBOX */
-#lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .5s cubic-bezier(.22,1,.36,1);}
+#lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s cubic-bezier(.22,1,.36,1);}
 #lb.open{opacity:1;pointer-events:all;backdrop-filter:blur(18px);}
-.lb-box{max-width:90vw;max-height:90vh;display:flex;flex-direction:column;transform:scale(.9) translateY(20px);transition:transform .5s cubic-bezier(.22,1,.36,1);}
+.lb-box{max-width:90vw;max-height:90vh;display:flex;flex-direction:column;transform:scale(.9) translateY(18px);transition:transform .5s cubic-bezier(.22,1,.36,1);}
 #lb.open .lb-box{transform:scale(1) translateY(0);}
 #lb-img{max-width:90vw;max-height:78vh;object-fit:contain;display:block;border:1px solid rgba(255,255,255,.05);box-shadow:0 36px 90px rgba(0,0,0,.9);transition:opacity .3s,transform .3s;}
 #lb-img.sw{opacity:0;transform:scale(.96);}
@@ -152,7 +144,7 @@ select.srt:hover{border-color:rgba(201,168,76,.3);}
 #lb-dl:hover{background:var(--gold);color:var(--black);border-color:var(--gold);}
 #lb-dl svg{width:13px;height:13px;fill:currentColor;}
 
-/* TOAST upload */
+/* UPLOAD TOAST */
 #toast{position:fixed;bottom:30px;right:30px;z-index:500;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:15px 22px;min-width:290px;opacity:0;transform:translateX(18px) scale(.97);transition:all .4s cubic-bezier(.22,1,.36,1);pointer-events:none;}
 #toast.show{opacity:1;transform:translateX(0) scale(1);}
 .t-title{font-size:.67rem;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:7px;}
@@ -160,9 +152,12 @@ select.srt:hover{border-color:rgba(201,168,76,.3);}
 .t-track{height:2px;background:rgba(255,255,255,.05);}
 .t-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .18s ease;}
 
-/* TOAST error */
-#err{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(16px);z-index:600;background:#160808;border:1px solid rgba(229,62,62,.45);border-left:3px solid #e53e3e;padding:15px 22px;width:92%;max-width:500px;opacity:0;transition:all .4s cubic-bezier(.22,1,.36,1);pointer-events:none;font-size:.7rem;color:#f5c0c0;line-height:1.65;border-radius:2px;box-shadow:0 8px 40px rgba(0,0,0,.8);}
-#err.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all;}
+/* ERROR BANNER */
+#err-banner{position:fixed;top:0;left:0;right:0;z-index:999;background:#1a0505;border-bottom:2px solid #e53e3e;padding:12px 48px;font-size:.72rem;color:#ffb3b3;letter-spacing:.06em;line-height:1.6;display:none;animation:slideDown .4s cubic-bezier(.22,1,.36,1);}
+#err-banner.show{display:block;}
+@keyframes slideDown{from{transform:translateY(-100%);}to{transform:translateY(0);}}
+#err-banner button{float:right;background:none;border:1px solid rgba(229,62,62,.5);color:#e53e3e;padding:2px 10px;cursor:pointer;font-size:.65rem;margin-left:16px;font-family:'Montserrat',sans-serif;}
+#err-banner button:hover{background:#e53e3e;color:#fff;}
 
 /* DELETE MODAL */
 #del-modal{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.86);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .35s cubic-bezier(.22,1,.36,1);}
@@ -192,34 +187,28 @@ select.srt:hover{border-color:rgba(201,168,76,.3);}
 .ci-sep{height:1px;background:var(--border);margin:4px 0;}
 .ci.danger:hover{background:rgba(229,62,62,.07);color:#e53e3e;}
 
-/* FOOTER */
 footer{text-align:center;padding:36px 48px;border-top:1px solid var(--border);font-size:.6rem;letter-spacing:.2em;color:rgba(245,240,235,.13);position:relative;z-index:1;}
 footer span{color:var(--gold);}
-
-/* SCROLLBAR */
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-track{background:var(--black);}
-::-webkit-scrollbar-thumb{background:rgba(201,168,76,.28);border-radius:2px;}
-::-webkit-scrollbar-thumb:hover{background:var(--gold);}
+::-webkit-scrollbar-thumb{background:rgba(201,168,76,.28);}
 ::selection{background:rgba(201,168,76,.18);color:var(--gold);}
 
 @media(max-width:768px){
   header{padding:15px 20px;}
   nav{display:none;}
-  #sync-wrap span{display:none;}
   .hero{padding:100px 24px 60px;}
-  .hero h1{font-size:3.4rem;}
-  section.content{padding:60px 20px;}
-  #gallery{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));}
+  .hero h1{font-size:3.2rem;}
+  .sec{padding:60px 20px;}
+  #gallery{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
   #gallery.masonry{columns:2;}
-  #drop-zone{padding:48px 20px;}
-  .del-box{padding:28px 24px;}
+  #drop-zone{padding:44px 20px;}
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- HEADER — always visible -->
 <header id="hdr">
   <a class="logo" href="#">Obs<em>cura</em></a>
   <nav>
@@ -228,64 +217,60 @@ footer span{color:var(--gold);}
     <a href="#" id="nav-ss">Slideshow</a>
   </nav>
   <div id="sync-wrap">
-    <div id="sync-dot" class="connecting"></div>
-    <span id="sync-lbl">Connecting…</span>
+    <div id="sync-dot"></div>
+    <span id="sync-lbl">Loading…</span>
   </div>
 </header>
 
-<!-- HERO -->
+<!-- HERO — always visible, pure CSS animations -->
 <section class="hero">
   <p class="hero-eye">Your Private Sanctuary</p>
   <h1>The Art of<br/><em>Memory</em></h1>
-  <p class="hero-sub">A refined space for your most precious visual stories. Curated. Private. Eternal.</p>
+  <p class="hero-sub">A refined space for your most precious visual stories.<br/>Curated. Private. Eternal.</p>
   <div class="hero-line"></div>
   <p class="hero-cta">Scroll to begin</p>
 </section>
 
-<!-- UPLOAD -->
-<section class="content" id="sec-upload">
-  <p class="sec-eye reveal">Add to collection</p>
-  <h2 class="sec-title reveal">Upload Photographs</h2>
-
-  <div id="drop-zone" class="reveal">
+<!-- UPLOAD — always visible -->
+<section class="sec" id="sec-upload">
+  <p class="sec-eye">Add to collection</p>
+  <h2 class="sec-title">Upload Photographs</h2>
+  <div id="drop-zone">
     <div class="dz-icon">
       <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
     </div>
     <p class="dz-title">Drop photographs here</p>
-    <p class="dz-sub">or browse from your device &middot; JPG, PNG, WEBP, GIF &middot; any size</p>
-    <button class="dz-btn" onclick="document.getElementById('file-input').click()"><span>Browse Files</span></button>
+    <p class="dz-sub">or browse from your device &middot; JPG, PNG, WEBP, GIF</p>
+    <button class="dz-btn" id="browse-btn"><span>Browse Files</span></button>
     <input type="file" id="file-input" multiple accept="image/*"/>
   </div>
-
-  <div id="stats-bar" class="reveal">
+  <div id="stats-bar">
     <div class="stat" id="s-total"><b id="v-total">0</b>Photos</div>
     <div class="stat" id="s-favs"><b id="v-favs">0</b>Favorites</div>
     <div class="stat" id="s-size"><b id="v-size">0 MB</b>Storage</div>
   </div>
-
-  <div id="cloud-notice" class="reveal">
+  <div id="cloud-notice">
     <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Photos are stored in the cloud and accessible from any device.
+    Photos sync to the cloud — accessible from any device.
   </div>
 </section>
 
-<!-- GALLERY -->
-<section class="content" id="sec-gallery">
-  <p class="sec-eye reveal">Collection</p>
-  <h2 class="sec-title reveal">Your Gallery</h2>
-
-  <div class="controls reveal">
+<!-- GALLERY — always visible -->
+<section class="sec" id="sec-gallery">
+  <p class="sec-eye">Collection</p>
+  <h2 class="sec-title">Your Gallery</h2>
+  <div class="controls">
     <div class="filter-tabs">
       <button class="ftab active" data-f="all">All</button>
       <button class="ftab" data-f="favorites">Favorites</button>
     </div>
-    <div class="ctrl-right">
+    <div class="ctrl-r">
       <select class="srt" id="srt">
         <option value="newest">Newest First</option>
         <option value="oldest">Oldest First</option>
         <option value="name">Name A–Z</option>
       </select>
-      <div class="vtoggle">
+      <div class="vtog">
         <button class="vbtn active" id="v-grid" title="Grid">
           <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg>
         </button>
@@ -295,9 +280,8 @@ footer span{color:var(--gold);}
       </div>
     </div>
   </div>
-
   <div id="gallery">
-    <div id="empty">
+    <div id="empty" style="display:block;">
       <div class="empty-ico">✦</div>
       <p class="empty-txt">Your gallery awaits</p>
       <p class="empty-s">Upload photographs to begin your collection</p>
@@ -305,7 +289,7 @@ footer span{color:var(--gold);}
   </div>
 </section>
 
-<footer>Crafted with obsession &nbsp;·&nbsp; <span>Obscura</span> &nbsp;·&nbsp; Private Gallery</footer>
+<footer>Crafted with obsession &nbsp;&middot;&nbsp; <span>Obscura</span> &nbsp;&middot;&nbsp; Private Gallery</footer>
 
 <!-- LIGHTBOX -->
 <div id="lb">
@@ -326,17 +310,18 @@ footer span{color:var(--gold);}
   <div class="t-track"><div class="t-fill" id="t-fill"></div></div>
 </div>
 
-<!-- ERROR TOAST -->
-<div id="err"></div>
+<!-- ERROR BANNER (top of page, impossible to miss) -->
+<div id="err-banner">
+  <button onclick="document.getElementById('err-banner').classList.remove('show')">✕ Dismiss</button>
+  <span id="err-msg"></span>
+</div>
 
 <!-- DELETE MODAL -->
 <div id="del-modal">
   <div class="del-box">
-    <div class="del-ico">
-      <svg viewBox="0 0 24 24"><polyline points="3,6 21,6"/><path d="M8 6V4h8v2M7 6l1 14h8l1-14"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
-    </div>
+    <div class="del-ico"><svg viewBox="0 0 24 24"><polyline points="3,6 21,6"/><path d="M8 6V4h8v2M7 6l1 14h8l1-14"/></svg></div>
     <div class="del-ttl">Delete Photograph</div>
-    <div class="del-sub">Are you sure you want to permanently remove<br/><span class="del-name" id="del-name"></span>?</div>
+    <div class="del-sub">Permanently remove<br/><span class="del-name" id="del-name"></span><br/>from your collection?</div>
     <div class="del-acts">
       <button class="del-cancel" id="del-cancel">Cancel</button>
       <button class="del-ok" id="del-ok"><span>Delete Forever</span></button>
@@ -354,197 +339,155 @@ footer span{color:var(--gold);}
   <div class="ci danger" id="c-del"><svg viewBox="0 0 16 16"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>Delete</div>
 </div>
 
-<!-- SUPABASE SDK -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<!--
+  Supabase SDK loads ASYNC — does NOT block page rendering.
+  The page is fully visible before this script even starts loading.
+-->
 <script>
-// ═══════════════════════════════════════
-//  CONFIG
-// ═══════════════════════════════════════
-const SB_URL    = 'https://prlfgswggcexionantal.supabase.co';
-const SB_KEY    = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
-const BUCKET    = 'photos';
-const META_KEY  = 'gallery-metadata.json';
+// ═══════════════════════════════════════════════════════
+//  ALL APP LOGIC — runs after page is visible
+// ═══════════════════════════════════════════════════════
+const SB_URL   = 'https://prlfgswggcexionantal.supabase.co';
+const SB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
+const BUCKET   = 'photos';
+const META     = 'gallery-metadata.json';
 
-const sb = window.supabase.createClient(SB_URL, SB_KEY);
+let sb       = null;
+let sbReady  = false;
+let photos   = [];
+let filter   = 'all';
+let sort     = 'newest';
+let lbIndex  = 0;
+let ctxId    = null;
+let delId    = null;
 
-// ═══════════════════════════════════════
-//  STATE
-// ═══════════════════════════════════════
-let photos    = [];
-let filter    = 'all';
-let sort      = 'newest';
-let lbIndex   = 0;
-let ctxId     = null;
-let delId     = null;
-let sbReady   = false;  // flag: is supabase connected?
-
-// ═══════════════════════════════════════
-//  UI — render page immediately on load
-//  Supabase loads in background, non-blocking
-// ═══════════════════════════════════════
-document.addEventListener('DOMContentLoaded', () => {
-  renderGallery();   // show empty gallery right away
-  updateStats();
-  connectSupabase(); // connect in background — doesn't block UI
-});
-
-// ═══════════════════════════════════════
-//  SUPABASE — background connection
-// ═══════════════════════════════════════
-async function connectSupabase() {
-  sync('connecting', 'Connecting…');
-  try {
-    // Test: list bucket. This is the fastest way to verify both
-    // the connection and bucket existence simultaneously.
-    const { data, error } = await sb.storage.from(BUCKET).list('', { limit: 1 });
-
-    if (error) {
-      const m = error.message || '';
-      if (m.toLowerCase().includes('not found') || m.includes('does not exist') || m.includes('NoSuchBucket')) {
-        showErr('❌ Bucket not found. In Supabase → Storage, create a bucket named exactly "photos" and enable Public.');
-      } else if (m.includes('401') || m.includes('JWT') || m.includes('invalid')) {
-        showErr('❌ API key rejected. Check your Supabase anon key in the code.');
-      } else {
-        showErr('❌ Supabase error: ' + m);
-      }
-      sync('error', 'Error');
-      sbReady = false;
-      return;
-    }
-
-    sbReady = true;
-    sync('ok', 'Connected');
-    await loadPhotos();
-
-  } catch(e) {
-    sbReady = false;
-    sync('error', 'Offline');
-    if (e.message && e.message.includes('fetch')) {
-      showErr('❌ Cannot reach Supabase. Check: 1) Your internet connection  2) The bucket "photos" exists  3) It is set to Public in Supabase → Storage.');
-    } else {
-      showErr('❌ ' + (e.message || 'Unknown error') + ' — Open browser Console (F12) for details.');
-    }
-  }
-}
-
-// ═══════════════════════════════════════
-//  SYNC STATUS
-// ═══════════════════════════════════════
-function sync(state, label) {
+// ─── SYNC STATUS ───
+function setSync(state, label) {
   document.getElementById('sync-dot').className = state;
   document.getElementById('sync-lbl').textContent = label;
 }
 
-// ═══════════════════════════════════════
-//  ERROR DISPLAY
-// ═══════════════════════════════════════
-let errTimer = null;
+// ─── ERROR BANNER ───
 function showErr(msg) {
-  const el = document.getElementById('err');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(errTimer);
-  errTimer = setTimeout(() => el.classList.remove('show'), 14000);
+  document.getElementById('err-msg').textContent = msg;
+  document.getElementById('err-banner').classList.add('show');
 }
 
-// ═══════════════════════════════════════
-//  METADATA
-// ═══════════════════════════════════════
-async function loadPhotos() {
-  const { data, error } = await sb.storage.from(BUCKET).download(META_KEY);
-  if (error) {
-    // "Object not found" = fresh empty gallery — totally normal
-    renderGallery(); updateStats(); return;
+// ─── LOAD SUPABASE SDK DYNAMICALLY (non-blocking) ───
+function loadSupabaseSDK() {
+  return new Promise((resolve, reject) => {
+    // If already loaded
+    if (window.supabase) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+    s.onload  = resolve;
+    s.onerror = () => reject(new Error('Failed to load Supabase SDK from CDN'));
+    document.head.appendChild(s);
+  });
+}
+
+// ─── CONNECT TO SUPABASE ───
+async function connectSupabase() {
+  setSync('syncing', 'Connecting…');
+  try {
+    await loadSupabaseSDK();
+    sb = window.supabase.createClient(SB_URL, SB_KEY);
+
+    // Quick connection test — list bucket root
+    const { data, error } = await sb.storage.from(BUCKET).list('', { limit: 1 });
+    if (error) throw error;
+
+    sbReady = true;
+    setSync('ok', 'Connected');
+    await fetchPhotos();
+
+  } catch(e) {
+    sbReady = false;
+    setSync('err', 'Error');
+    const m = (e.message || '').toLowerCase();
+    if (m.includes('failed to load') || m.includes('cdn')) {
+      showErr('Cannot load Supabase library from CDN. Check your internet connection.');
+    } else if (m.includes('not found') || m.includes('does not exist') || m.includes('nosuchbucket')) {
+      showErr('Bucket "photos" not found. Go to Supabase → Storage → New bucket → name: "photos" → enable Public → Create.');
+    } else if (m.includes('jwt') || m.includes('401') || m.includes('unauthorized')) {
+      showErr('API key error. Check your Supabase anon key.');
+    } else {
+      showErr('Supabase error: ' + e.message + ' — open browser Console (F12) for full details.');
+    }
   }
+}
+
+// ─── FETCH PHOTOS ───
+async function fetchPhotos() {
+  const { data, error } = await sb.storage.from(BUCKET).download(META);
+  if (error) { renderGallery(); updateStats(); return; } // empty gallery = fresh start
   try {
     const meta = JSON.parse(await data.text());
     photos = meta.map(m => ({ ...m, src: getUrl(m.filePath) }));
-    renderGallery();
-    updateStats();
-  } catch(e) {
-    // Corrupt metadata — start fresh
-    photos = [];
-    renderGallery();
-    updateStats();
-  }
+  } catch(e) { photos = []; }
+  renderGallery();
+  updateStats();
 }
 
 async function saveMeta() {
-  if (!sbReady) return;
-  sync('connecting', 'Saving…');
-  const clean = photos.map(({ src, ...rest }) => rest);
-  const blob  = new Blob([JSON.stringify(clean)], { type: 'application/json' });
-  const { error } = await sb.storage.from(BUCKET).upload(META_KEY, blob, { upsert: true });
-  if (error) { sync('error', 'Save failed'); showErr('Could not save: ' + error.message); return; }
-  sync('ok', 'Saved ✓');
-  setTimeout(() => sync('ok', 'Connected'), 2500);
+  if (!sbReady || !sb) return;
+  setSync('syncing', 'Saving…');
+  const blob = new Blob([JSON.stringify(photos.map(({src,...r})=>r))], { type:'application/json' });
+  const { error } = await sb.storage.from(BUCKET).upload(META, blob, { upsert:true });
+  if (error) { setSync('err','Save failed'); showErr('Save failed: '+error.message); return; }
+  setSync('ok','Saved ✓');
+  setTimeout(()=>setSync('ok','Connected'), 2200);
 }
 
 function getUrl(fp) {
   return sb.storage.from(BUCKET).getPublicUrl(fp).data.publicUrl;
 }
 
-// ═══════════════════════════════════════
-//  SCROLL HEADER + REVEAL
-// ═══════════════════════════════════════
-window.addEventListener('scroll', () =>
+// ─── SCROLL HEADER ───
+window.addEventListener('scroll',()=>
   document.getElementById('hdr').classList.toggle('scrolled', scrollY > 55)
 );
-new IntersectionObserver((ents) =>
-  ents.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } }),
-  { threshold: 0.12 }
-).observe.bind(
-  new IntersectionObserver((ents) =>
-    ents.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); } }),
-    { threshold: 0.12 }
-  )
-);
-// Simple reveal observer
-const revObs = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); revObs.unobserve(e.target); } }), { threshold: 0.12 });
-document.querySelectorAll('.reveal').forEach(el => revObs.observe(el));
 
-// ═══════════════════════════════════════
-//  DRAG & DROP
-// ═══════════════════════════════════════
+// ─── DROP ZONE ───
 const dz = document.getElementById('drop-zone');
 const fi = document.getElementById('file-input');
-['dragenter','dragover'].forEach(e => dz.addEventListener(e, ev => { ev.preventDefault(); dz.classList.add('drag-over'); }));
-['dragleave','drop'].forEach(e => dz.addEventListener(e, ev => {
-  ev.preventDefault(); dz.classList.remove('drag-over');
-  if(e==='drop' && ev.dataTransfer.files.length) handleFiles(ev.dataTransfer.files);
+
+document.getElementById('browse-btn').onclick = () => fi.click();
+
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => {
+  e.preventDefault(); dz.classList.remove('over');
+  if (ev==='drop' && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
 }));
-fi.addEventListener('change', () => { handleFiles(fi.files); fi.value=''; });
+fi.onchange = () => { handleFiles(fi.files); fi.value=''; };
 
 function handleFiles(files) {
-  if (!sbReady) { showErr('⚠ Not connected to cloud yet. Please wait for the green dot, then try again.'); return; }
-  [...files].filter(f => f.type.startsWith('image/')).reduce((p,f) => p.then(()=>upload(f)), Promise.resolve());
+  if (!sbReady) { showErr('Not connected yet — wait for the green dot, then try again.'); return; }
+  [...files].filter(f=>f.type.startsWith('image/')).reduce((p,f)=>p.then(()=>upload(f)), Promise.resolve());
 }
 
-// ═══════════════════════════════════════
-//  UPLOAD
-// ═══════════════════════════════════════
+// ─── UPLOAD ───
 async function upload(file) {
   const toast = document.getElementById('toast');
   const fill  = document.getElementById('t-fill');
   document.getElementById('t-file').textContent = file.name;
-  toast.classList.add('show'); fill.style.width = '0%';
+  toast.classList.add('show'); fill.style.width='0%';
 
-  let pct = 0;
-  const iv = setInterval(() => { pct = Math.min(pct + Math.random()*9+4, 83); fill.style.width = pct+'%'; }, 110);
+  let pct=0;
+  const iv = setInterval(()=>{ pct=Math.min(pct+Math.random()*9+4,83); fill.style.width=pct+'%'; },110);
 
   try {
     const id  = Date.now()+'_'+Math.random().toString(36).slice(2);
     const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
     const fp  = 'images/'+id+'.'+ext;
 
-    sync('connecting', 'Uploading…');
-    const { error } = await sb.storage.from(BUCKET).upload(fp, file, { contentType: file.type });
+    setSync('syncing','Uploading…');
+    const { error } = await sb.storage.from(BUCKET).upload(fp, file, { contentType:file.type });
     clearInterval(iv);
     if (error) throw error;
 
-    fill.style.width = '100%';
-    const photo = { id, name: file.name.replace(/\.[^.]+$/,''), filePath: fp, date: new Date().toISOString(), size: file.size, favorite: false, src: getUrl(fp) };
-    photos.push(photo);
+    fill.style.width='100%';
+    photos.push({ id, name:file.name.replace(/\.[^.]+$/,''), filePath:fp, date:new Date().toISOString(), size:file.size, favorite:false, src:getUrl(fp) });
     await saveMeta();
     renderGallery();
     bump('s-total');
@@ -552,58 +495,47 @@ async function upload(file) {
 
   } catch(e) {
     clearInterval(iv);
-    sync('error', 'Upload failed');
-    showErr('Upload failed: ' + (e.message || 'Unknown error'));
+    setSync('err','Upload failed');
+    showErr('Upload failed: '+(e.message||'Unknown error'));
   } finally {
-    setTimeout(() => { toast.classList.remove('show'); fill.style.width='0%'; }, 900);
+    setTimeout(()=>{ toast.classList.remove('show'); fill.style.width='0%'; },900);
   }
 }
 
-// ═══════════════════════════════════════
-//  DELETE
-// ═══════════════════════════════════════
+// ─── DELETE ───
 async function deletePhoto(id) {
-  const p = photos.find(x=>x.id===id); if(!p) return;
+  const p=photos.find(x=>x.id===id); if(!p) return;
   await sb.storage.from(BUCKET).remove([p.filePath]);
-  photos = photos.filter(x=>x.id!==id);
+  photos=photos.filter(x=>x.id!==id);
   await saveMeta();
 }
 
-// ═══════════════════════════════════════
-//  STATS
-// ═══════════════════════════════════════
+// ─── STATS ───
 function updateStats() {
   document.getElementById('v-total').textContent = photos.length;
   document.getElementById('v-favs').textContent  = photos.filter(p=>p.favorite).length;
-  const mb = photos.reduce((a,p)=>a+(p.size||0),0)/1024/1024;
-  document.getElementById('v-size').textContent  = mb.toFixed(1)+' MB';
+  document.getElementById('v-size').textContent  = (photos.reduce((a,p)=>a+(p.size||0),0)/1024/1024).toFixed(1)+' MB';
 }
 function bump(id){ const el=document.getElementById(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
 
-// ═══════════════════════════════════════
-//  FAVORITE
-// ═══════════════════════════════════════
+// ─── FAVORITE ───
 async function toggleFav(id) {
-  const p = photos.find(x=>x.id===id); if(p){ p.favorite=!p.favorite; await saveMeta(); }
+  const p=photos.find(x=>x.id===id); if(p){ p.favorite=!p.favorite; await saveMeta(); }
 }
 
-// ═══════════════════════════════════════
-//  DOWNLOAD
-// ═══════════════════════════════════════
+// ─── DOWNLOAD ───
 async function dlPhoto(p) {
   try {
     const res=await fetch(p.src); const blob=await res.blob();
-    const ext=p.filePath.split('.').pop()||'jpg';
     const u=URL.createObjectURL(blob); const a=document.createElement('a');
-    a.href=u; a.download=p.name+'.'+ext; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
+    a.href=u; a.download=p.name+'.'+(p.filePath.split('.').pop()||'jpg');
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
   } catch{ window.open(p.src,'_blank'); }
 }
 
-// ═══════════════════════════════════════
-//  RENDER
-// ═══════════════════════════════════════
-function filtered() {
-  let f = photos.filter(p => filter==='favorites' ? p.favorite : true);
+// ─── RENDER ───
+function getFiltered() {
+  let f = photos.filter(p=>filter==='favorites'?p.favorite:true);
   if(sort==='oldest') f=f.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
   else if(sort==='newest') f=f.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
   else if(sort==='name') f=f.slice().sort((a,b)=>a.name.localeCompare(b.name));
@@ -611,16 +543,16 @@ function filtered() {
 }
 
 function renderGallery() {
-  const g   = document.getElementById('gallery');
-  const emp = document.getElementById('empty');
+  const g=document.getElementById('gallery');
+  const emp=document.getElementById('empty');
   [...g.querySelectorAll('.card')].forEach(c=>c.remove());
-  const list = filtered();
+  const list=getFiltered();
   emp.style.display = list.length ? 'none' : 'block';
 
   list.forEach((p,i) => {
-    const c = document.createElement('div');
+    const c=document.createElement('div');
     c.className='card'; c.dataset.id=p.id;
-    c.style.animationDelay = Math.min(i*.06,.55)+'s';
+    c.style.animationDelay=Math.min(i*.06,.55)+'s';
     c.innerHTML=`
       <img src="${p.src}" alt="${p.name}" loading="lazy"/>
       <div class="card-ov">
@@ -628,7 +560,7 @@ function renderGallery() {
         <div class="card-date">${new Date(p.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
       </div>
       <div class="card-acts">
-        <button class="cbtn fav-btn ${p.favorite?'faved':''}" title="Favorite">
+        <button class="cbtn fav-btn${p.favorite?' faved':''}" title="Favorite">
           <svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>
         </button>
         <button class="cbtn exp-btn" title="View">
@@ -647,113 +579,69 @@ function renderGallery() {
     c.querySelector('.del-btn').onclick = e => { e.stopPropagation(); openDel(p.id); };
     c.onclick       = () => openLb(p.id);
     c.oncontextmenu = e => { e.preventDefault(); ctxId=p.id; openCtx(e.clientX,e.clientY); };
-    g.insertBefore(c, emp);
+    g.insertBefore(c,emp);
   });
 }
 
-// ═══════════════════════════════════════
-//  LIGHTBOX
-// ═══════════════════════════════════════
-function openLb(id) {
-  lbIndex = filtered().findIndex(p=>p.id===id);
-  showLb(); document.getElementById('lb').classList.add('open'); document.body.style.overflow='hidden';
+// ─── LIGHTBOX ───
+function openLb(id){ lbIndex=getFiltered().findIndex(p=>p.id===id); showLb(); document.getElementById('lb').classList.add('open'); document.body.style.overflow='hidden'; }
+function showLb(){
+  const f=getFiltered(); const p=f[lbIndex]; if(!p) return;
+  const img=document.getElementById('lb-img'); img.classList.add('sw');
+  setTimeout(()=>{ img.src=p.src; document.getElementById('lb-cap').textContent=p.name; document.getElementById('lb-cnt').textContent=(lbIndex+1)+' / '+f.length; document.getElementById('lb-dl').onclick=()=>dlPhoto(p); img.classList.remove('sw'); },200);
 }
-function showLb() {
-  const f=filtered(); const p=f[lbIndex]; if(!p) return;
-  const img=document.getElementById('lb-img');
-  img.classList.add('sw');
-  setTimeout(()=>{
-    img.src=p.src;
-    document.getElementById('lb-cap').textContent=p.name;
-    document.getElementById('lb-cnt').textContent=(lbIndex+1)+' / '+f.length;
-    document.getElementById('lb-dl').onclick=()=>dlPhoto(p);
-    img.classList.remove('sw');
-  },200);
-}
-function closeLb() {
-  document.getElementById('lb').classList.remove('open');
-  if(!document.getElementById('del-modal').classList.contains('open')) document.body.style.overflow='';
-}
+function closeLb(){ document.getElementById('lb').classList.remove('open'); if(!document.getElementById('del-modal').classList.contains('open')) document.body.style.overflow=''; }
+
 document.getElementById('lb-x').onclick    = closeLb;
 document.getElementById('lb').onclick      = e => { if(e.target===document.getElementById('lb')) closeLb(); };
-document.getElementById('lb-prev').onclick = () => { const f=filtered(); lbIndex=(lbIndex-1+f.length)%f.length; showLb(); };
-document.getElementById('lb-next').onclick = () => { const f=filtered(); lbIndex=(lbIndex+1)%f.length; showLb(); };
-document.addEventListener('keydown', e => {
+document.getElementById('lb-prev').onclick = () => { const f=getFiltered(); lbIndex=(lbIndex-1+f.length)%f.length; showLb(); };
+document.getElementById('lb-next').onclick = () => { const f=getFiltered(); lbIndex=(lbIndex+1)%f.length; showLb(); };
+document.addEventListener('keydown',e=>{
   if(document.getElementById('del-modal').classList.contains('open')){ if(e.key==='Escape') closeDel(); return; }
   if(!document.getElementById('lb').classList.contains('open')) return;
-  const f=filtered();
+  const f=getFiltered();
   if(e.key==='ArrowRight'){ lbIndex=(lbIndex+1)%f.length; showLb(); }
-  if(e.key==='ArrowLeft') { lbIndex=(lbIndex-1+f.length)%f.length; showLb(); }
-  if(e.key==='Escape')    closeLb();
+  if(e.key==='ArrowLeft'){ lbIndex=(lbIndex-1+f.length)%f.length; showLb(); }
+  if(e.key==='Escape') closeLb();
 });
 
-// ═══════════════════════════════════════
-//  SLIDESHOW
-// ═══════════════════════════════════════
+// ─── SLIDESHOW ───
 let ssTimer=null;
-document.getElementById('nav-ss').onclick = e => {
-  e.preventDefault(); if(!photos.length) return;
-  openLb(filtered()[0]?.id);
-  clearInterval(ssTimer);
-  ssTimer=setInterval(()=>{ if(!document.getElementById('lb').classList.contains('open')){ clearInterval(ssTimer); return; } const f=filtered(); lbIndex=(lbIndex+1)%f.length; showLb(); },3500);
-};
+document.getElementById('nav-ss').onclick=e=>{ e.preventDefault(); if(!photos.length) return; openLb(getFiltered()[0]?.id); clearInterval(ssTimer); ssTimer=setInterval(()=>{ if(!document.getElementById('lb').classList.contains('open')){ clearInterval(ssTimer); return; } const f=getFiltered(); lbIndex=(lbIndex+1)%f.length; showLb(); },3500); };
 
-// ═══════════════════════════════════════
-//  DELETE MODAL
-// ═══════════════════════════════════════
-function openDel(id) {
-  const p=photos.find(x=>x.id===id); if(!p) return;
-  delId=id; document.getElementById('del-name').textContent='"'+p.name+'"';
-  document.getElementById('del-modal').classList.add('open'); document.body.style.overflow='hidden';
-}
-function closeDel() {
-  document.getElementById('del-modal').classList.remove('open'); delId=null;
-  if(!document.getElementById('lb').classList.contains('open')) document.body.style.overflow='';
-}
-document.getElementById('del-cancel').onclick = closeDel;
-document.getElementById('del-modal').onclick   = e => { if(e.target===document.getElementById('del-modal')) closeDel(); };
-document.getElementById('del-ok').onclick      = async () => {
-  if(!delId) return;
-  const id=delId; closeDel();
+// ─── DELETE MODAL ───
+function openDel(id){ const p=photos.find(x=>x.id===id); if(!p) return; delId=id; document.getElementById('del-name').textContent='"'+p.name+'"'; document.getElementById('del-modal').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeDel(){ document.getElementById('del-modal').classList.remove('open'); delId=null; if(!document.getElementById('lb').classList.contains('open')) document.body.style.overflow=''; }
+document.getElementById('del-cancel').onclick=closeDel;
+document.getElementById('del-modal').onclick=e=>{ if(e.target===document.getElementById('del-modal')) closeDel(); };
+document.getElementById('del-ok').onclick=async()=>{
+  if(!delId) return; const id=delId; closeDel();
   const card=document.querySelector(`.card[data-id="${id}"]`);
   if(card){ card.style.transition='opacity .32s,transform .32s'; card.style.opacity='0'; card.style.transform='scale(.88)'; }
-  await deletePhoto(id);
-  renderGallery(); updateStats();
+  await deletePhoto(id); renderGallery(); updateStats();
 };
 
-// ═══════════════════════════════════════
-//  CTX MENU
-// ═══════════════════════════════════════
+// ─── CTX MENU ───
 const ctx=document.getElementById('ctx');
 function openCtx(x,y){ ctx.style.left=Math.min(x,innerWidth-190)+'px'; ctx.style.top=Math.min(y,innerHeight-190)+'px'; ctx.classList.add('open'); }
 document.addEventListener('click',()=>ctx.classList.remove('open'));
-document.getElementById('c-open').onclick = ()=>{ if(ctxId) openLb(ctxId); };
-document.getElementById('c-fav').onclick  = async()=>{ if(ctxId){ await toggleFav(ctxId); renderGallery(); updateStats(); } };
-document.getElementById('c-dl').onclick   = ()=>{ const p=photos.find(x=>x.id===ctxId); if(p) dlPhoto(p); };
-document.getElementById('c-ren').onclick  = async()=>{
-  const p=photos.find(x=>x.id===ctxId); if(!p) return;
-  const n=prompt('Rename photograph:',p.name); if(n&&n.trim()){ p.name=n.trim(); await saveMeta(); renderGallery(); }
-};
-document.getElementById('c-del').onclick  = ()=>{ if(ctxId) openDel(ctxId); };
+document.getElementById('c-open').onclick=()=>{ if(ctxId) openLb(ctxId); };
+document.getElementById('c-fav').onclick=async()=>{ if(ctxId){ await toggleFav(ctxId); renderGallery(); updateStats(); } };
+document.getElementById('c-dl').onclick=()=>{ const p=photos.find(x=>x.id===ctxId); if(p) dlPhoto(p); };
+document.getElementById('c-ren').onclick=async()=>{ const p=photos.find(x=>x.id===ctxId); if(!p) return; const n=prompt('Rename:',p.name); if(n&&n.trim()){ p.name=n.trim(); await saveMeta(); renderGallery(); } };
+document.getElementById('c-del').onclick=()=>{ if(ctxId) openDel(ctxId); };
 
-// ═══════════════════════════════════════
-//  FILTERS / SORT / VIEW
-// ═══════════════════════════════════════
-document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active'); filter=b.dataset.f; renderGallery();
-}));
-document.getElementById('srt').onchange = e=>{ sort=e.target.value; renderGallery(); };
-document.getElementById('v-grid').onclick = ()=>{
-  document.getElementById('gallery').classList.remove('masonry');
-  document.getElementById('v-grid').classList.add('active');
-  document.getElementById('v-masonry').classList.remove('active');
-};
-document.getElementById('v-masonry').onclick = ()=>{
-  document.getElementById('gallery').classList.add('masonry');
-  document.getElementById('v-masonry').classList.add('active');
-  document.getElementById('v-grid').classList.remove('active');
-};
+// ─── FILTERS / SORT / VIEW ───
+document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); filter=b.dataset.f; renderGallery(); }));
+document.getElementById('srt').onchange=e=>{ sort=e.target.value; renderGallery(); };
+document.getElementById('v-grid').onclick=()=>{ document.getElementById('gallery').classList.remove('masonry'); document.getElementById('v-grid').classList.add('active'); document.getElementById('v-masonry').classList.remove('active'); };
+document.getElementById('v-masonry').onclick=()=>{ document.getElementById('gallery').classList.add('masonry'); document.getElementById('v-masonry').classList.add('active'); document.getElementById('v-grid').classList.remove('active'); };
+
+// ─── INIT — page renders first, THEN connect ───
+renderGallery();
+updateStats();
+// Small delay so page paints fully before any network call
+setTimeout(connectSupabase, 100);
 </script>
 </body>
 </html>
