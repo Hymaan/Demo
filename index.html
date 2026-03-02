@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OBSCURA — Private Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --black:#050505; --deep:#0a0a0a; --card:#111111; --card2:#161616;
+    --border:rgba(255,255,255,0.07); --gold:#c9a84c; --gold2:#f0d080;
+    --white:#f5f0eb; --muted:rgba(245,240,235,0.4); --glow:rgba(201,168,76,0.15);
+  }
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4;}
+  .page-reveal{opacity:0;transform:translateY(32px);transition:opacity 0.8s cubic-bezier(.22,1,.36,1),transform 0.8s cubic-bezier(.22,1,.36,1);}
+  .page-reveal.visible{opacity:1;transform:translateY(0);}
+  header{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(5,5,5,0.97),transparent);backdrop-filter:blur(2px);transition:padding 0.4s,background 0.4s;}
+  header.scrolled{padding:14px 48px;background:rgba(5,5,5,0.98);}
+  .logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;position:relative;}
+  .logo span{font-style:italic;color:var(--white);font-weight:300;}
+  .logo::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
+  nav{display:flex;gap:32px;align-items:center;}
+  nav a{color:var(--muted);text-decoration:none;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;transition:color 0.3s;position:relative;padding-bottom:4px;}
+  nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.4s ease;}
+  nav a:hover{color:var(--gold);}
+  nav a:hover::after{width:100%;}
+
+  /* SYNC STATUS */
+  #sync-status{display:flex;align-items:center;gap:8px;font-size:0.62rem;letter-spacing:0.12em;color:var(--muted);}
+  #sync-dot{width:7px;height:7px;border-radius:50%;background:#555;transition:background 0.4s,box-shadow 0.4s;flex-shrink:0;}
+  #sync-dot.syncing{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,0.6);animation:pulse-dot 1s ease-in-out infinite;}
+  #sync-dot.ok{background:#48bb78;box-shadow:0 0 8px rgba(72,187,120,0.5);}
+  #sync-dot.error{background:#e53e3e;box-shadow:0 0 8px rgba(229,62,62,0.5);}
+  @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:0.4}}
+
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;position:relative;z-index:1;}
+  .hero-eyebrow{font-size:0.65rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;margin-bottom:24px;opacity:0;animation:fadeUp 1s 0.3s forwards;}
+  .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(4rem,10vw,9rem);font-weight:300;line-height:0.9;letter-spacing:-0.02em;opacity:0;animation:fadeUp 1s 0.6s forwards;}
+  .hero h1 em{font-style:italic;color:var(--gold);}
+  .hero-sub{margin-top:32px;font-size:0.8rem;letter-spacing:0.15em;color:var(--muted);max-width:400px;opacity:0;animation:fadeUp 1s 0.9s forwards;}
+  .hero-line{width:1px;height:80px;background:linear-gradient(to bottom,var(--gold),transparent);margin:48px auto 0;opacity:0;animation:fadeUp 1s 1.2s forwards;}
+  .scroll-cta{margin-top:16px;font-size:0.62rem;letter-spacing:0.3em;color:rgba(201,168,76,0.5);text-transform:uppercase;opacity:0;animation:fadeUp 1s 1.5s forwards;}
+  #upload-section,#gallery-section{padding:80px 48px;position:relative;z-index:1;}
+  .section-label{font-size:0.65rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:16px;}
+  .section-title{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;text-align:center;margin-bottom:48px;letter-spacing:0.05em;}
+  #drop-zone{max-width:700px;margin:0 auto;border:1px dashed rgba(201,168,76,0.3);border-radius:4px;padding:72px 48px;text-align:center;position:relative;background:var(--card);transition:all 0.5s cubic-bezier(.22,1,.36,1);overflow:hidden;}
+  #drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--glow) 0%,transparent 70%);opacity:0;transition:opacity 0.4s;}
+  #drop-zone.drag-over{border-color:var(--gold);box-shadow:0 0 60px var(--glow),inset 0 0 40px var(--glow);transform:scale(1.01);}
+  #drop-zone.drag-over::before{opacity:1;}
+  .drop-icon{width:56px;height:56px;margin:0 auto 24px;border:1px solid rgba(201,168,76,0.4);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform 0.5s cubic-bezier(.22,1,.36,1),border-color 0.4s;}
+  #drop-zone.drag-over .drop-icon{transform:scale(1.2) rotate(10deg);border-color:var(--gold);}
+  .drop-icon svg{width:24px;height:24px;stroke:var(--gold);fill:none;}
+  .drop-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;margin-bottom:8px;}
+  .drop-sub{font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;}
+  .drop-btn{display:inline-block;margin-top:28px;padding:12px 36px;border:1px solid var(--gold);color:var(--gold);font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all 0.4s cubic-bezier(.22,1,.36,1);background:transparent;font-family:'Montserrat',sans-serif;position:relative;overflow:hidden;}
+  .drop-btn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
+  .drop-btn:hover::before{transform:translateX(0);}
+  .drop-btn:hover{color:var(--black);}
+  .drop-btn span{position:relative;z-index:1;}
+  #file-input{display:none;}
+  #stats-bar{max-width:700px;margin:24px auto 0;display:flex;gap:1px;}
+  .stat-pill{flex:1;background:var(--card2);padding:14px 20px;text-align:center;font-size:0.65rem;letter-spacing:0.15em;color:var(--muted);transition:background 0.3s;}
+  .stat-pill span{display:block;font-size:1.4rem;color:var(--gold);font-family:'Cormorant Garamond',serif;font-weight:300;transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
+  .stat-pill:hover{background:#1a1a1a;}
+  .stat-pill.bump span{animation:statBump 0.4s cubic-bezier(.22,1,.36,1);}
+  @keyframes statBump{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+  #storage-notice{max-width:700px;margin:16px auto 0;padding:12px 20px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);display:flex;align-items:center;gap:12px;font-size:0.68rem;letter-spacing:0.08em;color:var(--muted);}
+  #storage-notice svg{width:16px;height:16px;stroke:var(--gold);flex-shrink:0;fill:none;}
+  .controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;flex-wrap:wrap;gap:16px;}
+  .view-toggle{display:flex;gap:1px;}
+  .view-btn{width:40px;height:40px;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.3s;}
+  .view-btn.active,.view-btn:hover{background:var(--card);color:var(--gold);}
+  .view-btn svg{width:18px;height:18px;fill:currentColor;}
+  .filter-tabs{display:flex;gap:2px;}
+  .filter-tab{padding:10px 24px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.35s cubic-bezier(.22,1,.36,1);font-family:'Montserrat',sans-serif;}
+  .filter-tab.active,.filter-tab:hover{border-color:var(--gold);color:var(--gold);}
+  .sort-select{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:10px 20px;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;font-family:'Montserrat',sans-serif;outline:none;appearance:none;transition:border-color 0.3s;}
+  .sort-select:hover{border-color:rgba(201,168,76,0.3);}
+  #gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;transition:all 0.5s;}
+  #gallery.masonry{columns:4;column-gap:16px;display:block;}
+  #gallery.masonry .photo-card{break-inside:avoid;margin-bottom:16px;}
+  .photo-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;opacity:0;transform:translateY(30px) scale(0.96);animation:cardReveal 0.6s cubic-bezier(.22,1,.36,1) forwards;transition:transform 0.5s cubic-bezier(.22,1,.36,1),box-shadow 0.5s,border-color 0.4s;}
+  .photo-card:hover{transform:translateY(-8px) scale(1.02);border-color:rgba(201,168,76,0.35);box-shadow:0 30px 70px rgba(0,0,0,0.8),0 0 40px rgba(201,168,76,0.08);}
+  @keyframes cardReveal{to{opacity:1;transform:translateY(0) scale(1);}}
+  .photo-card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:transform 0.7s cubic-bezier(.22,1,.36,1),filter 0.5s;filter:brightness(0.88) saturate(0.75);}
+  #gallery.masonry .photo-card img{aspect-ratio:unset;height:auto;}
+  .photo-card:hover img{transform:scale(1.08);filter:brightness(1.02) saturate(1.05);}
+  .card-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.88) 0%,rgba(0,0,0,0.25) 50%,transparent 100%);opacity:0;transition:opacity 0.45s;display:flex;flex-direction:column;justify-content:flex-end;padding:20px;}
+  .photo-card:hover .card-overlay{opacity:1;}
+  .card-title{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:300;transform:translateY(14px);transition:transform 0.45s cubic-bezier(.22,1,.36,1) 0.04s;}
+  .card-meta{font-size:0.62rem;letter-spacing:0.1em;color:var(--muted);transform:translateY(14px);transition:transform 0.45s cubic-bezier(.22,1,.36,1) 0.09s;}
+  .photo-card:hover .card-title,.photo-card:hover .card-meta{transform:translateY(0);}
+  .card-actions{position:absolute;top:14px;right:14px;display:flex;gap:6px;opacity:0;transform:translateY(-10px);transition:opacity 0.4s,transform 0.4s cubic-bezier(.22,1,.36,1);}
+  .photo-card:hover .card-actions{opacity:1;transform:translateY(0);}
+  .card-btn{width:34px;height:34px;border-radius:50%;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.35s cubic-bezier(.22,1,.36,1);color:var(--white);backdrop-filter:blur(8px);}
+  .card-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--black);transform:scale(1.15);}
+  .card-btn svg{width:14px;height:14px;fill:currentColor;}
+  .card-btn.favorited svg{fill:#e53e3e;}
+  .card-btn.favorited{border-color:rgba(229,62,62,0.4);}
+  .card-btn.delete-btn:hover{background:#c0392b;border-color:#c0392b;color:#fff;}
+  #lightbox{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.5s cubic-bezier(.22,1,.36,1);}
+  #lightbox.open{opacity:1;pointer-events:all;backdrop-filter:blur(20px);}
+  .lb-content{position:relative;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;transform:scale(0.88) translateY(24px);transition:transform 0.55s cubic-bezier(.22,1,.36,1);}
+  #lightbox.open .lb-content{transform:scale(1) translateY(0);}
+  #lb-img{max-width:90vw;max-height:78vh;object-fit:contain;display:block;border:1px solid rgba(255,255,255,0.06);box-shadow:0 40px 100px rgba(0,0,0,0.9);transition:opacity 0.35s ease,transform 0.35s ease;}
+  #lb-img.switching{opacity:0;transform:scale(0.96);}
+  .lb-footer{display:flex;justify-content:space-between;align-items:center;padding:16px 4px 0;}
+  #lb-caption{font-family:'Cormorant Garamond',serif;font-size:1.2rem;font-weight:300;font-style:italic;}
+  #lb-counter{font-size:0.65rem;letter-spacing:0.2em;color:var(--muted);}
+  .lb-close{position:fixed;top:28px;right:32px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid var(--border);cursor:pointer;color:var(--white);display:flex;align-items:center;justify-content:center;transition:all 0.35s cubic-bezier(.22,1,.36,1);}
+  .lb-close:hover{background:var(--gold);color:var(--black);border-color:var(--gold);transform:rotate(90deg);}
+  .lb-close svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;}
+  .lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--white);transition:all 0.35s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(8px);}
+  .lb-nav:hover{background:var(--gold);border-color:var(--gold);color:var(--black);transform:translateY(-50%) scale(1.1);}
+  .lb-nav svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;}
+  #lb-prev{left:24px;}#lb-next{right:24px;}
+  #lb-dl{position:fixed;top:28px;left:32px;padding:10px 22px;background:rgba(0,0,0,0.5);border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.35s cubic-bezier(.22,1,.36,1);font-family:'Montserrat',sans-serif;backdrop-filter:blur(8px);}
+  #lb-dl:hover{background:var(--gold);color:var(--black);border-color:var(--gold);}
+  #lb-dl svg{width:14px;height:14px;fill:currentColor;}
+  .progress-toast{position:fixed;bottom:32px;right:32px;z-index:500;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:16px 24px;min-width:300px;opacity:0;transform:translateX(20px) scale(0.97);transition:all 0.45s cubic-bezier(.22,1,.36,1);pointer-events:none;}
+  .progress-toast.show{opacity:1;transform:translateX(0) scale(1);}
+  .toast-title{font-size:0.7rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+  .toast-file{font-size:0.8rem;color:var(--muted);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .progress-bar-track{height:2px;background:rgba(255,255,255,0.05);border-radius:1px;}
+  .progress-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:1px;transition:width 0.2s ease;}
+  .error-toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);z-index:600;background:#1a0a0a;border:1px solid rgba(229,62,62,0.5);border-left:3px solid #e53e3e;padding:16px 24px;width:90%;max-width:480px;opacity:0;transition:all 0.4s cubic-bezier(.22,1,.36,1);pointer-events:none;font-size:0.72rem;color:#f5c0c0;line-height:1.6;border-radius:2px;box-shadow:0 8px 40px rgba(0,0,0,0.8);}
+  .error-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all;}
+  #empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;display:none;}
+  #empty-state.visible{display:block;}
+  .empty-icon{font-size:3rem;margin-bottom:16px;opacity:0.25;animation:pulse 3s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:0.25}50%{opacity:0.5}}
+  .empty-text{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--muted);font-weight:300;}
+  .empty-sub{font-size:0.72rem;color:rgba(245,240,235,0.2);letter-spacing:0.1em;margin-top:8px;}
+  #delete-modal{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.85);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity 0.35s cubic-bezier(.22,1,.36,1);}
+  #delete-modal.open{opacity:1;pointer-events:all;}
+  .del-box{background:var(--card2);border:1px solid rgba(229,62,62,0.25);padding:40px 48px;max-width:380px;width:90%;text-align:center;transform:scale(0.9) translateY(20px);transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
+  #delete-modal.open .del-box{transform:scale(1) translateY(0);}
+  .del-icon{width:52px;height:52px;border-radius:50%;background:rgba(229,62,62,0.1);border:1px solid rgba(229,62,62,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
+  .del-icon svg{width:22px;height:22px;stroke:#e53e3e;fill:none;stroke-width:1.5;}
+  .del-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;margin-bottom:10px;}
+  .del-sub{font-size:0.72rem;color:var(--muted);letter-spacing:0.08em;line-height:1.7;margin-bottom:28px;}
+  .del-name{color:var(--gold);font-style:italic;}
+  .del-actions{display:flex;gap:8px;justify-content:center;}
+  .del-cancel{padding:11px 28px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all 0.3s;}
+  .del-cancel:hover{border-color:var(--muted);color:var(--white);}
+  .del-confirm{padding:11px 28px;border:1px solid rgba(229,62,62,0.5);background:rgba(229,62,62,0.08);color:#e53e3e;font-size:0.68rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all 0.35s cubic-bezier(.22,1,.36,1);position:relative;overflow:hidden;}
+  .del-confirm::before{content:'';position:absolute;inset:0;background:#c0392b;transform:translateX(-101%);transition:transform 0.35s cubic-bezier(.22,1,.36,1);}
+  .del-confirm:hover::before{transform:translateX(0);}
+  .del-confirm:hover{color:#fff;border-color:#c0392b;}
+  .del-confirm span{position:relative;z-index:1;}
+  #ctx-menu{position:fixed;z-index:800;background:var(--card2);border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,0.8);min-width:180px;padding:6px 0;opacity:0;pointer-events:none;transform:scale(0.92) translateY(-8px);transition:opacity 0.25s,transform 0.25s cubic-bezier(.22,1,.36,1);border-radius:2px;}
+  #ctx-menu.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
+  .ctx-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:0.72rem;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s,color 0.2s,padding-left 0.25s;color:var(--muted);}
+  .ctx-item:hover{background:rgba(201,168,76,0.08);color:var(--gold);padding-left:24px;}
+  .ctx-item svg{width:14px;height:14px;fill:currentColor;}
+  .ctx-sep{height:1px;background:var(--border);margin:4px 0;}
+  .ctx-item.danger:hover{background:rgba(229,62,62,0.08);color:#e53e3e;}
+  footer{text-align:center;padding:40px 48px;border-top:1px solid var(--border);font-size:0.62rem;letter-spacing:0.2em;color:rgba(245,240,235,0.15);z-index:1;position:relative;}
+  footer span{color:var(--gold);}
+  ::-webkit-scrollbar{width:4px;}
+  ::-webkit-scrollbar-track{background:var(--black);}
+  ::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.3);border-radius:2px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--gold);}
+  ::selection{background:rgba(201,168,76,0.2);color:var(--gold);}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  @media(max-width:768px){
+    header{padding:16px 20px;gap:12px;}
+    nav{display:none;}
+    #sync-label{display:none;}
+    .hero h1{font-size:3.5rem;}
+    #upload-section,#gallery-section{padding:60px 20px;}
+    #gallery{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));}
+    #gallery.masonry{columns:2;}
+    #drop-zone{padding:48px 20px;}
+  }
+</style>
+</head>
+<body>
+
+<header id="header">
+  <div class="logo">Obs<span>cura</span></div>
+  <nav>
+    <a href="#upload-section">Upload</a>
+    <a href="#gallery-section">Gallery</a>
+    <a href="#" id="nav-slideshow">Slideshow</a>
+  </nav>
+  <div id="sync-status">
+    <div id="sync-dot"></div>
+    <span id="sync-label">Connecting…</span>
+  </div>
+</header>
+
+<section class="hero">
+  <p class="hero-eyebrow">Your Private Sanctuary</p>
+  <h1>The Art of<br/><em>Memory</em></h1>
+  <p class="hero-sub">A refined space for your most precious visual stories. Curated. Private. Eternal.</p>
+  <div class="hero-line"></div>
+  <p class="scroll-cta">Scroll to begin</p>
+</section>
+
+<section id="upload-section">
+  <p class="section-label page-reveal">Add to collection</p>
+  <h2 class="section-title page-reveal">Upload Photographs</h2>
+  <div id="drop-zone" class="page-reveal">
+    <div class="drop-icon">
+      <svg viewBox="0 0 24 24" stroke-width="1.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+    </div>
+    <p class="drop-title">Drop photographs here</p>
+    <p class="drop-sub">or browse from your device · JPG, PNG, WEBP, GIF · any size</p>
+    <button class="drop-btn" onclick="document.getElementById('file-input').click()"><span>Browse Files</span></button>
+    <input type="file" id="file-input" multiple accept="image/*"/>
+  </div>
+  <div id="stats-bar" class="page-reveal">
+    <div class="stat-pill" id="pill-total"><span id="stat-total">0</span>Photos</div>
+    <div class="stat-pill" id="pill-favs"><span id="stat-favs">0</span>Favorites</div>
+    <div class="stat-pill" id="pill-size"><span id="stat-size">0 MB</span>Storage Used</div>
+  </div>
+  <div id="storage-notice" class="page-reveal">
+    <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    Photos sync to the cloud — accessible from any device, anywhere.
+  </div>
+</section>
+
+<section id="gallery-section">
+  <p class="section-label page-reveal">Collection</p>
+  <h2 class="section-title page-reveal">Your Gallery</h2>
+  <div class="controls page-reveal">
+    <div class="filter-tabs">
+      <button class="filter-tab active" data-filter="all">All</button>
+      <button class="filter-tab" data-filter="favorites">Favorites</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <select class="sort-select" id="sort-select">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="name">Name A–Z</option>
+      </select>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-grid" title="Grid">
+          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg>
+        </button>
+        <button class="view-btn" id="btn-masonry" title="Masonry">
+          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="9"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="12" width="6" height="3"/><rect x="9" y="9" width="6" height="6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <div id="gallery">
+    <div id="empty-state" class="visible">
+      <div class="empty-icon">✦</div>
+      <p class="empty-text">Your gallery awaits</p>
+      <p class="empty-sub">Upload photographs to begin your collection</p>
+    </div>
+  </div>
+</section>
+
+<footer>Crafted with obsession · <span>Obscura</span> · Private Gallery · Powered by Supabase</footer>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <button class="lb-close" id="lb-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <button id="lb-dl"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</button>
+  <button class="lb-nav" id="lb-prev"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+  <button class="lb-nav" id="lb-next"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+  <div class="lb-content">
+    <img id="lb-img" src="" alt=""/>
+    <div class="lb-footer">
+      <div id="lb-caption"></div>
+      <div id="lb-counter"></div>
+    </div>
+  </div>
+</div>
+
+<!-- UPLOAD TOAST -->
+<div class="progress-toast" id="toast">
+  <div class="toast-title">Uploading to Cloud</div>
+  <div class="toast-file" id="toast-file">filename.jpg</div>
+  <div class="progress-bar-track"><div class="progress-bar-fill" id="toast-bar"></div></div>
+</div>
+
+<!-- ERROR TOAST -->
+<div class="error-toast" id="error-toast"></div>
+
+<!-- DELETE MODAL -->
+<div id="delete-modal">
+  <div class="del-box">
+    <div class="del-icon">
+      <svg viewBox="0 0 24 24"><polyline points="3,6 21,6"/><path d="M8 6V4h8v2M7 6l1 14h8l1-14"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+    </div>
+    <div class="del-title">Delete Photograph</div>
+    <div class="del-sub">Are you sure you want to remove<br/><span class="del-name" id="del-photo-name"></span><br/>from your collection? This cannot be undone.</div>
+    <div class="del-actions">
+      <button class="del-cancel" id="del-cancel">Cancel</button>
+      <button class="del-confirm" id="del-confirm"><span>Delete</span></button>
+    </div>
+  </div>
+</div>
+
+<!-- CTX MENU -->
+<div id="ctx-menu">
+  <div class="ctx-item" id="ctx-open"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>Open</div>
+  <div class="ctx-item" id="ctx-fav"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>Toggle Favorite</div>
+  <div class="ctx-item" id="ctx-download"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</div>
+  <div class="ctx-item" id="ctx-rename"><svg viewBox="0 0 16 16"><path d="M11 2l3 3L6 13l-4 1 1-4 8-8z"/></svg>Rename</div>
+  <div class="ctx-sep"></div>
+  <div class="ctx-item danger" id="ctx-delete"><svg viewBox="0 0 16 16"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>Delete</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+// ══════════════════════════════════════════
+//  SUPABASE CONFIG
+// ══════════════════════════════════════════
+const SUPABASE_URL = 'https://prlfgswggcexionantal.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
+const BUCKET    = 'photos';
+const META_FILE = 'gallery-metadata.json';
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let photos         = [];
+let currentFilter  = 'all';
+let currentSort    = 'newest';
+let lightboxIndex  = 0;
+let ctxTarget      = null;
+let deleteTargetId = null;
+
+// ══════════════════════════════════════════
+//  SYNC STATUS
+// ══════════════════════════════════════════
+function setSyncStatus(state, label) {
+  document.getElementById('sync-dot').className = state;
+  document.getElementById('sync-label').textContent = label;
+}
+
+// ══════════════════════════════════════════
+//  ERROR TOAST
+// ══════════════════════════════════════════
+function showError(msg) {
+  const el = document.getElementById('error-toast');
+  el.textContent = '⚠ ' + msg;
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove("show"), 12000);
+}
+
+// ══════════════════════════════════════════
+//  METADATA — stored as JSON file in bucket
+// ══════════════════════════════════════════
+async function loadMetadata() {
+  setSyncStatus('syncing', 'Loading…');
+  try {
+    // Step 1: list bucket root to verify bucket exists and connection works
+    const { data: listData, error: listError } = await supabase.storage.from(BUCKET).list('', { limit: 1 });
+    if (listError) {
+      throw new Error('BUCKET_ERROR: ' + listError.message);
+    }
+    // Step 2: try downloading metadata file
+    const { data, error } = await supabase.storage.from(BUCKET).download(META_FILE);
+    if (error) {
+      // Object not found = fresh empty gallery, totally fine
+      setSyncStatus('ok', 'Connected');
+      return [];
+    }
+    const text = await data.text();
+    setSyncStatus('ok', 'Connected');
+    return JSON.parse(text);
+  } catch(e) {
+    setSyncStatus('error', 'Error');
+    const msg = e.message || '';
+    if (msg.includes('BUCKET_ERROR') || msg.includes('not found') || msg.includes('does not exist')) {
+      showError('❌ Bucket "photos" not found. Go to Supabase → Storage → New bucket → name it exactly "photos" → toggle Public ON → Create bucket.');
+    } else if (msg.includes('JWT') || msg.includes('401') || msg.includes('invalid')) {
+      showError('❌ Invalid API key. Double-check your Supabase anon key.');
+    } else if (msg.includes('NetworkError') || msg.includes('fetch') || msg.includes('Failed to fetch')) {
+      showError('❌ Network/CORS error. Open browser Console (F12) and paste the red error here for help.');
+    } else {
+      showError('❌ Error: ' + msg + '  — Open browser Console (F12) and check for red errors.');
+    }
+    return [];
+  }
+}
+
+async function saveMetadata() {
+  try {
+    setSyncStatus('syncing', 'Saving…');
+    const meta = photos.map(({ src, ...rest }) => rest);
+    const blob = new Blob([JSON.stringify(meta)], { type: 'application/json' });
+    const { error } = await supabase.storage.from(BUCKET).upload(META_FILE, blob, {
+      upsert: true, contentType: 'application/json'
+    });
+    if (error) throw error;
+    setSyncStatus('ok', 'Saved ✓');
+    setTimeout(() => setSyncStatus('ok', 'Connected'), 2500);
+  } catch(e) {
+    setSyncStatus('error', 'Save failed');
+    showError('Could not save: ' + (e.message || 'Unknown error'));
+  }
+}
+
+function getPublicUrl(filePath) {
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(filePath);
+  return data.publicUrl;
+}
+
+// ══════════════════════════════════════════
+//  INIT — LOAD GALLERY
+// ══════════════════════════════════════════
+async function loadPhotos() {
+  const meta = await loadMetadata();
+  photos = meta.map(m => ({ ...m, src: getPublicUrl(m.filePath) }));
+  renderGallery();
+  updateStats();
+}
+
+// ══════════════════════════════════════════
+//  SCROLL & REVEAL
+// ══════════════════════════════════════════
+window.addEventListener('scroll', () =>
+  document.getElementById('header').classList.toggle('scrolled', window.scrollY > 60)
+);
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll('.page-reveal').forEach(el => observer.observe(el));
+
+// ══════════════════════════════════════════
+//  DRAG & DROP
+// ══════════════════════════════════════════
+const dropZone = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('drag-over'); }));
+['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  if (ev === 'drop' && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+}));
+fileInput.addEventListener('change', () => { handleFiles(fileInput.files); fileInput.value = ''; });
+
+function handleFiles(files) {
+  const queue = [...files].filter(f => f.type.startsWith('image/'));
+  queue.reduce((p, file) => p.then(() => uploadPhoto(file)), Promise.resolve());
+}
+
+// ══════════════════════════════════════════
+//  UPLOAD
+// ══════════════════════════════════════════
+async function uploadPhoto(file) {
+  const toast = document.getElementById('toast');
+  const bar   = document.getElementById('toast-bar');
+  document.getElementById('toast-file').textContent = file.name;
+  toast.classList.add('show');
+  bar.style.width = '0%';
+
+  let pct = 0;
+  const iv = setInterval(() => { pct = Math.min(pct + Math.random() * 8 + 4, 85); bar.style.width = pct + '%'; }, 120);
+
+  try {
+    const id       = Date.now() + '_' + Math.random().toString(36).slice(2);
+    const ext      = (file.name.split('.').pop() || 'jpg').toLowerCase();
+    const filePath = `images/${id}.${ext}`;
+
+    setSyncStatus('syncing', 'Uploading…');
+    const { error: upErr } = await supabase.storage.from(BUCKET).upload(filePath, file, {
+      contentType: file.type, upsert: false
+    });
+    clearInterval(iv);
+    if (upErr) throw upErr;
+
+    bar.style.width = '100%';
+    const photo = { id, name: file.name.replace(/\.[^.]+$/, ''), filePath, date: new Date().toISOString(), size: file.size, favorite: false, src: getPublicUrl(filePath) };
+    photos.push(photo);
+    await saveMetadata();
+    renderGallery();
+    bumpStat('pill-total');
+    updateStats();
+  } catch(e) {
+    clearInterval(iv);
+    setSyncStatus('error', 'Upload failed');
+    showError('Upload failed: ' + (e.message || 'Unknown error. Make sure your Supabase bucket is public.'));
+  } finally {
+    setTimeout(() => { toast.classList.remove('show'); bar.style.width = '0%'; }, 900);
+  }
+}
+
+// ══════════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════════
+async function deletePhotoCloud(id) {
+  const photo = photos.find(p => p.id === id);
+  if (!photo) return;
+  await supabase.storage.from(BUCKET).remove([photo.filePath]);
+  photos = photos.filter(p => p.id !== id);
+  await saveMetadata();
+}
+
+// ══════════════════════════════════════════
+//  STATS
+// ══════════════════════════════════════════
+function updateStats() {
+  document.getElementById('stat-total').textContent = photos.length;
+  document.getElementById('stat-favs').textContent  = photos.filter(p => p.favorite).length;
+  const bytes = photos.reduce((a, p) => a + (p.size || 0), 0);
+  document.getElementById('stat-size').textContent  = (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+function bumpStat(id) {
+  const el = document.getElementById(id);
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+}
+
+// ══════════════════════════════════════════
+//  FAVORITE
+// ══════════════════════════════════════════
+async function toggleFavorite(id) {
+  const p = photos.find(p => p.id === id);
+  if (p) { p.favorite = !p.favorite; await saveMetadata(); }
+}
+
+// ══════════════════════════════════════════
+//  DOWNLOAD
+// ══════════════════════════════════════════
+async function downloadPhoto(photo) {
+  try {
+    const res  = await fetch(photo.src);
+    const blob = await res.blob();
+    const ext  = photo.filePath.split('.').pop() || 'jpg';
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = photo.name + '.' + ext;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch(e) { window.open(photo.src, '_blank'); }
+}
+
+// ══════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════
+function getFiltered() {
+  let f = photos.filter(p => currentFilter === 'favorites' ? p.favorite : true);
+  if      (currentSort === 'oldest') f = f.slice().sort((a,b) => new Date(a.date)-new Date(b.date));
+  else if (currentSort === 'newest') f = f.slice().sort((a,b) => new Date(b.date)-new Date(a.date));
+  else if (currentSort === 'name')   f = f.slice().sort((a,b) => a.name.localeCompare(b.name));
+  return f;
+}
+
+function renderGallery() {
+  const gallery    = document.getElementById('gallery');
+  const emptyState = document.getElementById('empty-state');
+  [...gallery.querySelectorAll('.photo-card')].forEach(c => c.remove());
+  const filtered = getFiltered();
+  if (filtered.length === 0) { emptyState.classList.add('visible'); return; }
+  emptyState.classList.remove('visible');
+
+  filtered.forEach((photo, idx) => {
+    const card = document.createElement('div');
+    card.className = 'photo-card';
+    card.style.animationDelay = Math.min(idx * 0.06, 0.6) + 's';
+    card.dataset.id = photo.id;
+    card.innerHTML = `
+      <img src="${photo.src}" alt="${photo.name}" loading="lazy"/>
+      <div class="card-overlay">
+        <div class="card-title">${photo.name}</div>
+        <div class="card-meta">${new Date(photo.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+      </div>
+      <div class="card-actions">
+        <button class="card-btn fav-btn ${photo.favorite?'favorited':''}" title="Favorite">
+          <svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>
+        </button>
+        <button class="card-btn expand-btn" title="View">
+          <svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>
+        </button>
+        <button class="card-btn dl-btn" title="Download">
+          <svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>
+        </button>
+        <button class="card-btn delete-btn" title="Delete">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>
+        </button>
+      </div>`;
+    card.querySelector('.fav-btn').addEventListener('click',    async e => { e.stopPropagation(); await toggleFavorite(photo.id); renderGallery(); bumpStat('pill-favs'); updateStats(); });
+    card.querySelector('.expand-btn').addEventListener('click', e => { e.stopPropagation(); openLightbox(photo.id); });
+    card.querySelector('.dl-btn').addEventListener('click',     e => { e.stopPropagation(); downloadPhoto(photo); });
+    card.querySelector('.delete-btn').addEventListener('click', e => { e.stopPropagation(); openDeleteModal(photo.id); });
+    card.addEventListener('click',       () => openLightbox(photo.id));
+    card.addEventListener('contextmenu', e  => { e.preventDefault(); ctxTarget = photo.id; openCtx(e.clientX, e.clientY); });
+    gallery.insertBefore(card, emptyState);
+  });
+}
+
+// ══════════════════════════════════════════
+//  LIGHTBOX
+// ══════════════════════════════════════════
+function openLightbox(id) {
+  const f = getFiltered();
+  lightboxIndex = f.findIndex(p => p.id === id);
+  showLightboxPhoto(f);
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function showLightboxPhoto(filtered) {
+  const p = filtered[lightboxIndex]; if (!p) return;
+  const img = document.getElementById('lb-img');
+  img.classList.add('switching');
+  setTimeout(() => {
+    img.src = p.src;
+    document.getElementById('lb-caption').textContent = p.name;
+    document.getElementById('lb-counter').textContent = (lightboxIndex+1) + ' / ' + filtered.length;
+    document.getElementById('lb-dl').onclick = () => downloadPhoto(p);
+    img.classList.remove('switching');
+  }, 200);
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  if (!document.getElementById('delete-modal').classList.contains('open')) document.body.style.overflow = '';
+}
+document.getElementById('lb-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e => { if (e.target===document.getElementById('lightbox')) closeLightbox(); });
+document.getElementById('lb-prev').addEventListener('click', () => { const f=getFiltered(); lightboxIndex=(lightboxIndex-1+f.length)%f.length; showLightboxPhoto(f); });
+document.getElementById('lb-next').addEventListener('click', () => { const f=getFiltered(); lightboxIndex=(lightboxIndex+1)%f.length; showLightboxPhoto(f); });
+document.addEventListener('keydown', e => {
+  if (document.getElementById('delete-modal').classList.contains('open')) { if(e.key==='Escape') closeDeleteModal(); return; }
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  const f = getFiltered();
+  if (e.key==='ArrowRight') { lightboxIndex=(lightboxIndex+1)%f.length; showLightboxPhoto(f); }
+  if (e.key==='ArrowLeft')  { lightboxIndex=(lightboxIndex-1+f.length)%f.length; showLightboxPhoto(f); }
+  if (e.key==='Escape')     closeLightbox();
+});
+
+// ══════════════════════════════════════════
+//  SLIDESHOW
+// ══════════════════════════════════════════
+let slideshowTimer = null;
+document.getElementById('nav-slideshow').addEventListener('click', e => {
+  e.preventDefault(); if (!photos.length) return;
+  openLightbox(getFiltered()[0]?.id);
+  clearInterval(slideshowTimer);
+  slideshowTimer = setInterval(() => {
+    if (!document.getElementById('lightbox').classList.contains('open')) { clearInterval(slideshowTimer); return; }
+    const f = getFiltered(); lightboxIndex=(lightboxIndex+1)%f.length; showLightboxPhoto(f);
+  }, 3500);
+});
+
+// ══════════════════════════════════════════
+//  DELETE MODAL
+// ══════════════════════════════════════════
+const deleteModal = document.getElementById('delete-modal');
+function openDeleteModal(id) {
+  const p = photos.find(p => p.id===id); if (!p) return;
+  deleteTargetId = id;
+  document.getElementById('del-photo-name').textContent = '"' + p.name + '"';
+  deleteModal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDeleteModal() {
+  deleteModal.classList.remove('open'); deleteTargetId = null;
+  if (!document.getElementById('lightbox').classList.contains('open')) document.body.style.overflow = '';
+}
+document.getElementById('del-cancel').addEventListener('click', closeDeleteModal);
+deleteModal.addEventListener('click', e => { if (e.target===deleteModal) closeDeleteModal(); });
+document.getElementById('del-confirm').addEventListener('click', async () => {
+  if (!deleteTargetId) return;
+  const id = deleteTargetId; closeDeleteModal();
+  const card = document.querySelector(`.photo-card[data-id="${id}"]`);
+  if (card) { card.style.transition='opacity 0.35s,transform 0.35s'; card.style.opacity='0'; card.style.transform='scale(0.88)'; }
+  await deletePhotoCloud(id);
+  renderGallery(); updateStats();
+});
+
+// ══════════════════════════════════════════
+//  CONTEXT MENU
+// ══════════════════════════════════════════
+const ctxMenu = document.getElementById('ctx-menu');
+function openCtx(x,y) {
+  ctxMenu.style.left = Math.min(x,window.innerWidth-200)+'px';
+  ctxMenu.style.top  = Math.min(y,window.innerHeight-200)+'px';
+  ctxMenu.classList.add('open');
+}
+document.addEventListener('click', () => ctxMenu.classList.remove('open'));
+document.getElementById('ctx-open').addEventListener('click',     () => { if(ctxTarget) openLightbox(ctxTarget); });
+document.getElementById('ctx-fav').addEventListener('click', async () => { if(ctxTarget){await toggleFavorite(ctxTarget);renderGallery();updateStats();} });
+document.getElementById('ctx-download').addEventListener('click', () => { const p=photos.find(p=>p.id===ctxTarget);if(p)downloadPhoto(p); });
+document.getElementById('ctx-rename').addEventListener('click', async () => {
+  const p=photos.find(p=>p.id===ctxTarget);if(!p)return;
+  const n=prompt('Rename photograph:',p.name);
+  if(n&&n.trim()){p.name=n.trim();await saveMetadata();renderGallery();}
+});
+document.getElementById('ctx-delete').addEventListener('click', () => { if(ctxTarget) openDeleteModal(ctxTarget); });
+
+// ══════════════════════════════════════════
+//  FILTERS, SORT, VIEW
+// ══════════════════════════════════════════
+document.querySelectorAll('.filter-tab').forEach(btn => btn.addEventListener('click', () => {
+  document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active'); currentFilter=btn.dataset.filter; renderGallery();
+}));
+document.getElementById('sort-select').addEventListener('change', e => { currentSort=e.target.value; renderGallery(); });
+document.getElementById('btn-grid').addEventListener('click', () => {
+  document.getElementById('gallery').classList.remove('masonry');
+  document.getElementById('btn-grid').classList.add('active');
+  document.getElementById('btn-masonry').classList.remove('active');
+});
+document.getElementById('btn-masonry').addEventListener('click', () => {
+  document.getElementById('gallery').classList.add('masonry');
+  document.getElementById('btn-masonry').classList.add('active');
+  document.getElementById('btn-grid').classList.remove('active');
+});
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+loadPhotos();
+</script>
+</body>
+</html>
