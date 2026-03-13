@@ -5,14 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>OBSCURA — Private Gallery</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 <style>
-  :root{--black:#050505;--deep:#0a0a0a;--card:#111111;--card2:#161616;--border:rgba(255,255,255,0.07);--gold:#c9a84c;--gold2:#f0d080;--white:#f5f0eb;--muted:rgba(245,240,235,0.4);--glow:rgba(201,168,76,0.15);}
+  :root{--black:#050505;--card:#111111;--card2:#161616;--border:rgba(255,255,255,0.07);--gold:#c9a84c;--gold2:#f0d080;--white:#f5f0eb;--muted:rgba(245,240,235,0.4);--glow:rgba(201,168,76,0.15);}
   *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
   body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4;}
   .page-reveal{opacity:0;transform:translateY(32px);transition:opacity 0.8s cubic-bezier(.22,1,.36,1),transform 0.8s cubic-bezier(.22,1,.36,1);}
   .page-reveal.visible{opacity:1;transform:translateY(0);}
+
+  /* HEADER */
   header{position:fixed;top:0;left:0;right:0;z-index:100;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(5,5,5,0.97),transparent);backdrop-filter:blur(2px);transition:padding 0.4s,background 0.4s;}
   header.scrolled{padding:14px 48px;background:rgba(5,5,5,0.98);}
   .logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;position:relative;}
@@ -20,9 +23,17 @@
   .logo::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
   nav{display:flex;gap:32px;align-items:center;}
   nav a{color:var(--muted);text-decoration:none;font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;transition:color 0.3s;position:relative;padding-bottom:4px;}
-  nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.4s ease;}
+  nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.4s;}
   nav a:hover{color:var(--gold);}
   nav a:hover::after{width:100%;}
+
+  /* STATUS DOT */
+  #db-status{display:flex;align-items:center;gap:8px;font-size:0.62rem;letter-spacing:0.15em;color:var(--muted);text-transform:uppercase;}
+  #db-status .dot{width:8px;height:8px;border-radius:50%;background:#555;transition:background 0.5s;}
+  #db-status.connected .dot{background:#4ade80;box-shadow:0 0 8px #4ade80;}
+  #db-status.error .dot{background:#f87171;}
+
+  /* HERO */
   .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;position:relative;z-index:1;}
   .hero-eyebrow{font-size:0.65rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;margin-bottom:24px;opacity:0;animation:fadeUp 1s 0.3s forwards;}
   .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(4rem,10vw,9rem);font-weight:300;line-height:0.9;letter-spacing:-0.02em;opacity:0;animation:fadeUp 1s 0.6s forwards;}
@@ -30,9 +41,13 @@
   .hero-sub{margin-top:32px;font-size:0.8rem;letter-spacing:0.15em;color:var(--muted);max-width:400px;opacity:0;animation:fadeUp 1s 0.9s forwards;}
   .hero-line{width:1px;height:80px;background:linear-gradient(to bottom,var(--gold),transparent);margin:48px auto 0;opacity:0;animation:fadeUp 1s 1.2s forwards;}
   .scroll-cta{margin-top:16px;font-size:0.62rem;letter-spacing:0.3em;color:rgba(201,168,76,0.5);text-transform:uppercase;opacity:0;animation:fadeUp 1s 1.5s forwards;}
+
+  /* SECTIONS */
   #upload-section,#gallery-section{padding:80px 48px;position:relative;z-index:1;}
   .section-label{font-size:0.65rem;letter-spacing:0.4em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:16px;}
   .section-title{font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:300;text-align:center;margin-bottom:48px;letter-spacing:0.05em;}
+
+  /* DROP ZONE */
   #drop-zone{max-width:700px;margin:0 auto;border:1px dashed rgba(201,168,76,0.3);border-radius:4px;padding:72px 48px;text-align:center;position:relative;background:var(--card);transition:all 0.5s cubic-bezier(.22,1,.36,1);overflow:hidden;}
   #drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--glow) 0%,transparent 70%);opacity:0;transition:opacity 0.4s;}
   #drop-zone.drag-over{border-color:var(--gold);box-shadow:0 0 60px var(--glow),inset 0 0 40px var(--glow);transform:scale(1.01);}
@@ -42,20 +57,26 @@
   .drop-icon svg{width:24px;height:24px;stroke:var(--gold);fill:none;}
   .drop-title{font-family:'Cormorant Garamond',serif;font-size:1.6rem;font-weight:300;margin-bottom:8px;}
   .drop-sub{font-size:0.72rem;color:var(--muted);letter-spacing:0.1em;}
-  .drop-btn{display:inline-block;margin-top:28px;padding:12px 36px;border:1px solid var(--gold);color:var(--gold);font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:all 0.4s cubic-bezier(.22,1,.36,1);background:transparent;font-family:'Montserrat',sans-serif;position:relative;overflow:hidden;}
+  .drop-btn{display:inline-block;margin-top:28px;padding:12px 36px;border:1px solid var(--gold);color:var(--gold);font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;background:transparent;font-family:'Montserrat',sans-serif;position:relative;overflow:hidden;transition:color 0.4s;}
   .drop-btn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
   .drop-btn:hover::before{transform:translateX(0);}
   .drop-btn:hover{color:var(--black);}
   .drop-btn span{position:relative;z-index:1;}
   #file-input{display:none;}
+
+  /* STATS */
   #stats-bar{max-width:700px;margin:24px auto 0;display:flex;gap:1px;}
   .stat-pill{flex:1;background:var(--card2);padding:14px 20px;text-align:center;font-size:0.65rem;letter-spacing:0.15em;color:var(--muted);transition:background 0.3s;}
-  .stat-pill span{display:block;font-size:1.4rem;color:var(--gold);font-family:'Cormorant Garamond',serif;font-weight:300;transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
+  .stat-pill span{display:block;font-size:1.4rem;color:var(--gold);font-family:'Cormorant Garamond',serif;font-weight:300;}
   .stat-pill:hover{background:#1a1a1a;}
   .stat-pill.bump span{animation:statBump 0.4s cubic-bezier(.22,1,.36,1);}
   @keyframes statBump{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
+
+  /* STORAGE NOTICE */
   #storage-notice{max-width:700px;margin:16px auto 0;padding:12px 20px;background:rgba(201,168,76,0.06);border:1px solid rgba(201,168,76,0.15);display:flex;align-items:center;gap:12px;font-size:0.68rem;letter-spacing:0.08em;color:var(--muted);}
   #storage-notice svg{width:16px;height:16px;stroke:var(--gold);flex-shrink:0;fill:none;}
+
+  /* CONTROLS */
   .controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:40px;flex-wrap:wrap;gap:16px;}
   .view-toggle{display:flex;gap:1px;}
   .view-btn{width:40px;height:40px;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.3s;}
@@ -64,11 +85,14 @@
   .filter-tabs{display:flex;gap:2px;}
   .filter-tab{padding:10px 24px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:0.65rem;letter-spacing:0.15em;text-transform:uppercase;cursor:pointer;transition:all 0.35s cubic-bezier(.22,1,.36,1);font-family:'Montserrat',sans-serif;}
   .filter-tab.active,.filter-tab:hover{border-color:var(--gold);color:var(--gold);}
-  .sort-select{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:10px 20px;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;font-family:'Montserrat',sans-serif;outline:none;appearance:none;transition:border-color 0.3s;}
-  .sort-select:hover{border-color:rgba(201,168,76,0.3);}
+  .sort-select{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:10px 20px;font-size:0.65rem;letter-spacing:0.1em;cursor:pointer;font-family:'Montserrat',sans-serif;outline:none;appearance:none;}
+
+  /* GALLERY */
   #gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;}
   #gallery.masonry{columns:4;column-gap:16px;display:block;}
   #gallery.masonry .photo-card{break-inside:avoid;margin-bottom:16px;}
+
+  /* CARDS */
   .photo-card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;opacity:0;transform:translateY(30px) scale(0.96);animation:cardReveal 0.6s cubic-bezier(.22,1,.36,1) forwards;transition:transform 0.5s cubic-bezier(.22,1,.36,1),box-shadow 0.5s,border-color 0.4s;}
   .photo-card:hover{transform:translateY(-8px) scale(1.02);border-color:rgba(201,168,76,0.35);box-shadow:0 30px 70px rgba(0,0,0,0.8),0 0 40px rgba(201,168,76,0.08);}
   @keyframes cardReveal{to{opacity:1;transform:translateY(0) scale(1);}}
@@ -87,7 +111,9 @@
   .card-btn svg{width:14px;height:14px;fill:currentColor;}
   .card-btn.favorited svg{fill:#e53e3e;}
   .card-btn.favorited{border-color:rgba(229,62,62,0.4);}
-  #lightbox{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.5s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(0px);}
+
+  /* LIGHTBOX */
+  #lightbox{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.5s cubic-bezier(.22,1,.36,1);}
   #lightbox.open{opacity:1;pointer-events:all;backdrop-filter:blur(20px);}
   .lb-content{position:relative;max-width:90vw;max-height:90vh;display:flex;flex-direction:column;transform:scale(0.88) translateY(24px);transition:transform 0.55s cubic-bezier(.22,1,.36,1);}
   #lightbox.open .lb-content{transform:scale(1) translateY(0);}
@@ -102,23 +128,30 @@
   .lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:52px;height:52px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--white);transition:all 0.35s cubic-bezier(.22,1,.36,1);backdrop-filter:blur(8px);}
   .lb-nav:hover{background:var(--gold);border-color:var(--gold);color:var(--black);transform:translateY(-50%) scale(1.1);}
   .lb-nav svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;}
-  #lb-prev{left:24px;}
-  #lb-next{right:24px;}
-  #lb-dl{position:fixed;top:28px;left:32px;padding:10px 22px;background:rgba(0,0,0,0.5);border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.35s cubic-bezier(.22,1,.36,1);font-family:'Montserrat',sans-serif;backdrop-filter:blur(8px);}
+  #lb-prev{left:24px;}#lb-next{right:24px;}
+  #lb-dl{position:fixed;top:28px;left:32px;padding:10px 22px;background:rgba(0,0,0,0.5);border:1px solid rgba(201,168,76,0.4);color:var(--gold);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all 0.35s;font-family:'Montserrat',sans-serif;backdrop-filter:blur(8px);}
   #lb-dl:hover{background:var(--gold);color:var(--black);border-color:var(--gold);}
   #lb-dl svg{width:14px;height:14px;fill:currentColor;}
-  .progress-toast{position:fixed;bottom:32px;right:32px;z-index:500;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:16px 24px;min-width:280px;opacity:0;transform:translateX(20px) scale(0.97);transition:all 0.45s cubic-bezier(.22,1,.36,1);pointer-events:none;}
-  .progress-toast.show{opacity:1;transform:translateX(0) scale(1);}
+
+  /* TOAST */
+  .toast{position:fixed;bottom:32px;right:32px;z-index:500;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:16px 24px;min-width:280px;opacity:0;transform:translateX(20px) scale(0.97);transition:all 0.45s cubic-bezier(.22,1,.36,1);pointer-events:none;}
+  .toast.show{opacity:1;transform:translateX(0) scale(1);}
+  .toast.error{border-left-color:#f87171;}
   .toast-title{font-size:0.7rem;letter-spacing:0.15em;color:var(--gold);text-transform:uppercase;margin-bottom:8px;}
+  .toast.error .toast-title{color:#f87171;}
   .toast-file{font-size:0.8rem;color:var(--muted);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .progress-bar-track{height:2px;background:rgba(255,255,255,0.05);border-radius:1px;}
-  .progress-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:1px;transition:width 0.15s ease;}
+  .progress-bar-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));border-radius:1px;transition:width 0.2s ease;}
+
+  /* EMPTY */
   #empty-state{grid-column:1/-1;text-align:center;padding:80px 20px;display:none;}
   #empty-state.visible{display:block;}
   .empty-icon{font-size:3rem;margin-bottom:16px;opacity:0.25;animation:pulse 3s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:0.25}50%{opacity:0.5}}
   .empty-text{font-family:'Cormorant Garamond',serif;font-size:1.8rem;color:var(--muted);font-weight:300;}
   .empty-sub{font-size:0.72rem;color:rgba(245,240,235,0.2);letter-spacing:0.1em;margin-top:8px;}
+
+  /* CTX */
   #ctx-menu{position:fixed;z-index:800;background:var(--card2);border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,0.8);min-width:180px;padding:6px 0;opacity:0;pointer-events:none;transform:scale(0.92) translateY(-8px);transition:opacity 0.25s,transform 0.25s cubic-bezier(.22,1,.36,1);border-radius:2px;}
   #ctx-menu.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
   .ctx-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:0.72rem;letter-spacing:0.08em;cursor:pointer;transition:background 0.2s,color 0.2s,padding-left 0.25s;color:var(--muted);}
@@ -126,7 +159,8 @@
   .ctx-item svg{width:14px;height:14px;fill:currentColor;}
   .ctx-sep{height:1px;background:var(--border);margin:4px 0;}
   .ctx-item.danger:hover{background:rgba(229,62,62,0.08);color:#e53e3e;}
-  footer{text-align:center;padding:40px 48px;border-top:1px solid var(--border);font-size:0.62rem;letter-spacing:0.2em;color:rgba(245,240,235,0.15);z-index:1;position:relative;}
+
+  footer{text-align:center;padding:40px 48px;border-top:1px solid var(--border);font-size:0.62rem;letter-spacing:0.2em;color:rgba(245,240,235,0.15);position:relative;z-index:1;}
   footer span{color:var(--gold);}
   ::-webkit-scrollbar{width:4px;}
   ::-webkit-scrollbar-track{background:var(--black);}
@@ -146,6 +180,7 @@
     <a href="#gallery-section">Gallery</a>
     <a href="#" id="nav-slideshow">Slideshow</a>
   </nav>
+  <div id="db-status"><div class="dot"></div><span id="db-label">Connecting…</span></div>
 </header>
 
 <section class="hero">
@@ -175,7 +210,7 @@
   </div>
   <div id="storage-notice" class="page-reveal">
     <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Photos are saved in your browser's local storage — they persist across sessions on this device.
+    Photos are stored securely in Supabase — accessible from any device, anywhere.
   </div>
 </section>
 
@@ -194,12 +229,8 @@
         <option value="name">Name A–Z</option>
       </select>
       <div class="view-toggle">
-        <button class="view-btn active" id="btn-grid" title="Grid">
-          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg>
-        </button>
-        <button class="view-btn" id="btn-masonry" title="Masonry">
-          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="9"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="12" width="6" height="3"/><rect x="9" y="9" width="6" height="6"/></svg>
-        </button>
+        <button class="view-btn active" id="btn-grid" title="Grid"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg></button>
+        <button class="view-btn" id="btn-masonry" title="Masonry"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="9"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="12" width="6" height="3"/><rect x="9" y="9" width="6" height="6"/></svg></button>
       </div>
     </div>
   </div>
@@ -212,8 +243,9 @@
   </div>
 </section>
 
-<footer>Crafted with obsession · <span>Obscura</span> · Private Gallery</footer>
+<footer>Crafted with obsession · <span>Obscura</span> · Powered by Supabase</footer>
 
+<!-- LIGHTBOX -->
 <div id="lightbox">
   <button class="lb-close" id="lb-close"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   <button id="lb-dl"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</button>
@@ -221,19 +253,18 @@
   <button class="lb-nav" id="lb-next"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
   <div class="lb-content">
     <img id="lb-img" src="" alt=""/>
-    <div class="lb-footer">
-      <div id="lb-caption"></div>
-      <div id="lb-counter"></div>
-    </div>
+    <div class="lb-footer"><div id="lb-caption"></div><div id="lb-counter"></div></div>
   </div>
 </div>
 
-<div class="progress-toast" id="toast">
-  <div class="toast-title">Saving to Gallery</div>
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toast-title">Uploading to Supabase</div>
   <div class="toast-file" id="toast-file">filename.jpg</div>
   <div class="progress-bar-track"><div class="progress-bar-fill" id="toast-bar"></div></div>
 </div>
 
+<!-- CTX MENU -->
 <div id="ctx-menu">
   <div class="ctx-item" id="ctx-open"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>Open</div>
   <div class="ctx-item" id="ctx-fav"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>Toggle Favorite</div>
@@ -244,189 +275,161 @@
 </div>
 
 <script>
-// ── IndexedDB SETUP ──
-const DB_NAME = 'ObscuraDB';
-const DB_VERSION = 1;
-const STORE = 'photos';
-let db;
+// ── SUPABASE CONFIG ──
+const SUPA_URL = 'https://prlfgswggcexionantal.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
+const BUCKET  = 'photos';
+const TABLE   = 'photos';
+const HEADERS = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Content-Type': 'application/json', 'Prefer': 'return=representation' };
 
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains(STORE)) {
-        const store = d.createObjectStore(STORE, { keyPath: 'id' });
-        store.createIndex('date', 'date', { unique: false });
-      }
-    };
-    req.onsuccess = e => { db = e.target.result; resolve(db); };
-    req.onerror = () => reject(req.error);
-  });
-}
-
-function dbGetAll() {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, 'readonly');
-    const req = tx.objectStore(STORE).getAll();
-    req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error);
-  });
-}
-
-function dbPut(photo) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    const req = tx.objectStore(STORE).put(photo);
-    req.onsuccess = () => resolve();
-    req.onerror = () => reject(req.error);
-  });
-}
-
-function dbDelete(id) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(STORE, 'readwrite');
-    const req = tx.objectStore(STORE).delete(id);
-    req.onsuccess = () => resolve();
-    req.onerror = () => reject(req.error);
-  });
-}
+// ── SUPABASE API HELPERS ──
+const api = {
+  async getAll() {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${TABLE}?select=*&order=date.desc`, { headers: HEADERS });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async insert(row) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${TABLE}`, { method:'POST', headers: HEADERS, body: JSON.stringify(row) });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+  async update(id, patch) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${TABLE}?id=eq.${id}`, { method:'PATCH', headers: HEADERS, body: JSON.stringify(patch) });
+    if (!r.ok) throw new Error(await r.text());
+  },
+  async delete(id) {
+    const r = await fetch(`${SUPA_URL}/rest/v1/${TABLE}?id=eq.${id}`, { method:'DELETE', headers: HEADERS });
+    if (!r.ok) throw new Error(await r.text());
+  },
+  async uploadFile(path, file) {
+    const h = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Content-Type': file.type };
+    const r = await fetch(`${SUPA_URL}/storage/v1/object/${BUCKET}/${path}`, { method:'POST', headers: h, body: file });
+    if (!r.ok) throw new Error(await r.text());
+  },
+  async deleteFile(path) {
+    const r = await fetch(`${SUPA_URL}/storage/v1/object/${BUCKET}/${encodeURIComponent(path)}`, { method:'DELETE', headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}` } });
+    if (!r.ok) throw new Error(await r.text());
+  },
+  publicUrl(path) {
+    return `${SUPA_URL}/storage/v1/object/public/${BUCKET}/${path}`;
+  }
+};
 
 // ── STATE ──
-let photos = [];
-let currentFilter = 'all';
-let currentSort = 'newest';
-let lightboxIndex = 0;
-let ctxTarget = null;
+let photos = [], currentFilter = 'all', currentSort = 'newest', lightboxIndex = 0, ctxTarget = null;
+
+// ── UI HELPERS ──
+const $  = id => document.getElementById(id);
+const setStatus = (type, label) => {
+  const el = $('db-status'); el.className = type; $('db-label').textContent = label;
+};
+const showToast = (title, file, isError=false) => {
+  const t=$('toast'); t.className='toast'+(isError?' error':'');
+  $('toast-title').textContent=title; $('toast-file').textContent=file;
+  $('toast-bar').style.width='0%'; t.classList.add('show');
+};
+const hideToast = () => setTimeout(()=>{ $('toast').classList.remove('show'); $('toast-bar').style.width='0%'; }, 800);
+const setBar = pct => { $('toast-bar').style.width = pct+'%'; };
+const bumpStat = id => { const e=$('pill-'+id); e.classList.remove('bump'); void e.offsetWidth; e.classList.add('bump'); };
 
 // ── SCROLL HEADER ──
-window.addEventListener('scroll', () => {
-  document.getElementById('header').classList.toggle('scrolled', window.scrollY > 60);
-});
+window.addEventListener('scroll', () => $('header').classList.toggle('scrolled', scrollY > 60));
 
 // ── INTERSECTION OBSERVER ──
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-}, { threshold: 0.15 });
-document.querySelectorAll('.page-reveal').forEach(el => observer.observe(el));
+const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target);} }), {threshold:0.15});
+document.querySelectorAll('.page-reveal').forEach(el => obs.observe(el));
 
 // ── DRAG & DROP ──
-const dropZone = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-['dragenter','dragover'].forEach(ev => dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('drag-over'); }));
-['dragleave','drop'].forEach(ev => dropZone.addEventListener(ev, e => {
-  e.preventDefault(); dropZone.classList.remove('drag-over');
-  if (ev === 'drop' && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
-}));
-fileInput.addEventListener('change', () => { handleFiles(fileInput.files); fileInput.value = ''; });
+const dz = $('drop-zone'), fi = $('file-input');
+['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e=>{e.preventDefault();dz.classList.add('drag-over');}));
+['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e=>{e.preventDefault();dz.classList.remove('drag-over');if(ev==='drop'&&e.dataTransfer.files.length)handleFiles(e.dataTransfer.files);}));
+fi.addEventListener('change', ()=>{handleFiles(fi.files);fi.value='';});
 
-// ── FILE HANDLING ──
 function handleFiles(files) {
-  [...files].forEach((file, i) => {
-    if (!file.type.startsWith('image/')) return;
-    setTimeout(() => simulateUpload(file), i * 500);
-  });
+  [...files].filter(f=>f.type.startsWith('image/')).forEach((f,i) => setTimeout(()=>uploadPhoto(f), i*600));
 }
 
-function simulateUpload(file) {
-  const toast = document.getElementById('toast');
-  const bar = document.getElementById('toast-bar');
-  document.getElementById('toast-file').textContent = file.name;
-  toast.classList.add('show'); bar.style.width = '0%';
+// ── UPLOAD ──
+async function uploadPhoto(file) {
+  showToast('Uploading to Supabase', file.name);
   let pct = 0;
-  const iv = setInterval(() => {
-    pct += Math.random() * 16 + 8;
-    if (pct >= 100) {
-      pct = 100; clearInterval(iv);
-      addPhoto(file).then(() => {
-        setTimeout(() => { toast.classList.remove('show'); bar.style.width = '0%'; }, 600);
-      });
-    }
-    bar.style.width = pct + '%';
-  }, 80);
+  const iv = setInterval(()=>{ pct=Math.min(pct+Math.random()*12+4, 85); setBar(pct); }, 120);
+  try {
+    const id   = crypto.randomUUID ? crypto.randomUUID() : (Date.now()+'_'+Math.random().toString(36).slice(2));
+    const ext  = file.name.split('.').pop();
+    const path = `${id}.${ext}`;
+    const name = file.name.replace(/\.[^.]+$/,'');
+    await api.uploadFile(path, file);
+    const url  = api.publicUrl(path);
+    const row  = { id, name, url, path, size: file.size, favorite: false, date: new Date().toISOString() };
+    await api.insert(row);
+    clearInterval(iv); setBar(100);
+    photos.unshift(row);
+    renderGallery(); bumpStat('total'); updateStats();
+    hideToast();
+  } catch(err) {
+    clearInterval(iv);
+    showToast('Upload failed', err.message||'Check Supabase bucket & table', true);
+    setTimeout(()=>$('toast').classList.remove('show'), 4000);
+    console.error(err);
+  }
 }
 
-async function addPhoto(file) {
-  return new Promise(resolve => {
-    const reader = new FileReader();
-    reader.onload = async e => {
-      const photo = {
-        id: Date.now() + '_' + Math.random().toString(36).slice(2),
-        name: file.name.replace(/\.[^.]+$/, ''),
-        src: e.target.result,
-        date: new Date().toISOString(),
-        size: file.size,
-        favorite: false
-      };
-      await dbPut(photo);
-      photos.push(photo);
-      renderGallery();
-      bumpStat('pill-total');
-      updateStats();
-      resolve();
-    };
-    reader.readAsDataURL(file);
-  });
+// ── DOWNLOAD ──
+async function downloadPhoto(photo) {
+  try {
+    const res  = await fetch(photo.url);
+    const blob = await res.blob();
+    const ext  = (photo.path||'').split('.').pop() || 'jpg';
+    const a    = document.createElement('a');
+    a.href     = URL.createObjectURL(blob);
+    a.download = photo.name+'.'+ext;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+  } catch { window.open(photo.url,'_blank'); }
 }
 
 // ── STATS ──
 function updateStats() {
-  document.getElementById('stat-total').textContent = photos.length;
-  document.getElementById('stat-favs').textContent = photos.filter(p => p.favorite).length;
-  const bytes = photos.reduce((a, p) => a + (p.size || 0), 0);
-  document.getElementById('stat-size').textContent = (bytes / 1024 / 1024).toFixed(1) + ' MB';
-}
-function bumpStat(id) {
-  const el = document.getElementById(id);
-  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+  $('stat-total').textContent = photos.length;
+  $('stat-favs').textContent  = photos.filter(p=>p.favorite).length;
+  $('stat-size').textContent  = (photos.reduce((a,p)=>a+(p.size||0),0)/1024/1024).toFixed(1)+' MB';
 }
 
 // ── FAVORITE ──
 async function toggleFavorite(id) {
-  const p = photos.find(p => p.id === id);
-  if (!p) return;
+  const p = photos.find(p=>p.id===id); if(!p) return;
   p.favorite = !p.favorite;
-  await dbPut(p);
+  await api.update(id, {favorite: p.favorite});
 }
 
-// ── DOWNLOAD ──
-function downloadPhoto(photo) {
-  const ext = photo.src.startsWith('data:image/png') ? 'png'
-    : photo.src.startsWith('data:image/webp') ? 'webp'
-    : photo.src.startsWith('data:image/gif') ? 'gif' : 'jpg';
-  const a = document.createElement('a');
-  a.href = photo.src;
-  a.download = photo.name + '.' + ext;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+// ── SORT / FILTER ──
+function getFiltered() {
+  let f = photos.filter(p => currentFilter==='favorites' ? p.favorite : true);
+  if(currentSort==='oldest') f=f.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+  else if(currentSort==='name') f=f.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  else f=f.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+  return f;
 }
 
 // ── RENDER ──
-function getSorted(list) {
-  if (currentSort === 'oldest') return list.slice().sort((a,b) => new Date(a.date)-new Date(b.date));
-  if (currentSort === 'name') return list.slice().sort((a,b) => a.name.localeCompare(b.name));
-  return list.slice().sort((a,b) => new Date(b.date)-new Date(a.date));
-}
-function getFiltered() {
-  return getSorted(photos.filter(p => currentFilter === 'favorites' ? p.favorite : true));
-}
-
 function renderGallery() {
-  const gallery = document.getElementById('gallery');
-  const emptyState = document.getElementById('empty-state');
-  [...gallery.querySelectorAll('.photo-card')].forEach(c => c.remove());
-  const filtered = getFiltered();
-  if (filtered.length === 0) { emptyState.classList.add('visible'); return; }
-  emptyState.classList.remove('visible');
-  filtered.forEach((photo, idx) => {
-    const card = document.createElement('div');
-    card.className = 'photo-card';
-    card.style.animationDelay = Math.min(idx * 0.06, 0.5) + 's';
-    card.dataset.id = photo.id;
-    card.innerHTML = `
-      <img src="${photo.src}" alt="${photo.name}" loading="lazy"/>
+  const gallery=$('gallery'), empty=$('empty-state');
+  [...gallery.querySelectorAll('.photo-card')].forEach(c=>c.remove());
+  const list = getFiltered();
+  if(!list.length){empty.classList.add('visible');return;}
+  empty.classList.remove('visible');
+  list.forEach((photo,idx)=>{
+    const card=document.createElement('div');
+    card.className='photo-card'; card.style.animationDelay=Math.min(idx*0.06,0.5)+'s'; card.dataset.id=photo.id;
+    const safeName = DOMPurify ? DOMPurify.sanitize(photo.name) : photo.name.replace(/[<>"'&]/g,c=>({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
+    const dateStr  = new Date(photo.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    card.innerHTML=`
+      <img src="${photo.url}" alt="${safeName}" loading="lazy"/>
       <div class="card-overlay">
-        <div class="card-title">${photo.name}</div>
-        <div class="card-meta">${new Date(photo.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
+        <div class="card-title">${safeName}</div>
+        <div class="card-meta">${dateStr}</div>
       </div>
       <div class="card-actions">
         <button class="card-btn fav-btn ${photo.favorite?'favorited':''}" title="Favorite">
@@ -439,127 +442,63 @@ function renderGallery() {
           <svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>
         </button>
       </div>`;
-    card.querySelector('.fav-btn').addEventListener('click', async e => {
-      e.stopPropagation(); await toggleFavorite(photo.id);
-      renderGallery(); bumpStat('pill-favs'); updateStats();
-    });
-    card.querySelector('.expand-btn').addEventListener('click', e => { e.stopPropagation(); openLightbox(photo.id); });
-    card.querySelector('.dl-btn').addEventListener('click', e => { e.stopPropagation(); downloadPhoto(photo); });
-    card.addEventListener('click', () => openLightbox(photo.id));
-    card.addEventListener('contextmenu', e => { e.preventDefault(); ctxTarget = photo.id; openCtx(e.clientX, e.clientY); });
-    gallery.insertBefore(card, emptyState);
+    card.querySelector('.fav-btn').addEventListener('click', async e=>{e.stopPropagation();await toggleFavorite(photo.id);renderGallery();bumpStat('favs');updateStats();});
+    card.querySelector('.expand-btn').addEventListener('click', e=>{e.stopPropagation();openLightbox(photo.id);});
+    card.querySelector('.dl-btn').addEventListener('click', e=>{e.stopPropagation();downloadPhoto(photo);});
+    card.addEventListener('click',()=>openLightbox(photo.id));
+    card.addEventListener('contextmenu',e=>{e.preventDefault();ctxTarget=photo.id;openCtx(e.clientX,e.clientY);});
+    gallery.insertBefore(card,empty);
   });
 }
 
 // ── LIGHTBOX ──
-function openLightbox(id) {
-  const filtered = getFiltered();
-  lightboxIndex = filtered.findIndex(p => p.id === id);
-  showLightboxPhoto(filtered);
-  document.getElementById('lightbox').classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-function showLightboxPhoto(filtered) {
-  const p = filtered[lightboxIndex];
-  if (!p) return;
-  const img = document.getElementById('lb-img');
-  img.classList.add('switching');
-  setTimeout(() => {
-    img.src = p.src;
-    document.getElementById('lb-caption').textContent = p.name;
-    document.getElementById('lb-counter').textContent = `${lightboxIndex+1} / ${filtered.length}`;
-    document.getElementById('lb-dl').onclick = () => downloadPhoto(p);
-    img.classList.remove('switching');
-  }, 200);
-}
-function closeLightbox() { document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow = ''; }
-document.getElementById('lb-close').addEventListener('click', closeLightbox);
-document.getElementById('lightbox').addEventListener('click', e => { if (e.target === document.getElementById('lightbox')) closeLightbox(); });
-document.getElementById('lb-prev').addEventListener('click', () => { const f=getFiltered(); lightboxIndex=(lightboxIndex-1+f.length)%f.length; showLightboxPhoto(f); });
-document.getElementById('lb-next').addEventListener('click', () => { const f=getFiltered(); lightboxIndex=(lightboxIndex+1)%f.length; showLightboxPhoto(f); });
-document.addEventListener('keydown', e => {
-  if (!document.getElementById('lightbox').classList.contains('open')) return;
-  const f = getFiltered();
-  if (e.key==='ArrowRight'){lightboxIndex=(lightboxIndex+1)%f.length;showLightboxPhoto(f);}
-  if (e.key==='ArrowLeft'){lightboxIndex=(lightboxIndex-1+f.length)%f.length;showLightboxPhoto(f);}
-  if (e.key==='Escape') closeLightbox();
-});
+function openLightbox(id){const f=getFiltered();lightboxIndex=f.findIndex(p=>p.id===id);showLB(f);$('lightbox').classList.add('open');document.body.style.overflow='hidden';}
+function showLB(f){const p=f[lightboxIndex];if(!p)return;const img=$('lb-img');img.classList.add('switching');setTimeout(()=>{img.src=p.url;$('lb-caption').textContent=p.name;$('lb-counter').textContent=`${lightboxIndex+1} / ${f.length}`;$('lb-dl').onclick=()=>downloadPhoto(p);img.classList.remove('switching');},200);}
+function closeLB(){$('lightbox').classList.remove('open');document.body.style.overflow='';}
+$('lb-close').addEventListener('click',closeLB);
+$('lightbox').addEventListener('click',e=>{if(e.target===$('lightbox'))closeLB();});
+$('lb-prev').addEventListener('click',()=>{const f=getFiltered();lightboxIndex=(lightboxIndex-1+f.length)%f.length;showLB(f);});
+$('lb-next').addEventListener('click',()=>{const f=getFiltered();lightboxIndex=(lightboxIndex+1)%f.length;showLB(f);});
+document.addEventListener('keydown',e=>{if(!$('lightbox').classList.contains('open'))return;const f=getFiltered();if(e.key==='ArrowRight'){lightboxIndex=(lightboxIndex+1)%f.length;showLB(f);}if(e.key==='ArrowLeft'){lightboxIndex=(lightboxIndex-1+f.length)%f.length;showLB(f);}if(e.key==='Escape')closeLB();});
 
 // ── SLIDESHOW ──
-let slideshowTimer = null;
-document.getElementById('nav-slideshow').addEventListener('click', e => {
-  e.preventDefault();
-  const f = getFiltered();
-  if (!f.length) return;
-  openLightbox(f[0].id);
-  clearInterval(slideshowTimer);
-  slideshowTimer = setInterval(() => {
-    if (!document.getElementById('lightbox').classList.contains('open')) { clearInterval(slideshowTimer); return; }
-    const fr = getFiltered();
-    lightboxIndex = (lightboxIndex+1) % fr.length;
-    showLightboxPhoto(fr);
-  }, 3500);
-});
+let ssTimer=null;
+$('nav-slideshow').addEventListener('click',e=>{e.preventDefault();const f=getFiltered();if(!f.length)return;openLightbox(f[0].id);clearInterval(ssTimer);ssTimer=setInterval(()=>{if(!$('lightbox').classList.contains('open')){clearInterval(ssTimer);return;}const fr=getFiltered();lightboxIndex=(lightboxIndex+1)%fr.length;showLB(fr);},3500);});
 
 // ── CTX MENU ──
-const ctxMenu = document.getElementById('ctx-menu');
-function openCtx(x, y) {
-  ctxMenu.style.left = Math.min(x, window.innerWidth-200)+'px';
-  ctxMenu.style.top = Math.min(y, window.innerHeight-200)+'px';
-  ctxMenu.classList.add('open');
-}
-document.addEventListener('click', () => ctxMenu.classList.remove('open'));
-document.getElementById('ctx-open').addEventListener('click', () => { if(ctxTarget) openLightbox(ctxTarget); });
-document.getElementById('ctx-fav').addEventListener('click', async () => {
-  if(ctxTarget){ await toggleFavorite(ctxTarget); renderGallery(); updateStats(); }
-});
-document.getElementById('ctx-download').addEventListener('click', () => {
-  const p=photos.find(p=>p.id===ctxTarget); if(p) downloadPhoto(p);
-});
-document.getElementById('ctx-rename').addEventListener('click', () => {
-  const p=photos.find(p=>p.id===ctxTarget); if(!p) return;
-  const n=prompt('Rename photograph:',p.name);
-  if(n&&n.trim()){ p.name=n.trim(); dbPut(p); renderGallery(); }
-});
-document.getElementById('ctx-delete').addEventListener('click', async () => {
-  await dbDelete(ctxTarget);
-  photos = photos.filter(p=>p.id!==ctxTarget);
-  renderGallery(); updateStats();
+const ctx=$('ctx-menu');
+function openCtx(x,y){ctx.style.left=Math.min(x,innerWidth-200)+'px';ctx.style.top=Math.min(y,innerHeight-200)+'px';ctx.classList.add('open');}
+document.addEventListener('click',()=>ctx.classList.remove('open'));
+$('ctx-open').addEventListener('click',()=>{if(ctxTarget)openLightbox(ctxTarget);});
+$('ctx-fav').addEventListener('click',async()=>{if(ctxTarget){await toggleFavorite(ctxTarget);renderGallery();updateStats();}});
+$('ctx-download').addEventListener('click',()=>{const p=photos.find(p=>p.id===ctxTarget);if(p)downloadPhoto(p);});
+$('ctx-rename').addEventListener('click',()=>{const p=photos.find(p=>p.id===ctxTarget);if(!p)return;const n=prompt('Rename photograph:',p.name);if(n&&n.trim()){p.name=n.trim();api.update(p.id,{name:p.name});renderGallery();}});
+$('ctx-delete').addEventListener('click',async()=>{
+  const p=photos.find(p=>p.id===ctxTarget); if(!p)return;
+  try{ if(p.path) await api.deleteFile(p.path); await api.delete(p.id); photos=photos.filter(x=>x.id!==ctxTarget); renderGallery();updateStats(); }
+  catch(e){ console.error(e); }
 });
 
 // ── FILTERS & SORT ──
-document.querySelectorAll('.filter-tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active'); currentFilter=btn.dataset.filter; renderGallery();
-  });
-});
-document.getElementById('sort-select').addEventListener('change', e => { currentSort=e.target.value; renderGallery(); });
+document.querySelectorAll('.filter-tab').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');currentFilter=btn.dataset.filter;renderGallery();}));
+$('sort-select').addEventListener('change',e=>{currentSort=e.target.value;renderGallery();});
 
 // ── VIEW TOGGLE ──
-document.getElementById('btn-grid').addEventListener('click', () => {
-  document.getElementById('gallery').classList.remove('masonry');
-  document.getElementById('btn-grid').classList.add('active');
-  document.getElementById('btn-masonry').classList.remove('active');
-});
-document.getElementById('btn-masonry').addEventListener('click', () => {
-  document.getElementById('gallery').classList.add('masonry');
-  document.getElementById('btn-masonry').classList.add('active');
-  document.getElementById('btn-grid').classList.remove('active');
-});
+$('btn-grid').addEventListener('click',()=>{$('gallery').classList.remove('masonry');$('btn-grid').classList.add('active');$('btn-masonry').classList.remove('active');});
+$('btn-masonry').addEventListener('click',()=>{$('gallery').classList.add('masonry');$('btn-masonry').classList.add('active');$('btn-grid').classList.remove('active');});
 
 // ── INIT ──
-openDB().then(async () => {
-  photos = await dbGetAll();
-  renderGallery();
-  updateStats();
-}).catch(err => {
-  console.error('IndexedDB failed:', err);
-  // Fallback notice
-  document.getElementById('storage-notice').innerHTML = `
-    <svg viewBox="0 0 24 24" stroke-width="1.5" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-    Storage unavailable in this environment. Photos will not persist after refresh.`;
-});
+(async()=>{
+  setStatus('','Connecting…');
+  try {
+    photos = await api.getAll();
+    setStatus('connected','Supabase ✓');
+    renderGallery(); updateStats();
+  } catch(e) {
+    setStatus('error','Connection failed');
+    console.error('Supabase error:',e);
+  }
+})();
 </script>
 </body>
 </html>
