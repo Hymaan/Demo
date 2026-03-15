@@ -6,642 +6,533 @@
 <title>OBSCURA — Private Gallery</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet"/>
 <style>
-:root{
-  --black:#050505;--card:#111111;--card2:#161616;
-  --border:rgba(255,255,255,0.07);--gold:#c9a84c;--gold2:#f0d080;
-  --white:#f5f0eb;--muted:rgba(245,240,235,0.45);--glow:rgba(201,168,76,0.15);
-}
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+  :root{--black:#050505;--card:#111111;--card2:#161616;--border:rgba(255,255,255,0.07);--gold:#c9a84c;--gold2:#f0d080;--white:#f5f0eb;--muted:rgba(245,240,235,0.4);--glow:rgba(201,168,76,0.15);--red:#f87171;--green:#4ade80;}
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
+  body::before{content:'';position:fixed;inset:0;opacity:0.3;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
 
-/* ── HEADER ── */
-header{position:fixed;top:0;left:0;right:0;z-index:200;padding:22px 48px;display:flex;align-items:center;justify-content:space-between;background:linear-gradient(to bottom,rgba(5,5,5,.95),transparent);backdrop-filter:blur(4px);transition:padding .4s,background .4s;}
-header.scrolled{padding:14px 48px;background:rgba(5,5,5,.98);}
-.logo{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:300;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;text-decoration:none;position:relative;}
-.logo em{font-style:italic;color:var(--white);}
-.logo::after{content:'';position:absolute;bottom:-4px;left:0;width:100%;height:1px;background:linear-gradient(90deg,var(--gold),transparent);}
-nav{display:flex;gap:32px;}
-nav a{color:var(--muted);text-decoration:none;font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;transition:color .3s;position:relative;padding-bottom:4px;}
-nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width .4s;}
-nav a:hover{color:var(--gold);}
-nav a:hover::after{width:100%;}
-#sync-wrap{display:flex;align-items:center;gap:8px;font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);}
-#sync-dot{width:7px;height:7px;border-radius:50%;background:#555;flex-shrink:0;transition:background .5s,box-shadow .5s;}
-#sync-dot.syncing{background:var(--gold);box-shadow:0 0 8px rgba(201,168,76,.55);animation:blink 1.1s ease-in-out infinite;}
-#sync-dot.ok{background:#48bb78;box-shadow:0 0 7px rgba(72,187,120,.5);}
-#sync-dot.err{background:#e53e3e;box-shadow:0 0 7px rgba(229,62,62,.5);}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+  /* NAV */
+  header{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(5,5,5,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
+  .logo{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:300;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;}
+  .logo em{font-style:italic;color:var(--white);}
+  nav{display:flex;gap:28px;}
+  nav a{color:var(--muted);text-decoration:none;font-size:0.67rem;letter-spacing:0.2em;text-transform:uppercase;transition:color 0.3s;position:relative;padding-bottom:3px;}
+  nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.4s;}
+  nav a:hover{color:var(--gold);}nav a:hover::after{width:100%;}
+  #status{display:flex;align-items:center;gap:7px;font-size:0.6rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;}
+  .dot{width:8px;height:8px;border-radius:50%;background:#444;transition:all 0.5s;flex-shrink:0;}
+  .dot.ok{background:var(--green);box-shadow:0 0 8px var(--green);}
+  .dot.err{background:var(--red);box-shadow:0 0 8px var(--red);}
+  .dot.busy{background:var(--gold);animation:blink 1s ease-in-out infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
 
-/* ── HERO — visible immediately, no JS needed ── */
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;position:relative;z-index:1;}
-.hero-eye{font-size:.62rem;letter-spacing:.45em;color:var(--gold);text-transform:uppercase;margin-bottom:24px;animation:fadeUp .85s .15s both;}
-.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3.8rem,9vw,8.5rem);font-weight:300;line-height:.93;letter-spacing:-.02em;animation:fadeUp .85s .35s both;}
-.hero h1 em{font-style:italic;color:var(--gold);}
-.hero-sub{margin-top:28px;font-size:.78rem;letter-spacing:.14em;color:var(--muted);max-width:380px;line-height:1.8;animation:fadeUp .85s .55s both;}
-.hero-line{width:1px;height:70px;background:linear-gradient(to bottom,var(--gold),transparent);margin:42px auto 0;animation:fadeUp .85s .75s both;}
-.hero-cta{margin-top:12px;font-size:.6rem;letter-spacing:.3em;color:rgba(201,168,76,.4);text-transform:uppercase;animation:fadeUp .85s .95s both;}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+  /* HERO */
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 40px 60px;position:relative;z-index:1;}
+  .eyebrow{font-size:0.6rem;letter-spacing:0.42em;color:var(--gold);text-transform:uppercase;margin-bottom:20px;opacity:0;animation:up 1s 0.3s forwards;}
+  .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3.2rem,9vw,8rem);font-weight:300;line-height:0.92;opacity:0;animation:up 1s 0.6s forwards;}
+  .hero h1 em{font-style:italic;color:var(--gold);}
+  .hero p{margin-top:24px;font-size:0.76rem;letter-spacing:0.14em;color:var(--muted);max-width:360px;opacity:0;animation:up 1s 0.9s forwards;}
+  .vline{width:1px;height:65px;background:linear-gradient(to bottom,var(--gold),transparent);margin:36px auto 0;opacity:0;animation:up 1s 1.1s forwards;}
+  .scroll-hint{margin-top:12px;font-size:0.58rem;letter-spacing:0.3em;color:rgba(201,168,76,0.45);text-transform:uppercase;opacity:0;animation:up 1s 1.3s forwards;}
+  @keyframes up{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
 
-/* ── CONTENT SECTIONS — visible immediately ── */
-.sec{padding:88px 48px;position:relative;z-index:1;}
-.sec-eye{font-size:.6rem;letter-spacing:.45em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:14px;}
-.sec-title{font-family:'Cormorant Garamond',serif;font-size:2.8rem;font-weight:300;text-align:center;margin-bottom:52px;letter-spacing:.04em;}
+  /* DIAG BANNER */
+  #diag{max-width:700px;margin:0 auto 20px;padding:14px 18px;border-radius:4px;font-size:0.68rem;letter-spacing:0.06em;line-height:1.6;display:none;}
+  #diag.show{display:block;}
+  #diag.info{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);color:#fde68a;}
+  #diag.error{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.25);border-left:3px solid var(--red);color:#fca5a5;}
+  #diag.success{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);color:#86efac;}
+  #diag strong{display:block;margin-bottom:4px;font-size:0.72rem;letter-spacing:0.1em;}
 
-/* ── DROP ZONE ── */
-#drop-zone{max-width:680px;margin:0 auto;border:1px dashed rgba(201,168,76,.28);border-radius:3px;padding:68px 48px;text-align:center;position:relative;background:var(--card);transition:all .5s cubic-bezier(.22,1,.36,1);overflow:hidden;cursor:pointer;}
-#drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,var(--glow),transparent 70%);opacity:0;transition:opacity .4s;}
-#drop-zone.over{border-color:var(--gold);box-shadow:0 0 50px var(--glow),inset 0 0 30px var(--glow);}
-#drop-zone.over::before{opacity:1;}
-.dz-icon{width:54px;height:54px;border-radius:50%;border:1px solid rgba(201,168,76,.35);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;transition:transform .5s cubic-bezier(.22,1,.36,1),border-color .4s;}
-#drop-zone.over .dz-icon{transform:scale(1.18) rotate(8deg);border-color:var(--gold);}
-.dz-icon svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.3;}
-.dz-title{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:300;margin-bottom:8px;}
-.dz-sub{font-size:.7rem;color:var(--muted);letter-spacing:.09em;line-height:1.7;}
-.dz-btn{display:inline-flex;align-items:center;margin-top:26px;padding:11px 34px;border:1px solid var(--gold);color:var(--gold);font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;background:transparent;font-family:'Montserrat',sans-serif;position:relative;overflow:hidden;transition:color .4s;}
-.dz-btn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform .4s cubic-bezier(.22,1,.36,1);}
-.dz-btn:hover::before{transform:translateX(0);}
-.dz-btn:hover{color:var(--black);}
-.dz-btn span{position:relative;z-index:1;}
-#file-input{display:none;}
+  /* SECTION */
+  .sec{padding:65px 48px;position:relative;z-index:1;}
+  .sec-label{font-size:0.6rem;letter-spacing:0.42em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:10px;}
+  .sec-title{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;text-align:center;margin-bottom:36px;}
 
-/* STATS */
-#stats-bar{max-width:680px;margin:20px auto 0;display:flex;gap:1px;}
-.stat{flex:1;background:var(--card2);padding:14px 16px;text-align:center;font-size:.62rem;letter-spacing:.14em;color:var(--muted);transition:background .3s;}
-.stat:hover{background:#1c1c1c;}
-.stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.35rem;font-weight:300;color:var(--gold);}
-.stat.bump b{animation:sbump .4s cubic-bezier(.22,1,.36,1);}
-@keyframes sbump{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+  /* UPLOAD CARD */
+  .upload-wrap{max-width:700px;margin:0 auto;}
+  #drop-zone{background:var(--card);border:1px solid rgba(201,168,76,0.22);border-radius:6px 6px 0 0;padding:50px 40px;text-align:center;position:relative;overflow:hidden;transition:all 0.45s cubic-bezier(.22,1,.36,1);cursor:pointer;}
+  #drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--glow),transparent 70%);opacity:0;transition:opacity 0.4s;pointer-events:none;}
+  #drop-zone.over,#drop-zone:hover{border-color:rgba(201,168,76,0.55);background:#131313;}
+  #drop-zone.over::before,#drop-zone:hover::before{opacity:1;}
+  .dz-ring{width:60px;height:60px;margin:0 auto 18px;border:1px solid rgba(201,168,76,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.45s cubic-bezier(.22,1,.36,1);}
+  #drop-zone.over .dz-ring,#drop-zone:hover .dz-ring{transform:scale(1.12) rotate(6deg);border-color:var(--gold);}
+  .dz-ring svg{width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.4;}
+  .dz-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:300;margin-bottom:6px;}
+  .dz-hint{font-size:0.67rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:22px;}
+  .upload-btn{display:inline-flex;align-items:center;gap:9px;padding:12px 36px;border:1px solid var(--gold);color:var(--gold);font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;background:transparent;position:relative;overflow:hidden;transition:color 0.4s;border-radius:2px;}
+  .upload-btn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
+  .upload-btn:hover::before{transform:translateX(0);}
+  .upload-btn:hover{color:var(--black);}
+  .upload-btn *{position:relative;z-index:1;}
+  .upload-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+  #file-input{display:none;}
 
-/* CLOUD NOTICE */
-#cloud-notice{max-width:680px;margin:14px auto 0;padding:11px 18px;background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.14);display:flex;align-items:center;gap:10px;font-size:.66rem;letter-spacing:.07em;color:var(--muted);}
-#cloud-notice svg{width:14px;height:14px;stroke:var(--gold);fill:none;flex-shrink:0;}
+  /* STATS */
+  .stats-row{display:flex;border:1px solid rgba(201,168,76,0.14);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;}
+  .sbox{flex:1;background:var(--card2);padding:14px 18px;text-align:center;font-size:0.6rem;letter-spacing:0.12em;color:var(--muted);border-right:1px solid var(--border);}
+  .sbox:last-child{border-right:none;}
+  .sbox b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.45rem;color:var(--gold);font-weight:300;margin-bottom:1px;transition:transform 0.3s;}
+  .sbox.bump b{animation:bump 0.4s cubic-bezier(.22,1,.36,1);}
+  @keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
+  .notice{margin-top:12px;padding:10px 16px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.1);border-radius:3px;display:flex;align-items:center;gap:9px;font-size:0.63rem;letter-spacing:0.05em;color:var(--muted);}
+  .notice svg{width:13px;height:13px;stroke:var(--gold);fill:none;flex-shrink:0;}
 
-/* CONTROLS */
-.controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:36px;flex-wrap:wrap;gap:14px;}
-.filter-tabs{display:flex;gap:2px;}
-.ftab{padding:9px 22px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:.63rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;transition:all .3s;font-family:'Montserrat',sans-serif;}
-.ftab.active,.ftab:hover{border-color:var(--gold);color:var(--gold);}
-.ctrl-r{display:flex;gap:8px;align-items:center;}
-select.srt{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:9px 18px;font-size:.63rem;letter-spacing:.09em;cursor:pointer;font-family:'Montserrat',sans-serif;outline:none;appearance:none;}
-select.srt:hover{border-color:rgba(201,168,76,.3);}
-.vtog{display:flex;gap:1px;}
-.vbtn{width:38px;height:38px;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .3s;}
-.vbtn.active,.vbtn:hover{background:var(--card);color:var(--gold);}
-.vbtn svg{width:16px;height:16px;fill:currentColor;}
+  /* GALLERY */
+  .controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:10px;}
+  .ftabs{display:flex;gap:2px;}
+  .ftab{padding:8px 20px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;font-family:'Montserrat',sans-serif;border-radius:2px;}
+  .ftab.on,.ftab:hover{border-color:var(--gold);color:var(--gold);}
+  .row-right{display:flex;gap:7px;align-items:center;}
+  .sort-sel{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;font-size:0.62rem;cursor:pointer;font-family:'Montserrat',sans-serif;outline:none;appearance:none;border-radius:2px;}
+  .vtoggle{display:flex;gap:1px;}
+  .vbtn{width:36px;height:36px;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.3s;}
+  .vbtn.on,.vbtn:hover{background:var(--card);color:var(--gold);}
+  .vbtn svg{width:15px;height:15px;fill:currentColor;}
 
-/* GALLERY */
-#gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px;}
-#gallery.masonry{columns:4;column-gap:14px;display:block;}
-#gallery.masonry .card{break-inside:avoid;margin-bottom:14px;}
+  /* GRID */
+  #gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  #gallery.masonry{columns:4;column-gap:14px;display:block;}
+  #gallery.masonry .pc{break-inside:avoid;margin-bottom:14px;}
 
-/* CARD */
-.card{position:relative;background:var(--card);border:1px solid var(--border);border-radius:2px;overflow:hidden;cursor:pointer;animation:cardIn .55s cubic-bezier(.22,1,.36,1) both;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s,border-color .4s;}
-.card:hover{transform:translateY(-6px) scale(1.015);border-color:rgba(201,168,76,.3);box-shadow:0 24px 55px rgba(0,0,0,.75),0 0 30px rgba(201,168,76,.06);}
-@keyframes cardIn{from{opacity:0;transform:translateY(24px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
-.card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:transform .7s cubic-bezier(.22,1,.36,1),filter .5s;filter:brightness(.87) saturate(.72);}
-#gallery.masonry .card img{aspect-ratio:unset;height:auto;}
-.card:hover img{transform:scale(1.07);filter:brightness(1) saturate(1.04);}
-.card-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88),rgba(0,0,0,.2) 52%,transparent);opacity:0;transition:opacity .4s;display:flex;flex-direction:column;justify-content:flex-end;padding:18px;}
-.card:hover .card-ov{opacity:1;}
-.card-name{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:300;transform:translateY(12px);transition:transform .4s cubic-bezier(.22,1,.36,1) .03s;}
-.card-date{font-size:.6rem;letter-spacing:.09em;color:var(--muted);transform:translateY(12px);transition:transform .4s cubic-bezier(.22,1,.36,1) .08s;}
-.card:hover .card-name,.card:hover .card-date{transform:translateY(0);}
-.card-acts{position:absolute;top:12px;right:12px;display:flex;gap:5px;opacity:0;transform:translateY(-8px);transition:opacity .35s,transform .35s cubic-bezier(.22,1,.36,1);}
-.card:hover .card-acts{opacity:1;transform:translateY(0);}
-.cbtn{width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.72);border:1px solid rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--white);backdrop-filter:blur(8px);transition:all .3s cubic-bezier(.22,1,.36,1);}
-.cbtn:hover{background:var(--gold);border-color:var(--gold);color:var(--black);transform:scale(1.13);}
-.cbtn svg{width:13px;height:13px;fill:currentColor;}
-.cbtn.faved svg{fill:#e53e3e;}
-.cbtn.faved{border-color:rgba(229,62,62,.4);}
-.cbtn.del-btn:hover{background:#c0392b;border-color:#c0392b;color:#fff;}
+  /* CARD */
+  .pc{position:relative;background:var(--card);border:1px solid var(--border);border-radius:3px;overflow:hidden;cursor:pointer;opacity:0;transform:translateY(26px) scale(0.96);animation:cin 0.55s cubic-bezier(.22,1,.36,1) forwards;transition:transform 0.5s cubic-bezier(.22,1,.36,1),box-shadow 0.5s,border-color 0.4s;}
+  .pc:hover{transform:translateY(-7px) scale(1.016);border-color:rgba(201,168,76,0.3);box-shadow:0 26px 60px rgba(0,0,0,0.8),0 0 30px rgba(201,168,76,0.07);}
+  @keyframes cin{to{opacity:1;transform:translateY(0) scale(1);}}
+  .pc img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:transform 0.65s cubic-bezier(.22,1,.36,1),filter 0.4s;filter:brightness(0.87) saturate(0.75);}
+  #gallery.masonry .pc img{aspect-ratio:unset;height:auto;}
+  .pc:hover img{transform:scale(1.07);filter:brightness(1.02) saturate(1.05);}
+  .pc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9),rgba(0,0,0,0.15) 55%,transparent);opacity:0;transition:opacity 0.4s;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;}
+  .pc:hover .pc-ov{opacity:1;}
+  .pc-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;transform:translateY(11px);transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
+  .pc-date{font-size:0.58rem;letter-spacing:0.09em;color:var(--muted);transform:translateY(11px);transition:transform 0.4s cubic-bezier(.22,1,.36,1) 0.05s;}
+  .pc:hover .pc-name,.pc:hover .pc-date{transform:translateY(0);}
+  .pc-btns{position:absolute;top:10px;right:10px;display:flex;gap:5px;opacity:0;transform:translateY(-8px);transition:opacity 0.35s,transform 0.35s cubic-bezier(.22,1,.36,1);}
+  .pc:hover .pc-btns{opacity:1;transform:translateY(0);}
+  .icb{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(5px);}
+  .icb:hover{background:var(--gold);border-color:var(--gold);transform:scale(1.12);}
+  .icb svg{width:12px;height:12px;fill:currentColor;pointer-events:none;}
+  .icb.fav svg{fill:var(--red);}
+  .icb.fav{border-color:rgba(248,113,113,0.3);}
 
-/* EMPTY */
-#empty{grid-column:1/-1;text-align:center;padding:90px 20px;display:none;}
-.empty-ico{font-size:2.8rem;margin-bottom:14px;opacity:.2;animation:pulse 3s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:.2}50%{opacity:.45}}
-.empty-txt{font-family:'Cormorant Garamond',serif;font-size:1.75rem;color:var(--muted);font-weight:300;}
-.empty-s{font-size:.7rem;color:rgba(245,240,235,.18);letter-spacing:.09em;margin-top:7px;}
+  /* EMPTY */
+  #empty{grid-column:1/-1;text-align:center;padding:72px 20px;display:none;}
+  #empty.show{display:block;}
+  .ei{font-size:2.6rem;opacity:0.2;margin-bottom:12px;animation:pulse 3s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{opacity:0.2}50%{opacity:0.42}}
+  .et{font-family:'Cormorant Garamond',serif;font-size:1.65rem;color:var(--muted);}
+  .es{font-size:0.65rem;color:rgba(245,240,235,0.16);letter-spacing:0.09em;margin-top:5px;}
 
-/* LIGHTBOX */
-#lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .45s cubic-bezier(.22,1,.36,1);}
-#lb.open{opacity:1;pointer-events:all;backdrop-filter:blur(18px);}
-.lb-box{max-width:90vw;max-height:90vh;display:flex;flex-direction:column;transform:scale(.9) translateY(18px);transition:transform .5s cubic-bezier(.22,1,.36,1);}
-#lb.open .lb-box{transform:scale(1) translateY(0);}
-#lb-img{max-width:90vw;max-height:78vh;object-fit:contain;display:block;border:1px solid rgba(255,255,255,.05);box-shadow:0 36px 90px rgba(0,0,0,.9);transition:opacity .3s,transform .3s;}
-#lb-img.sw{opacity:0;transform:scale(.96);}
-.lb-foot{display:flex;justify-content:space-between;align-items:center;padding:14px 3px 0;}
-#lb-cap{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:300;font-style:italic;}
-#lb-cnt{font-size:.62rem;letter-spacing:.18em;color:var(--muted);}
-.lb-x{position:fixed;top:26px;right:30px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.05);border:1px solid var(--border);cursor:pointer;color:var(--white);display:flex;align-items:center;justify-content:center;transition:all .35s cubic-bezier(.22,1,.36,1);}
-.lb-x:hover{background:var(--gold);color:var(--black);border-color:var(--gold);transform:rotate(90deg);}
-.lb-x svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;}
-.lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:50px;height:50px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.1);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--white);backdrop-filter:blur(8px);transition:all .35s cubic-bezier(.22,1,.36,1);}
-.lb-nav:hover{background:var(--gold);border-color:var(--gold);color:var(--black);transform:translateY(-50%) scale(1.08);}
-.lb-nav svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;}
-#lb-prev{left:22px;}#lb-next{right:22px;}
-#lb-dl{position:fixed;top:26px;left:30px;padding:9px 20px;background:rgba(0,0,0,.55);border:1px solid rgba(201,168,76,.38);color:var(--gold);font-size:.63rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:7px;font-family:'Montserrat',sans-serif;backdrop-filter:blur(8px);transition:all .35s cubic-bezier(.22,1,.36,1);}
-#lb-dl:hover{background:var(--gold);color:var(--black);border-color:var(--gold);}
-#lb-dl svg{width:13px;height:13px;fill:currentColor;}
+  /* LIGHTBOX */
+  #lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.45s cubic-bezier(.22,1,.36,1);}
+  #lb.open{opacity:1;pointer-events:all;backdrop-filter:blur(18px);}
+  .lb-wrap{max-width:92vw;max-height:92vh;display:flex;flex-direction:column;transform:scale(0.87) translateY(20px);transition:transform 0.5s cubic-bezier(.22,1,.36,1);}
+  #lb.open .lb-wrap{transform:scale(1) translateY(0);}
+  #lb-img{max-width:92vw;max-height:80vh;object-fit:contain;display:block;border:1px solid rgba(255,255,255,0.05);box-shadow:0 32px 80px rgba(0,0,0,0.9);transition:opacity 0.25s,transform 0.25s;}
+  #lb-img.sw{opacity:0;transform:scale(0.95);}
+  .lb-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 2px 0;}
+  #lb-cap{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;}
+  #lb-num{font-size:0.6rem;letter-spacing:0.18em;color:var(--muted);}
+  .lb-x{position:fixed;top:22px;right:26px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;}
+  .lb-x:hover{background:var(--gold);border-color:var(--gold);transform:rotate(90deg);}
+  .lb-x svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5;}
+  .lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.09);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;backdrop-filter:blur(5px);}
+  .lb-nav:hover{background:var(--gold);border-color:var(--gold);transform:translateY(-50%) scale(1.08);}
+  .lb-nav svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.5;}
+  #lb-prev{left:18px;}#lb-next{right:18px;}
+  #lb-dl{position:fixed;top:22px;left:26px;padding:9px 18px;background:rgba(0,0,0,0.55);border:1px solid rgba(201,168,76,0.35);color:var(--gold);font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.3s;font-family:'Montserrat',sans-serif;backdrop-filter:blur(5px);border-radius:2px;}
+  #lb-dl:hover{background:var(--gold);color:var(--black);}
+  #lb-dl svg{width:12px;height:12px;fill:currentColor;}
 
-/* UPLOAD TOAST */
-#toast{position:fixed;bottom:30px;right:30px;z-index:500;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:15px 22px;min-width:290px;opacity:0;transform:translateX(18px) scale(.97);transition:all .4s cubic-bezier(.22,1,.36,1);pointer-events:none;}
-#toast.show{opacity:1;transform:translateX(0) scale(1);}
-.t-title{font-size:.67rem;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:7px;}
-.t-file{font-size:.78rem;color:var(--muted);margin-bottom:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.t-track{height:2px;background:rgba(255,255,255,.05);}
-.t-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .18s ease;}
+  /* TOAST */
+  #toast{position:fixed;bottom:26px;right:26px;z-index:600;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:13px 20px;min-width:260px;max-width:340px;opacity:0;transform:translateX(14px) scale(0.97);transition:all 0.4s cubic-bezier(.22,1,.36,1);pointer-events:none;border-radius:3px;}
+  #toast.show{opacity:1;transform:translateX(0) scale(1);}
+  #toast.err{border-left-color:var(--red);}
+  #toast.ok{border-left-color:var(--green);}
+  #t-title{font-size:0.64rem;letter-spacing:0.13em;color:var(--gold);text-transform:uppercase;margin-bottom:5px;}
+  #toast.err #t-title{color:var(--red);}
+  #toast.ok #t-title{color:var(--green);}
+  #t-msg{font-size:0.72rem;color:var(--muted);margin-bottom:8px;word-break:break-word;}
+  .pbar{height:2px;background:rgba(255,255,255,0.05);}
+  .pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 0.15s;}
 
-/* ERROR BANNER */
-#err-banner{position:fixed;top:0;left:0;right:0;z-index:999;background:#1a0505;border-bottom:2px solid #e53e3e;padding:12px 48px;font-size:.72rem;color:#ffb3b3;letter-spacing:.06em;line-height:1.6;display:none;animation:slideDown .4s cubic-bezier(.22,1,.36,1);}
-#err-banner.show{display:block;}
-@keyframes slideDown{from{transform:translateY(-100%);}to{transform:translateY(0);}}
-#err-banner button{float:right;background:none;border:1px solid rgba(229,62,62,.5);color:#e53e3e;padding:2px 10px;cursor:pointer;font-size:.65rem;margin-left:16px;font-family:'Montserrat',sans-serif;}
-#err-banner button:hover{background:#e53e3e;color:#fff;}
+  /* CTX */
+  #ctx{position:fixed;z-index:900;background:var(--card2);border:1px solid var(--border);box-shadow:0 16px 50px rgba(0,0,0,0.85);min-width:170px;padding:5px 0;opacity:0;pointer-events:none;transform:scale(0.9) translateY(-6px);transition:opacity 0.2s,transform 0.2s cubic-bezier(.22,1,.36,1);border-radius:3px;}
+  #ctx.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
+  .ci{display:flex;align-items:center;gap:8px;padding:9px 15px;font-size:0.67rem;letter-spacing:0.06em;cursor:pointer;transition:background 0.18s,color 0.18s,padding-left 0.2s;color:var(--muted);}
+  .ci:hover{background:rgba(201,168,76,0.07);color:var(--gold);padding-left:21px;}
+  .ci svg{width:12px;height:12px;fill:currentColor;}
+  .csep{height:1px;background:var(--border);margin:3px 0;}
+  .ci.del:hover{background:rgba(248,113,113,0.07);color:var(--red);}
 
-/* DELETE MODAL */
-#del-modal{position:fixed;inset:0;z-index:1100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.86);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .35s cubic-bezier(.22,1,.36,1);}
-#del-modal.open{opacity:1;pointer-events:all;}
-.del-box{background:var(--card2);border:1px solid rgba(229,62,62,.22);padding:38px 46px;max-width:360px;width:90%;text-align:center;transform:scale(.9) translateY(18px);transition:transform .4s cubic-bezier(.22,1,.36,1);}
-#del-modal.open .del-box{transform:scale(1) translateY(0);}
-.del-ico{width:50px;height:50px;border-radius:50%;background:rgba(229,62,62,.09);border:1px solid rgba(229,62,62,.28);display:flex;align-items:center;justify-content:center;margin:0 auto 18px;}
-.del-ico svg{width:20px;height:20px;stroke:#e53e3e;fill:none;stroke-width:1.5;}
-.del-ttl{font-family:'Cormorant Garamond',serif;font-size:1.55rem;font-weight:300;margin-bottom:9px;}
-.del-sub{font-size:.7rem;color:var(--muted);line-height:1.75;margin-bottom:26px;}
-.del-name{color:var(--gold);font-style:italic;}
-.del-acts{display:flex;gap:8px;justify-content:center;}
-.del-cancel{padding:10px 26px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;transition:all .3s;}
-.del-cancel:hover{border-color:var(--muted);color:var(--white);}
-.del-ok{padding:10px 26px;border:1px solid rgba(229,62,62,.48);background:rgba(229,62,62,.07);color:#e53e3e;font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;position:relative;overflow:hidden;transition:color .35s,border-color .35s;}
-.del-ok::before{content:'';position:absolute;inset:0;background:#c0392b;transform:translateX(-101%);transition:transform .35s cubic-bezier(.22,1,.36,1);}
-.del-ok:hover::before{transform:translateX(0);}
-.del-ok:hover{color:#fff;border-color:#c0392b;}
-.del-ok span{position:relative;z-index:1;}
-
-/* CTX */
-#ctx{position:fixed;z-index:800;background:var(--card2);border:1px solid var(--border);box-shadow:0 18px 55px rgba(0,0,0,.8);min-width:175px;padding:5px 0;opacity:0;pointer-events:none;transform:scale(.92) translateY(-7px);transition:opacity .22s,transform .22s cubic-bezier(.22,1,.36,1);border-radius:2px;}
-#ctx.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
-.ci{display:flex;align-items:center;gap:9px;padding:9px 16px;font-size:.7rem;letter-spacing:.07em;cursor:pointer;transition:background .2s,color .2s,padding-left .22s;color:var(--muted);}
-.ci:hover{background:rgba(201,168,76,.07);color:var(--gold);padding-left:22px;}
-.ci svg{width:13px;height:13px;fill:currentColor;}
-.ci-sep{height:1px;background:var(--border);margin:4px 0;}
-.ci.danger:hover{background:rgba(229,62,62,.07);color:#e53e3e;}
-
-footer{text-align:center;padding:36px 48px;border-top:1px solid var(--border);font-size:.6rem;letter-spacing:.2em;color:rgba(245,240,235,.13);position:relative;z-index:1;}
-footer span{color:var(--gold);}
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-track{background:var(--black);}
-::-webkit-scrollbar-thumb{background:rgba(201,168,76,.28);}
-::selection{background:rgba(201,168,76,.18);color:var(--gold);}
-
-@media(max-width:768px){
-  header{padding:15px 20px;}
-  nav{display:none;}
-  .hero{padding:100px 24px 60px;}
-  .hero h1{font-size:3.2rem;}
-  .sec{padding:60px 20px;}
-  #gallery{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
-  #gallery.masonry{columns:2;}
-  #drop-zone{padding:44px 20px;}
-}
+  footer{text-align:center;padding:32px 40px;border-top:1px solid var(--border);font-size:0.58rem;letter-spacing:0.18em;color:rgba(245,240,235,0.12);z-index:1;position:relative;}
+  footer b{color:var(--gold);font-weight:300;}
+  ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--black);}::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.22);}
+  ::selection{background:rgba(201,168,76,0.17);color:var(--gold);}
+  @media(max-width:768px){header{padding:12px 18px;}nav{display:none;}.sec{padding:50px 18px;}#gallery{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));}#gallery.masonry{columns:2;}}
 </style>
 </head>
 <body>
 
-<!-- HEADER — always visible -->
-<header id="hdr">
-  <a class="logo" href="#">Obs<em>cura</em></a>
+<header>
+  <div class="logo">Obs<em>cura</em></div>
   <nav>
-    <a href="#sec-upload">Upload</a>
-    <a href="#sec-gallery">Gallery</a>
-    <a href="#" id="nav-ss">Slideshow</a>
+    <a href="#sec-up">Upload</a>
+    <a href="#sec-gal">Gallery</a>
+    <a href="#" id="a-ss">Slideshow</a>
   </nav>
-  <div id="sync-wrap">
-    <div id="sync-dot"></div>
-    <span id="sync-lbl">Loading…</span>
-  </div>
+  <div id="status"><div class="dot busy" id="dot"></div><span id="slbl">Connecting…</span></div>
 </header>
 
-<!-- HERO — always visible, pure CSS animations -->
 <section class="hero">
-  <p class="hero-eye">Your Private Sanctuary</p>
+  <p class="eyebrow">Your Private Sanctuary</p>
   <h1>The Art of<br/><em>Memory</em></h1>
-  <p class="hero-sub">A refined space for your most precious visual stories.<br/>Curated. Private. Eternal.</p>
-  <div class="hero-line"></div>
-  <p class="hero-cta">Scroll to begin</p>
+  <p>A refined space for your most precious visual stories.</p>
+  <div class="vline"></div>
+  <p class="scroll-hint">Scroll to begin</p>
 </section>
 
-<!-- UPLOAD — always visible -->
-<section class="sec" id="sec-upload">
-  <p class="sec-eye">Add to collection</p>
+<section class="sec" id="sec-up">
+  <p class="sec-label">Add to collection</p>
   <h2 class="sec-title">Upload Photographs</h2>
-  <div id="drop-zone">
-    <div class="dz-icon">
-      <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+  <div class="upload-wrap">
+    <div id="diag"></div>
+    <div id="drop-zone">
+      <div class="dz-ring">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      </div>
+      <p class="dz-title">Drop photographs here</p>
+      <p class="dz-hint">JPG · PNG · WEBP · GIF · any size</p>
+      <button class="upload-btn" id="ubtn">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Browse &amp; Upload</span>
+      </button>
+      <input type="file" id="fi" multiple accept="image/*"/>
     </div>
-    <p class="dz-title">Drop photographs here</p>
-    <p class="dz-sub">or browse from your device &middot; JPG, PNG, WEBP, GIF</p>
-    <button class="dz-btn" id="browse-btn"><span>Browse Files</span></button>
-    <input type="file" id="file-input" multiple accept="image/*"/>
-  </div>
-  <div id="stats-bar">
-    <div class="stat" id="s-total"><b id="v-total">0</b>Photos</div>
-    <div class="stat" id="s-favs"><b id="v-favs">0</b>Favorites</div>
-    <div class="stat" id="s-size"><b id="v-size">0 MB</b>Storage</div>
-  </div>
-  <div id="cloud-notice">
-    <svg viewBox="0 0 24 24" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-    Photos sync to the cloud — accessible from any device.
+    <div class="stats-row">
+      <div class="sbox" id="sb0"><b id="s0">0</b>Photos</div>
+      <div class="sbox" id="sb1"><b id="s1">0</b>Favorites</div>
+      <div class="sbox" id="sb2"><b id="s2">0 MB</b>Stored</div>
+    </div>
+    <div class="notice">
+      <svg viewBox="0 0 24 24" stroke-width="1.4"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      Photos stored in Supabase — accessible from any device, anywhere.
+    </div>
   </div>
 </section>
 
-<!-- GALLERY — always visible -->
-<section class="sec" id="sec-gallery">
-  <p class="sec-eye">Collection</p>
+<section class="sec" id="sec-gal">
+  <p class="sec-label">Collection</p>
   <h2 class="sec-title">Your Gallery</h2>
   <div class="controls">
-    <div class="filter-tabs">
-      <button class="ftab active" data-f="all">All</button>
-      <button class="ftab" data-f="favorites">Favorites</button>
+    <div class="ftabs">
+      <button class="ftab on" data-f="all">All</button>
+      <button class="ftab" data-f="fav">Favorites</button>
     </div>
-    <div class="ctrl-r">
-      <select class="srt" id="srt">
-        <option value="newest">Newest First</option>
-        <option value="oldest">Oldest First</option>
-        <option value="name">Name A–Z</option>
+    <div class="row-right">
+      <select class="sort-sel" id="sorter">
+        <option value="new">Newest First</option>
+        <option value="old">Oldest First</option>
+        <option value="az">Name A–Z</option>
       </select>
-      <div class="vtog">
-        <button class="vbtn active" id="v-grid" title="Grid">
-          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg>
-        </button>
-        <button class="vbtn" id="v-masonry" title="Masonry">
-          <svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="9"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="12" width="6" height="3"/><rect x="9" y="9" width="6" height="6"/></svg>
-        </button>
+      <div class="vtoggle">
+        <button class="vbtn on" id="vg"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg></button>
+        <button class="vbtn" id="vm"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="9"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="12" width="6" height="3"/><rect x="9" y="9" width="6" height="6"/></svg></button>
       </div>
     </div>
   </div>
   <div id="gallery">
-    <div id="empty" style="display:block;">
-      <div class="empty-ico">✦</div>
-      <p class="empty-txt">Your gallery awaits</p>
-      <p class="empty-s">Upload photographs to begin your collection</p>
+    <div id="empty" class="show">
+      <div class="ei">✦</div>
+      <p class="et">Your gallery awaits</p>
+      <p class="es">Upload photographs to begin your collection</p>
     </div>
   </div>
 </section>
 
-<footer>Crafted with obsession &nbsp;&middot;&nbsp; <span>Obscura</span> &nbsp;&middot;&nbsp; Private Gallery</footer>
+<footer>Crafted with obsession · <b>Obscura</b> · Powered by Supabase</footer>
 
-<!-- LIGHTBOX -->
 <div id="lb">
-  <button class="lb-x" id="lb-x"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+  <button class="lb-x" id="lbx"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   <button id="lb-dl"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</button>
-  <button class="lb-nav" id="lb-prev"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
-  <button class="lb-nav" id="lb-next"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
-  <div class="lb-box">
+  <button class="lb-nav" id="lbprev"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
+  <button class="lb-nav" id="lbnext"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
+  <div class="lb-wrap">
     <img id="lb-img" src="" alt=""/>
-    <div class="lb-foot"><div id="lb-cap"></div><div id="lb-cnt"></div></div>
+    <div class="lb-foot"><div id="lb-cap"></div><div id="lb-num"></div></div>
   </div>
 </div>
 
-<!-- UPLOAD TOAST -->
-<div id="toast">
-  <div class="t-title">Uploading to Cloud</div>
-  <div class="t-file" id="t-file">filename.jpg</div>
-  <div class="t-track"><div class="t-fill" id="t-fill"></div></div>
-</div>
+<div id="toast"><div id="t-title"></div><div id="t-msg"></div><div class="pbar"><div class="pfill" id="pf"></div></div></div>
 
-<!-- ERROR BANNER (top of page, impossible to miss) -->
-<div id="err-banner">
-  <button onclick="document.getElementById('err-banner').classList.remove('show')">✕ Dismiss</button>
-  <span id="err-msg"></span>
-</div>
-
-<!-- DELETE MODAL -->
-<div id="del-modal">
-  <div class="del-box">
-    <div class="del-ico"><svg viewBox="0 0 24 24"><polyline points="3,6 21,6"/><path d="M8 6V4h8v2M7 6l1 14h8l1-14"/></svg></div>
-    <div class="del-ttl">Delete Photograph</div>
-    <div class="del-sub">Permanently remove<br/><span class="del-name" id="del-name"></span><br/>from your collection?</div>
-    <div class="del-acts">
-      <button class="del-cancel" id="del-cancel">Cancel</button>
-      <button class="del-ok" id="del-ok"><span>Delete Forever</span></button>
-    </div>
-  </div>
-</div>
-
-<!-- CTX MENU -->
 <div id="ctx">
-  <div class="ci" id="c-open"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>Open</div>
-  <div class="ci" id="c-fav"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>Toggle Favorite</div>
-  <div class="ci" id="c-dl"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</div>
-  <div class="ci" id="c-ren"><svg viewBox="0 0 16 16"><path d="M11 2l3 3L6 13l-4 1 1-4 8-8z"/></svg>Rename</div>
-  <div class="ci-sep"></div>
-  <div class="ci danger" id="c-del"><svg viewBox="0 0 16 16"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>Delete</div>
+  <div class="ci" id="ci0"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>Open</div>
+  <div class="ci" id="ci1"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>Toggle Favorite</div>
+  <div class="ci" id="ci2"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</div>
+  <div class="ci" id="ci3"><svg viewBox="0 0 16 16"><path d="M11 2l3 3L6 13l-4 1 1-4 8-8z"/></svg>Rename</div>
+  <div class="csep"></div>
+  <div class="ci del" id="ci4"><svg viewBox="0 0 16 16"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>Delete</div>
 </div>
 
-<!--
-  Supabase SDK loads ASYNC — does NOT block page rendering.
-  The page is fully visible before this script even starts loading.
--->
 <script>
-// ═══════════════════════════════════════════════════════
-//  ALL APP LOGIC — runs after page is visible
-// ═══════════════════════════════════════════════════════
-const SB_URL   = 'https://prlfgswggcexionantal.supabase.co';
-const SB_KEY   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
+// ── CONFIG ────────────────────────────────────────────────────
+const SUPA_URL = 'https://prlfgswggcexionantal.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
 const BUCKET   = 'photos';
-const META     = 'gallery-metadata.json';
+const TABLE    = 'photos';
 
-let sb       = null;
-let sbReady  = false;
-let photos   = [];
-let filter   = 'all';
-let sort     = 'newest';
-let lbIndex  = 0;
-let ctxId    = null;
-let delId    = null;
+// ── REST HELPERS (no SDK needed) ──────────────────────────────
+const H = (extra={}) => ({ 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY, 'Content-Type':'application/json', ...extra });
 
-// ─── SYNC STATUS ───
-function setSync(state, label) {
-  document.getElementById('sync-dot').className = state;
-  document.getElementById('sync-lbl').textContent = label;
+async function dbFetch(path, opts={}){
+  const r = await fetch(SUPA_URL+path, opts);
+  const txt = await r.text();
+  let json; try{ json=JSON.parse(txt); }catch{ json=txt; }
+  if(!r.ok) throw Object.assign(new Error(json?.message||json||r.statusText), {code:json?.code, status:r.status});
+  return json;
 }
 
-// ─── ERROR BANNER ───
-function showErr(msg) {
-  document.getElementById('err-msg').textContent = msg;
-  document.getElementById('err-banner').classList.add('show');
+const db = {
+  all:   ()  => dbFetch(`/rest/v1/${TABLE}?select=*&order=date.desc`, {headers:H({'Prefer':'return=representation'})}),
+  ins:   row => dbFetch(`/rest/v1/${TABLE}`, {method:'POST', headers:H({'Prefer':'return=minimal'}), body:JSON.stringify(row)}),
+  upd:   (id,p)=> dbFetch(`/rest/v1/${TABLE}?id=eq.${id}`, {method:'PATCH', headers:H({'Prefer':'return=minimal'}), body:JSON.stringify(p)}),
+  del:   id  => dbFetch(`/rest/v1/${TABLE}?id=eq.${id}`, {method:'DELETE', headers:H()}),
+  stUp:  (path,file)=> fetch(`${SUPA_URL}/storage/v1/object/${BUCKET}/${path}`, {method:'POST', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':file.type}, body:file}).then(async r=>{ if(!r.ok){const t=await r.text();throw new Error(t);} }),
+  stDel: path=> fetch(`${SUPA_URL}/storage/v1/object/${BUCKET}`, {method:'DELETE', headers:H(), body:JSON.stringify({prefixes:[path]})}).then(r=>{ if(!r.ok) console.warn('Storage delete failed'); }),
+  pubUrl:path=> `${SUPA_URL}/storage/v1/object/public/${BUCKET}/${path}`
+};
+
+// ── STATE ─────────────────────────────────────────────────────
+let photos=[], filter='all', sort='new', lbIdx=0, ctxId=null;
+
+// ── UTILS ─────────────────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const esc = s => String(s).replace(/[<>"'&]/g,c=>({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
+const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now()+'_'+Math.random().toString(36).slice(2);
+
+function setStatus(t,lbl){ $('dot').className='dot '+t; $('slbl').textContent=lbl; }
+
+function diag(type, title, msg){
+  const d=$('diag'); d.className='show '+type;
+  d.innerHTML=`<strong>${title}</strong>${msg}`;
 }
 
-// ─── LOAD SUPABASE SDK DYNAMICALLY (non-blocking) ───
-function loadSupabaseSDK() {
-  return new Promise((resolve, reject) => {
-    // If already loaded
-    if (window.supabase) { resolve(); return; }
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
-    s.onload  = resolve;
-    s.onerror = () => reject(new Error('Failed to load Supabase SDK from CDN'));
-    document.head.appendChild(s);
-  });
+let toastTimer;
+function toast(type, title, msg, autohide=true){
+  clearTimeout(toastTimer);
+  const t=$('toast'); t.className='show '+type;
+  $('t-title').textContent=title; $('t-msg').textContent=msg;
+  $('pf').style.width='0%';
+  if(autohide) toastTimer=setTimeout(()=>t.classList.remove('show'),4000);
+}
+function setBar(p){ $('pf').style.width=p+'%'; }
+
+function bump(id){ const e=$(id); e.classList.remove('bump'); void e.offsetWidth; e.classList.add('bump'); }
+
+function updateStats(){
+  $('s0').textContent = photos.length;
+  $('s1').textContent = photos.filter(p=>p.favorite).length;
+  $('s2').textContent = (photos.reduce((a,p)=>a+(p.size||0),0)/1024/1024).toFixed(1)+' MB';
 }
 
-// ─── CONNECT TO SUPABASE ───
-async function connectSupabase() {
-  setSync('syncing', 'Connecting…');
-  try {
-    await loadSupabaseSDK();
-    sb = window.supabase.createClient(SB_URL, SB_KEY);
-
-    // Quick connection test — list bucket root
-    const { data, error } = await sb.storage.from(BUCKET).list('', { limit: 1 });
-    if (error) throw error;
-
-    sbReady = true;
-    setSync('ok', 'Connected');
-    await fetchPhotos();
-
-  } catch(e) {
-    sbReady = false;
-    setSync('err', 'Error');
-    const m = (e.message || '').toLowerCase();
-    if (m.includes('failed to load') || m.includes('cdn')) {
-      showErr('Cannot load Supabase library from CDN. Check your internet connection.');
-    } else if (m.includes('not found') || m.includes('does not exist') || m.includes('nosuchbucket')) {
-      showErr('Bucket "photos" not found. Go to Supabase → Storage → New bucket → name: "photos" → enable Public → Create.');
-    } else if (m.includes('jwt') || m.includes('401') || m.includes('unauthorized')) {
-      showErr('API key error. Check your Supabase anon key.');
-    } else {
-      showErr('Supabase error: ' + e.message + ' — open browser Console (F12) for full details.');
-    }
-  }
-}
-
-// ─── FETCH PHOTOS ───
-async function fetchPhotos() {
-  const { data, error } = await sb.storage.from(BUCKET).download(META);
-  if (error) { renderGallery(); updateStats(); return; } // empty gallery = fresh start
-  try {
-    const meta = JSON.parse(await data.text());
-    photos = meta.map(m => ({ ...m, src: getUrl(m.filePath) }));
-  } catch(e) { photos = []; }
-  renderGallery();
-  updateStats();
-}
-
-async function saveMeta() {
-  if (!sbReady || !sb) return;
-  setSync('syncing', 'Saving…');
-  const blob = new Blob([JSON.stringify(photos.map(({src,...r})=>r))], { type:'application/json' });
-  const { error } = await sb.storage.from(BUCKET).upload(META, blob, { upsert:true });
-  if (error) { setSync('err','Save failed'); showErr('Save failed: '+error.message); return; }
-  setSync('ok','Saved ✓');
-  setTimeout(()=>setSync('ok','Connected'), 2200);
-}
-
-function getUrl(fp) {
-  return sb.storage.from(BUCKET).getPublicUrl(fp).data.publicUrl;
-}
-
-// ─── SCROLL HEADER ───
-window.addEventListener('scroll',()=>
-  document.getElementById('hdr').classList.toggle('scrolled', scrollY > 55)
-);
-
-// ─── DROP ZONE ───
-const dz = document.getElementById('drop-zone');
-const fi = document.getElementById('file-input');
-
-document.getElementById('browse-btn').onclick = () => fi.click();
-
-['dragenter','dragover'].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add('over'); }));
-['dragleave','drop'].forEach(ev => dz.addEventListener(ev, e => {
+// ── DRAG & DROP ───────────────────────────────────────────────
+const dz=$('drop-zone'), fi=$('fi');
+$('ubtn').addEventListener('click', e=>{ e.stopPropagation(); fi.click(); });
+dz.addEventListener('click', ()=>fi.click());
+['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{
   e.preventDefault(); dz.classList.remove('over');
-  if (ev==='drop' && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+  if(ev==='drop'&&e.dataTransfer.files.length) processFiles(e.dataTransfer.files);
 }));
-fi.onchange = () => { handleFiles(fi.files); fi.value=''; };
+fi.addEventListener('change',()=>{ if(fi.files.length) processFiles(fi.files); fi.value=''; });
 
-function handleFiles(files) {
-  if (!sbReady) { showErr('Not connected yet — wait for the green dot, then try again.'); return; }
-  [...files].filter(f=>f.type.startsWith('image/')).reduce((p,f)=>p.then(()=>upload(f)), Promise.resolve());
+function processFiles(files){
+  [...files].filter(f=>f.type.startsWith('image/')).forEach((f,i)=>setTimeout(()=>uploadPhoto(f),i*600));
 }
 
-// ─── UPLOAD ───
-async function upload(file) {
-  const toast = document.getElementById('toast');
-  const fill  = document.getElementById('t-fill');
-  document.getElementById('t-file').textContent = file.name;
-  toast.classList.add('show'); fill.style.width='0%';
+// ── UPLOAD ────────────────────────────────────────────────────
+async function uploadPhoto(file){
+  const id   = uid();
+  const ext  = (file.name.split('.').pop()||'jpg').toLowerCase();
+  const path = id+'.'+ext;
+  const name = file.name.replace(/\.[^.]+$/,'');
 
-  let pct=0;
-  const iv = setInterval(()=>{ pct=Math.min(pct+Math.random()*9+4,83); fill.style.width=pct+'%'; },110);
+  toast('', 'Uploading…', file.name, false);
+  let pct=0; const iv=setInterval(()=>{ pct=Math.min(pct+Math.random()*9+5,86); setBar(pct); },130);
 
-  try {
-    const id  = Date.now()+'_'+Math.random().toString(36).slice(2);
-    const ext = (file.name.split('.').pop()||'jpg').toLowerCase();
-    const fp  = 'images/'+id+'.'+ext;
+  try{
+    // Step 1: upload file to Storage
+    await db.stUp(path, file);
 
-    setSync('syncing','Uploading…');
-    const { error } = await sb.storage.from(BUCKET).upload(fp, file, { contentType:file.type });
+    // Step 2: get public URL
+    const url = db.pubUrl(path);
+
+    // Step 3: insert row into database
+    const row = { id, name, url, path, size:file.size, favorite:false, date:new Date().toISOString() };
+    await db.ins(row);
+
+    clearInterval(iv); setBar(100);
+    photos.unshift(row);
+    renderGallery(); bump('sb0'); updateStats();
+    toast('ok','Saved ✓', name+'.'+ext);
+    // clear any error banner on success
+    $('diag').className='';
+  }catch(err){
     clearInterval(iv);
-    if (error) throw error;
-
-    fill.style.width='100%';
-    photos.push({ id, name:file.name.replace(/\.[^.]+$/,''), filePath:fp, date:new Date().toISOString(), size:file.size, favorite:false, src:getUrl(fp) });
-    await saveMeta();
-    renderGallery();
-    bump('s-total');
-    updateStats();
-
-  } catch(e) {
-    clearInterval(iv);
-    setSync('err','Upload failed');
-    showErr('Upload failed: '+(e.message||'Unknown error'));
-  } finally {
-    setTimeout(()=>{ toast.classList.remove('show'); fill.style.width='0%'; },900);
+    const msg = err.message||String(err);
+    toast('err','Upload failed', msg, false);
+    diag('error','Upload Error — '+err.code, msg+'<br><br>Make sure your Supabase table & storage bucket have public RLS policies (see console for details).');
+    console.error('Upload error:', err);
   }
 }
 
-// ─── DELETE ───
-async function deletePhoto(id) {
-  const p=photos.find(x=>x.id===id); if(!p) return;
-  await sb.storage.from(BUCKET).remove([p.filePath]);
-  photos=photos.filter(x=>x.id!==id);
-  await saveMeta();
+// ── DOWNLOAD ─────────────────────────────────────────────────
+async function dlPhoto(p){
+  try{
+    const res=await fetch(p.url); const blob=await res.blob();
+    const ext=(p.path||'').split('.').pop()||'jpg';
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=p.name+'.'+ext;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
+  }catch{ window.open(p.url,'_blank'); }
 }
 
-// ─── STATS ───
-function updateStats() {
-  document.getElementById('v-total').textContent = photos.length;
-  document.getElementById('v-favs').textContent  = photos.filter(p=>p.favorite).length;
-  document.getElementById('v-size').textContent  = (photos.reduce((a,p)=>a+(p.size||0),0)/1024/1024).toFixed(1)+' MB';
-}
-function bump(id){ const el=document.getElementById(id); el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
-
-// ─── FAVORITE ───
-async function toggleFav(id) {
-  const p=photos.find(x=>x.id===id); if(p){ p.favorite=!p.favorite; await saveMeta(); }
+// ── FAVORITE ─────────────────────────────────────────────────
+async function toggleFav(id){
+  const p=photos.find(x=>x.id===id); if(!p)return;
+  p.favorite=!p.favorite;
+  try{ await db.upd(id,{favorite:p.favorite}); }catch(e){ console.warn('Fav update failed',e); }
 }
 
-// ─── DOWNLOAD ───
-async function dlPhoto(p) {
-  try {
-    const res=await fetch(p.src); const blob=await res.blob();
-    const u=URL.createObjectURL(blob); const a=document.createElement('a');
-    a.href=u; a.download=p.name+'.'+(p.filePath.split('.').pop()||'jpg');
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(u);
-  } catch{ window.open(p.src,'_blank'); }
-}
-
-// ─── RENDER ───
-function getFiltered() {
-  let f = photos.filter(p=>filter==='favorites'?p.favorite:true);
-  if(sort==='oldest') f=f.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
-  else if(sort==='newest') f=f.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
-  else if(sort==='name') f=f.slice().sort((a,b)=>a.name.localeCompare(b.name));
+// ── LIST ─────────────────────────────────────────────────────
+function getList(){
+  let f=photos.filter(p=>filter==='fav'?p.favorite:true);
+  if(sort==='old')  f=f.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+  else if(sort==='az') f=f.slice().sort((a,b)=>a.name.localeCompare(b.name));
+  else f=f.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
   return f;
 }
 
-function renderGallery() {
-  const g=document.getElementById('gallery');
-  const emp=document.getElementById('empty');
-  [...g.querySelectorAll('.card')].forEach(c=>c.remove());
-  const list=getFiltered();
-  emp.style.display = list.length ? 'none' : 'block';
-
-  list.forEach((p,i) => {
-    const c=document.createElement('div');
-    c.className='card'; c.dataset.id=p.id;
-    c.style.animationDelay=Math.min(i*.06,.55)+'s';
+// ── RENDER ───────────────────────────────────────────────────
+function renderGallery(){
+  const g=$('gallery'), em=$('empty');
+  [...g.querySelectorAll('.pc')].forEach(c=>c.remove());
+  const list=getList();
+  if(!list.length){em.classList.add('show');return;}
+  em.classList.remove('show');
+  list.forEach((p,i)=>{
+    const c=document.createElement('div'); c.className='pc'; c.dataset.id=p.id;
+    c.style.animationDelay=Math.min(i*0.055,0.44)+'s';
+    const n=esc(p.name), d=new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     c.innerHTML=`
-      <img src="${p.src}" alt="${p.name}" loading="lazy"/>
-      <div class="card-ov">
-        <div class="card-name">${p.name}</div>
-        <div class="card-date">${new Date(p.date).toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})}</div>
-      </div>
-      <div class="card-acts">
-        <button class="cbtn fav-btn${p.favorite?' faved':''}" title="Favorite">
-          <svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>
-        </button>
-        <button class="cbtn exp-btn" title="View">
-          <svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>
-        </button>
-        <button class="cbtn dl-btn" title="Download">
-          <svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>
-        </button>
-        <button class="cbtn del-btn" title="Delete">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>
-        </button>
+      <img src="${p.url}" alt="${n}" loading="lazy"/>
+      <div class="pc-ov"><div class="pc-name">${n}</div><div class="pc-date">${d}</div></div>
+      <div class="pc-btns">
+        <button class="icb${p.favorite?' fav':''}" data-a="fav" title="Favorite"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg></button>
+        <button class="icb" data-a="open" title="View"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg></button>
+        <button class="icb" data-a="dl" title="Download"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg></button>
       </div>`;
-    c.querySelector('.fav-btn').onclick = async e => { e.stopPropagation(); await toggleFav(p.id); renderGallery(); bump('s-favs'); updateStats(); };
-    c.querySelector('.exp-btn').onclick = e => { e.stopPropagation(); openLb(p.id); };
-    c.querySelector('.dl-btn').onclick  = e => { e.stopPropagation(); dlPhoto(p); };
-    c.querySelector('.del-btn').onclick = e => { e.stopPropagation(); openDel(p.id); };
-    c.onclick       = () => openLb(p.id);
-    c.oncontextmenu = e => { e.preventDefault(); ctxId=p.id; openCtx(e.clientX,e.clientY); };
-    g.insertBefore(c,emp);
+    c.querySelectorAll('.icb').forEach(b=>b.addEventListener('click',async e=>{
+      e.stopPropagation(); const a=b.dataset.a;
+      if(a==='fav'){await toggleFav(p.id);renderGallery();bump('sb1');updateStats();}
+      if(a==='open') openLB(p.id);
+      if(a==='dl') dlPhoto(p);
+    }));
+    c.addEventListener('click',()=>openLB(p.id));
+    c.addEventListener('contextmenu',e=>{e.preventDefault();ctxId=p.id;openCtx(e.clientX,e.clientY);});
+    g.insertBefore(c,em);
   });
 }
 
-// ─── LIGHTBOX ───
-function openLb(id){ lbIndex=getFiltered().findIndex(p=>p.id===id); showLb(); document.getElementById('lb').classList.add('open'); document.body.style.overflow='hidden'; }
-function showLb(){
-  const f=getFiltered(); const p=f[lbIndex]; if(!p) return;
-  const img=document.getElementById('lb-img'); img.classList.add('sw');
-  setTimeout(()=>{ img.src=p.src; document.getElementById('lb-cap').textContent=p.name; document.getElementById('lb-cnt').textContent=(lbIndex+1)+' / '+f.length; document.getElementById('lb-dl').onclick=()=>dlPhoto(p); img.classList.remove('sw'); },200);
-}
-function closeLb(){ document.getElementById('lb').classList.remove('open'); if(!document.getElementById('del-modal').classList.contains('open')) document.body.style.overflow=''; }
-
-document.getElementById('lb-x').onclick    = closeLb;
-document.getElementById('lb').onclick      = e => { if(e.target===document.getElementById('lb')) closeLb(); };
-document.getElementById('lb-prev').onclick = () => { const f=getFiltered(); lbIndex=(lbIndex-1+f.length)%f.length; showLb(); };
-document.getElementById('lb-next').onclick = () => { const f=getFiltered(); lbIndex=(lbIndex+1)%f.length; showLb(); };
+// ── LIGHTBOX ─────────────────────────────────────────────────
+function openLB(id){ const f=getList(); lbIdx=f.findIndex(x=>x.id===id); showLB(f); $('lb').classList.add('open'); document.body.style.overflow='hidden'; }
+function showLB(f){ const p=f[lbIdx]; if(!p)return; const img=$('lb-img'); img.classList.add('sw'); setTimeout(()=>{ img.src=p.url; $('lb-cap').textContent=p.name; $('lb-num').textContent=`${lbIdx+1} / ${f.length}`; $('lb-dl').onclick=()=>dlPhoto(p); img.classList.remove('sw'); },220); }
+function closeLB(){ $('lb').classList.remove('open'); document.body.style.overflow=''; }
+$('lbx').onclick=closeLB;
+$('lb').addEventListener('click',e=>{ if(e.target===$('lb')) closeLB(); });
+$('lbprev').onclick=()=>{ const f=getList(); lbIdx=(lbIdx-1+f.length)%f.length; showLB(f); };
+$('lbnext').onclick=()=>{ const f=getList(); lbIdx=(lbIdx+1)%f.length; showLB(f); };
 document.addEventListener('keydown',e=>{
-  if(document.getElementById('del-modal').classList.contains('open')){ if(e.key==='Escape') closeDel(); return; }
-  if(!document.getElementById('lb').classList.contains('open')) return;
-  const f=getFiltered();
-  if(e.key==='ArrowRight'){ lbIndex=(lbIndex+1)%f.length; showLb(); }
-  if(e.key==='ArrowLeft'){ lbIndex=(lbIndex-1+f.length)%f.length; showLb(); }
-  if(e.key==='Escape') closeLb();
+  if(!$('lb').classList.contains('open'))return;
+  const f=getList();
+  if(e.key==='ArrowRight'){lbIdx=(lbIdx+1)%f.length;showLB(f);}
+  if(e.key==='ArrowLeft'){lbIdx=(lbIdx-1+f.length)%f.length;showLB(f);}
+  if(e.key==='Escape')closeLB();
 });
 
-// ─── SLIDESHOW ───
-let ssTimer=null;
-document.getElementById('nav-ss').onclick=e=>{ e.preventDefault(); if(!photos.length) return; openLb(getFiltered()[0]?.id); clearInterval(ssTimer); ssTimer=setInterval(()=>{ if(!document.getElementById('lb').classList.contains('open')){ clearInterval(ssTimer); return; } const f=getFiltered(); lbIndex=(lbIndex+1)%f.length; showLb(); },3500); };
+// ── SLIDESHOW ────────────────────────────────────────────────
+let ssT=null;
+$('a-ss').addEventListener('click',e=>{ e.preventDefault(); const f=getList(); if(!f.length)return; openLB(f[0].id); clearInterval(ssT); ssT=setInterval(()=>{ if(!$('lb').classList.contains('open')){clearInterval(ssT);return;} const fr=getList(); lbIdx=(lbIdx+1)%fr.length; showLB(fr); },3500); });
 
-// ─── DELETE MODAL ───
-function openDel(id){ const p=photos.find(x=>x.id===id); if(!p) return; delId=id; document.getElementById('del-name').textContent='"'+p.name+'"'; document.getElementById('del-modal').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeDel(){ document.getElementById('del-modal').classList.remove('open'); delId=null; if(!document.getElementById('lb').classList.contains('open')) document.body.style.overflow=''; }
-document.getElementById('del-cancel').onclick=closeDel;
-document.getElementById('del-modal').onclick=e=>{ if(e.target===document.getElementById('del-modal')) closeDel(); };
-document.getElementById('del-ok').onclick=async()=>{
-  if(!delId) return; const id=delId; closeDel();
-  const card=document.querySelector(`.card[data-id="${id}"]`);
-  if(card){ card.style.transition='opacity .32s,transform .32s'; card.style.opacity='0'; card.style.transform='scale(.88)'; }
-  await deletePhoto(id); renderGallery(); updateStats();
+// ── CTX ──────────────────────────────────────────────────────
+const ctx=$('ctx');
+function openCtx(x,y){ ctx.style.left=Math.min(x,innerWidth-185)+'px'; ctx.style.top=Math.min(y,innerHeight-185)+'px'; ctx.classList.add('open'); }
+document.addEventListener('click',()=>ctx.classList.remove('open'));
+$('ci0').onclick=()=>{ if(ctxId)openLB(ctxId); };
+$('ci1').onclick=async()=>{ if(ctxId){await toggleFav(ctxId);renderGallery();updateStats();} };
+$('ci2').onclick=()=>{ const p=photos.find(x=>x.id===ctxId);if(p)dlPhoto(p); };
+$('ci3').onclick=()=>{ const p=photos.find(x=>x.id===ctxId);if(!p)return;const n=prompt('Rename:',p.name);if(n?.trim()){p.name=n.trim();db.upd(p.id,{name:p.name});renderGallery();} };
+$('ci4').onclick=async()=>{
+  const p=photos.find(x=>x.id===ctxId); if(!p)return;
+  if(!confirm('Delete this photo permanently?'))return;
+  try{ if(p.path)await db.stDel(p.path); await db.del(p.id); photos=photos.filter(x=>x.id!==ctxId); renderGallery();updateStats(); }
+  catch(e){ toast('err','Delete failed',e.message); }
 };
 
-// ─── CTX MENU ───
-const ctx=document.getElementById('ctx');
-function openCtx(x,y){ ctx.style.left=Math.min(x,innerWidth-190)+'px'; ctx.style.top=Math.min(y,innerHeight-190)+'px'; ctx.classList.add('open'); }
-document.addEventListener('click',()=>ctx.classList.remove('open'));
-document.getElementById('c-open').onclick=()=>{ if(ctxId) openLb(ctxId); };
-document.getElementById('c-fav').onclick=async()=>{ if(ctxId){ await toggleFav(ctxId); renderGallery(); updateStats(); } };
-document.getElementById('c-dl').onclick=()=>{ const p=photos.find(x=>x.id===ctxId); if(p) dlPhoto(p); };
-document.getElementById('c-ren').onclick=async()=>{ const p=photos.find(x=>x.id===ctxId); if(!p) return; const n=prompt('Rename:',p.name); if(n&&n.trim()){ p.name=n.trim(); await saveMeta(); renderGallery(); } };
-document.getElementById('c-del').onclick=()=>{ if(ctxId) openDel(ctxId); };
+// ── FILTERS & SORT ───────────────────────────────────────────
+document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('on')); b.classList.add('on'); filter=b.dataset.f; renderGallery(); }));
+$('sorter').addEventListener('change',e=>{sort=e.target.value;renderGallery();});
+$('vg').onclick=()=>{ $('gallery').classList.remove('masonry');$('vg').classList.add('on');$('vm').classList.remove('on'); };
+$('vm').onclick=()=>{ $('gallery').classList.add('masonry');$('vm').classList.add('on');$('vg').classList.remove('on'); };
 
-// ─── FILTERS / SORT / VIEW ───
-document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('active')); b.classList.add('active'); filter=b.dataset.f; renderGallery(); }));
-document.getElementById('srt').onchange=e=>{ sort=e.target.value; renderGallery(); };
-document.getElementById('v-grid').onclick=()=>{ document.getElementById('gallery').classList.remove('masonry'); document.getElementById('v-grid').classList.add('active'); document.getElementById('v-masonry').classList.remove('active'); };
-document.getElementById('v-masonry').onclick=()=>{ document.getElementById('gallery').classList.add('masonry'); document.getElementById('v-masonry').classList.add('active'); document.getElementById('v-grid').classList.remove('active'); };
+// ── SCROLL HEADER ────────────────────────────────────────────
+window.addEventListener('scroll',()=>document.querySelector('header').style.boxShadow=scrollY>10?'0 4px 30px rgba(0,0,0,0.5)':'none');
 
-// ─── INIT — page renders first, THEN connect ───
-renderGallery();
-updateStats();
-// Small delay so page paints fully before any network call
-setTimeout(connectSupabase, 100);
+// ── INIT ─────────────────────────────────────────────────────
+(async()=>{
+  setStatus('busy','Connecting…');
+  try{
+    // Test storage bucket first
+    const stTest = await fetch(`${SUPA_URL}/storage/v1/bucket/${BUCKET}`, { headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY} });
+    if(!stTest.ok){
+      const t=await stTest.text();
+      throw new Error(`Storage bucket "${BUCKET}" error (${stTest.status}): ${t}`);
+    }
+
+    // Load photos from DB
+    const data = await db.all();
+    photos = Array.isArray(data) ? data : [];
+    setStatus('ok','Supabase ✓');
+    $('diag').className=''; // hide any previous error
+    renderGallery(); updateStats();
+  }catch(err){
+    setStatus('err','Failed');
+    const msg = err.message||String(err);
+    console.error('Supabase init error:', err);
+
+    // Show specific guidance based on error
+    if(msg.includes('42P01')||msg.includes('relation')){
+      diag('error','Table Not Found',
+        `The <b>"photos"</b> table doesn't exist in your database.<br><br>
+        Go to <b>Supabase → SQL Editor</b> and run:<br>
+        <pre style="margin-top:8px;padding:10px;background:#0a0a0a;border-radius:3px;font-size:0.65rem;overflow-x:auto;white-space:pre-wrap">CREATE TABLE IF NOT EXISTS photos (
+  id text PRIMARY KEY,
+  name text, url text, path text,
+  size bigint, favorite boolean DEFAULT false,
+  date timestamptz DEFAULT now()
+);
+ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "open" ON photos FOR ALL TO public USING (true) WITH CHECK (true);</pre>`);
+    } else if(msg.includes('RLS')||msg.includes('policy')||msg.includes('permission')||msg.includes('403')){
+      diag('error','RLS Policy Blocked',
+        `Run this in <b>Supabase → SQL Editor</b>:<br>
+        <pre style="margin-top:8px;padding:10px;background:#0a0a0a;border-radius:3px;font-size:0.65rem">ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "open" ON photos FOR ALL TO public USING (true) WITH CHECK (true);</pre>`);
+    } else {
+      diag('error','Connection Error', msg+'<br><br>Check your Supabase URL and API key, and ensure your table + storage bucket exist with public RLS policies.');
+    }
+  }
+})();
 </script>
 </body>
 </html>
