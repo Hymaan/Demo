@@ -3,226 +3,223 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>OBSCURA — Private Gallery</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@200;300;400;600&display=swap" rel="stylesheet"/>
+<title>OBSCURA Gallery</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
-  :root{--black:#050505;--card:#111111;--card2:#161616;--border:rgba(255,255,255,0.07);--gold:#c9a84c;--gold2:#f0d080;--white:#f5f0eb;--muted:rgba(245,240,235,0.4);--glow:rgba(201,168,76,0.15);--red:#f87171;--green:#4ade80;}
-  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-  html{scroll-behavior:smooth;}
-  body{background:var(--black);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;min-height:100vh;overflow-x:hidden;}
-  body::before{content:'';position:fixed;inset:0;opacity:0.3;pointer-events:none;z-index:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");}
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#080808;--surface:#111;--surface2:#181818;
+  --gold:#c9a84c;--gold2:#f0d080;--white:#f0ebe4;
+  --muted:rgba(240,235,228,0.45);--border:rgba(255,255,255,0.08);
+  --red:#f87171;--green:#4ade80;
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:300;min-height:100vh;}
 
-  /* NAV */
-  header{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(5,5,5,0.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);}
-  .logo{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:300;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;}
-  .logo em{font-style:italic;color:var(--white);}
-  nav{display:flex;gap:28px;}
-  nav a{color:var(--muted);text-decoration:none;font-size:0.67rem;letter-spacing:0.2em;text-transform:uppercase;transition:color 0.3s;position:relative;padding-bottom:3px;}
-  nav a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1px;background:var(--gold);transition:width 0.4s;}
-  nav a:hover{color:var(--gold);}nav a:hover::after{width:100%;}
-  #status{display:flex;align-items:center;gap:7px;font-size:0.6rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;}
-  .dot{width:8px;height:8px;border-radius:50%;background:#444;transition:all 0.5s;flex-shrink:0;}
-  .dot.ok{background:var(--green);box-shadow:0 0 8px var(--green);}
-  .dot.err{background:var(--red);box-shadow:0 0 8px var(--red);}
-  .dot.busy{background:var(--gold);animation:blink 1s ease-in-out infinite;}
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.25}}
+/* ── HEADER ── */
+header{position:fixed;top:0;left:0;right:0;z-index:100;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(8,8,8,0.97);border-bottom:1px solid var(--border);backdrop-filter:blur(10px);}
+.logo{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:300;letter-spacing:.3em;color:var(--gold);}
+.logo em{font-style:italic;color:var(--white);}
+nav a{color:var(--muted);text-decoration:none;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;margin-left:28px;transition:color .3s;}
+nav a:hover{color:var(--gold);}
+#status{display:flex;align-items:center;gap:7px;font-size:.6rem;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
+.dot{width:8px;height:8px;border-radius:50%;background:#444;flex-shrink:0;transition:all .5s;}
+.dot.ok{background:var(--green);box-shadow:0 0 8px var(--green);}
+.dot.err{background:var(--red);box-shadow:0 0 8px var(--red);}
+.dot.busy{background:var(--gold);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-  /* HERO */
-  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 40px 60px;position:relative;z-index:1;}
-  .eyebrow{font-size:0.6rem;letter-spacing:0.42em;color:var(--gold);text-transform:uppercase;margin-bottom:20px;opacity:0;animation:up 1s 0.3s forwards;}
-  .hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3.2rem,9vw,8rem);font-weight:300;line-height:0.92;opacity:0;animation:up 1s 0.6s forwards;}
-  .hero h1 em{font-style:italic;color:var(--gold);}
-  .hero p{margin-top:24px;font-size:0.76rem;letter-spacing:0.14em;color:var(--muted);max-width:360px;opacity:0;animation:up 1s 0.9s forwards;}
-  .vline{width:1px;height:65px;background:linear-gradient(to bottom,var(--gold),transparent);margin:36px auto 0;opacity:0;animation:up 1s 1.1s forwards;}
-  .scroll-hint{margin-top:12px;font-size:0.58rem;letter-spacing:0.3em;color:rgba(201,168,76,0.45);text-transform:uppercase;opacity:0;animation:up 1s 1.3s forwards;}
-  @keyframes up{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+/* ── HERO ── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 30px 60px;}
+.hero-eye{font-size:.6rem;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;margin-bottom:18px;opacity:0;animation:fadeup .9s .2s forwards;}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(3rem,8vw,7.5rem);font-weight:300;line-height:.9;opacity:0;animation:fadeup .9s .5s forwards;}
+.hero h1 em{font-style:italic;color:var(--gold);}
+.hero-sub{margin-top:22px;font-size:.74rem;letter-spacing:.13em;color:var(--muted);max-width:340px;opacity:0;animation:fadeup .9s .8s forwards;}
+.hero-line{width:1px;height:60px;background:linear-gradient(to bottom,var(--gold),transparent);margin:32px auto 0;opacity:0;animation:fadeup .9s 1s forwards;}
+@keyframes fadeup{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
 
-  /* DIAG BANNER */
-  #diag{max-width:700px;margin:0 auto 20px;padding:14px 18px;border-radius:4px;font-size:0.68rem;letter-spacing:0.06em;line-height:1.6;display:none;}
-  #diag.show{display:block;}
-  #diag.info{background:rgba(201,168,76,0.07);border:1px solid rgba(201,168,76,0.2);color:#fde68a;}
-  #diag.error{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.25);border-left:3px solid var(--red);color:#fca5a5;}
-  #diag.success{background:rgba(74,222,128,0.07);border:1px solid rgba(74,222,128,0.2);color:#86efac;}
-  #diag strong{display:block;margin-bottom:4px;font-size:0.72rem;letter-spacing:0.1em;}
+/* ── SECTION ── */
+.sec{max-width:780px;margin:0 auto;padding:70px 30px;}
+.sec-label{font-size:.6rem;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:10px;}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;text-align:center;margin-bottom:32px;}
 
-  /* SECTION */
-  .sec{padding:65px 48px;position:relative;z-index:1;}
-  .sec-label{font-size:0.6rem;letter-spacing:0.42em;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:10px;}
-  .sec-title{font-family:'Cormorant Garamond',serif;font-size:2.5rem;font-weight:300;text-align:center;margin-bottom:36px;}
+/* ── UPLOAD BOX ── */
+.upload-box{background:var(--surface);border:1px solid rgba(201,168,76,.22);border-radius:8px;overflow:hidden;}
+#dropzone{padding:48px 36px;text-align:center;position:relative;transition:all .4s;}
+#dropzone.over{background:rgba(201,168,76,.04);border-bottom-color:var(--gold);}
+.dz-icon{width:56px;height:56px;border:1px solid rgba(201,168,76,.35);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;transition:all .4s;}
+#dropzone.over .dz-icon{border-color:var(--gold);transform:scale(1.1);}
+.dz-icon svg{width:22px;height:22px;stroke:var(--gold);fill:none;stroke-width:1.5;}
+.dz-title{font-family:'Cormorant Garamond',serif;font-size:1.4rem;font-weight:300;margin-bottom:5px;}
+.dz-hint{font-size:.65rem;color:var(--muted);letter-spacing:.07em;margin-bottom:20px;}
+#browse{display:inline-flex;align-items:center;gap:8px;padding:11px 32px;border:1px solid var(--gold);background:transparent;color:var(--gold);font-family:'Montserrat',sans-serif;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;border-radius:2px;position:relative;overflow:hidden;transition:color .35s;}
+#browse::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform .38s cubic-bezier(.22,1,.36,1);}
+#browse:hover::before{transform:translateX(0);}
+#browse:hover{color:var(--bg);}
+#browse span,#browse svg{position:relative;z-index:1;}
+#browse svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+#filein{display:none;}
 
-  /* UPLOAD CARD */
-  .upload-wrap{max-width:700px;margin:0 auto;}
-  #drop-zone{background:var(--card);border:1px solid rgba(201,168,76,0.22);border-radius:6px 6px 0 0;padding:50px 40px;text-align:center;position:relative;overflow:hidden;transition:all 0.45s cubic-bezier(.22,1,.36,1);cursor:pointer;}
-  #drop-zone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,var(--glow),transparent 70%);opacity:0;transition:opacity 0.4s;pointer-events:none;}
-  #drop-zone.over,#drop-zone:hover{border-color:rgba(201,168,76,0.55);background:#131313;}
-  #drop-zone.over::before,#drop-zone:hover::before{opacity:1;}
-  .dz-ring{width:60px;height:60px;margin:0 auto 18px;border:1px solid rgba(201,168,76,0.35);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all 0.45s cubic-bezier(.22,1,.36,1);}
-  #drop-zone.over .dz-ring,#drop-zone:hover .dz-ring{transform:scale(1.12) rotate(6deg);border-color:var(--gold);}
-  .dz-ring svg{width:24px;height:24px;stroke:var(--gold);fill:none;stroke-width:1.4;}
-  .dz-title{font-family:'Cormorant Garamond',serif;font-size:1.45rem;font-weight:300;margin-bottom:6px;}
-  .dz-hint{font-size:0.67rem;color:var(--muted);letter-spacing:0.07em;margin-bottom:22px;}
-  .upload-btn{display:inline-flex;align-items:center;gap:9px;padding:12px 36px;border:1px solid var(--gold);color:var(--gold);font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;background:transparent;position:relative;overflow:hidden;transition:color 0.4s;border-radius:2px;}
-  .upload-btn::before{content:'';position:absolute;inset:0;background:var(--gold);transform:translateX(-101%);transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
-  .upload-btn:hover::before{transform:translateX(0);}
-  .upload-btn:hover{color:var(--black);}
-  .upload-btn *{position:relative;z-index:1;}
-  .upload-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
-  #file-input{display:none;}
+/* STATS ROW */
+.stats{display:flex;border-top:1px solid var(--border);}
+.stat{flex:1;padding:14px 16px;text-align:center;font-size:.58rem;letter-spacing:.12em;color:var(--muted);border-right:1px solid var(--border);}
+.stat:last-child{border-right:none;}
+.stat b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:var(--gold);font-weight:300;margin-bottom:1px;}
+.stat.bump b{animation:bump .4s cubic-bezier(.22,1,.36,1);}
+@keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
 
-  /* STATS */
-  .stats-row{display:flex;border:1px solid rgba(201,168,76,0.14);border-top:none;border-radius:0 0 6px 6px;overflow:hidden;}
-  .sbox{flex:1;background:var(--card2);padding:14px 18px;text-align:center;font-size:0.6rem;letter-spacing:0.12em;color:var(--muted);border-right:1px solid var(--border);}
-  .sbox:last-child{border-right:none;}
-  .sbox b{display:block;font-family:'Cormorant Garamond',serif;font-size:1.45rem;color:var(--gold);font-weight:300;margin-bottom:1px;transition:transform 0.3s;}
-  .sbox.bump b{animation:bump 0.4s cubic-bezier(.22,1,.36,1);}
-  @keyframes bump{0%{transform:scale(1)}50%{transform:scale(1.4)}100%{transform:scale(1)}}
-  .notice{margin-top:12px;padding:10px 16px;background:rgba(201,168,76,0.04);border:1px solid rgba(201,168,76,0.1);border-radius:3px;display:flex;align-items:center;gap:9px;font-size:0.63rem;letter-spacing:0.05em;color:var(--muted);}
-  .notice svg{width:13px;height:13px;stroke:var(--gold);fill:none;flex-shrink:0;}
+/* ERROR BOX */
+#errbox{margin-top:14px;padding:14px 18px;background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.2);border-left:3px solid var(--red);border-radius:4px;font-size:.67rem;line-height:1.7;color:#fca5a5;display:none;}
+#errbox.show{display:block;}
+#errbox strong{display:block;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+#errbox pre{margin-top:8px;padding:10px;background:rgba(0,0,0,.4);border-radius:3px;font-size:.62rem;white-space:pre-wrap;overflow-x:auto;color:#fde68a;}
 
-  /* GALLERY */
-  .controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;flex-wrap:wrap;gap:10px;}
-  .ftabs{display:flex;gap:2px;}
-  .ftab{padding:8px 20px;background:transparent;border:1px solid transparent;color:var(--muted);font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;cursor:pointer;transition:all 0.3s;font-family:'Montserrat',sans-serif;border-radius:2px;}
-  .ftab.on,.ftab:hover{border-color:var(--gold);color:var(--gold);}
-  .row-right{display:flex;gap:7px;align-items:center;}
-  .sort-sel{background:var(--card2);border:1px solid var(--border);color:var(--muted);padding:8px 16px;font-size:0.62rem;cursor:pointer;font-family:'Montserrat',sans-serif;outline:none;appearance:none;border-radius:2px;}
-  .vtoggle{display:flex;gap:1px;}
-  .vbtn{width:36px;height:36px;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.3s;}
-  .vbtn.on,.vbtn:hover{background:var(--card);color:var(--gold);}
-  .vbtn svg{width:15px;height:15px;fill:currentColor;}
+/* ── GALLERY SECTION ── */
+.gal-sec{padding:60px 30px 80px;max-width:1400px;margin:0 auto;}
+.gal-sec .sec-label{text-align:center;font-size:.6rem;letter-spacing:.4em;color:var(--gold);text-transform:uppercase;margin-bottom:10px;}
+.gal-sec .sec-title{font-family:'Cormorant Garamond',serif;font-size:2.4rem;font-weight:300;text-align:center;margin-bottom:28px;}
+.controls{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
+.ftabs{display:flex;gap:2px;}
+.ftab{padding:8px 18px;border:1px solid transparent;background:transparent;color:var(--muted);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;font-family:'Montserrat',sans-serif;border-radius:2px;transition:all .3s;}
+.ftab.on,.ftab:hover{border-color:var(--gold);color:var(--gold);}
+.cright{display:flex;gap:6px;align-items:center;}
+select.sorter{background:var(--surface2);border:1px solid var(--border);color:var(--muted);padding:8px 14px;font-size:.6rem;font-family:'Montserrat',sans-serif;cursor:pointer;outline:none;appearance:none;border-radius:2px;}
+.vbtns{display:flex;gap:1px;}
+.vbtn{width:34px;height:34px;background:var(--surface2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all .3s;}
+.vbtn.on,.vbtn:hover{background:var(--surface);color:var(--gold);}
+.vbtn svg{width:14px;height:14px;fill:currentColor;}
 
-  /* GRID */
-  #gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
-  #gallery.masonry{columns:4;column-gap:14px;display:block;}
-  #gallery.masonry .pc{break-inside:avoid;margin-bottom:14px;}
+/* GRID */
+#gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;}
+#gallery.masonry{columns:4;column-gap:12px;display:block;}
+#gallery.masonry .card{break-inside:avoid;margin-bottom:12px;}
 
-  /* CARD */
-  .pc{position:relative;background:var(--card);border:1px solid var(--border);border-radius:3px;overflow:hidden;cursor:pointer;opacity:0;transform:translateY(26px) scale(0.96);animation:cin 0.55s cubic-bezier(.22,1,.36,1) forwards;transition:transform 0.5s cubic-bezier(.22,1,.36,1),box-shadow 0.5s,border-color 0.4s;}
-  .pc:hover{transform:translateY(-7px) scale(1.016);border-color:rgba(201,168,76,0.3);box-shadow:0 26px 60px rgba(0,0,0,0.8),0 0 30px rgba(201,168,76,0.07);}
-  @keyframes cin{to{opacity:1;transform:translateY(0) scale(1);}}
-  .pc img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:transform 0.65s cubic-bezier(.22,1,.36,1),filter 0.4s;filter:brightness(0.87) saturate(0.75);}
-  #gallery.masonry .pc img{aspect-ratio:unset;height:auto;}
-  .pc:hover img{transform:scale(1.07);filter:brightness(1.02) saturate(1.05);}
-  .pc-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.9),rgba(0,0,0,0.15) 55%,transparent);opacity:0;transition:opacity 0.4s;display:flex;flex-direction:column;justify-content:flex-end;padding:16px;}
-  .pc:hover .pc-ov{opacity:1;}
-  .pc-name{font-family:'Cormorant Garamond',serif;font-size:1.05rem;transform:translateY(11px);transition:transform 0.4s cubic-bezier(.22,1,.36,1);}
-  .pc-date{font-size:0.58rem;letter-spacing:0.09em;color:var(--muted);transform:translateY(11px);transition:transform 0.4s cubic-bezier(.22,1,.36,1) 0.05s;}
-  .pc:hover .pc-name,.pc:hover .pc-date{transform:translateY(0);}
-  .pc-btns{position:absolute;top:10px;right:10px;display:flex;gap:5px;opacity:0;transform:translateY(-8px);transition:opacity 0.35s,transform 0.35s cubic-bezier(.22,1,.36,1);}
-  .pc:hover .pc-btns{opacity:1;transform:translateY(0);}
-  .icb{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,0.75);border:1px solid rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.3s;backdrop-filter:blur(5px);}
-  .icb:hover{background:var(--gold);border-color:var(--gold);transform:scale(1.12);}
-  .icb svg{width:12px;height:12px;fill:currentColor;pointer-events:none;}
-  .icb.fav svg{fill:var(--red);}
-  .icb.fav{border-color:rgba(248,113,113,0.3);}
+/* CARD */
+.card{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:4px;overflow:hidden;cursor:pointer;opacity:0;animation:cin .5s cubic-bezier(.22,1,.36,1) forwards;transition:transform .45s cubic-bezier(.22,1,.36,1),box-shadow .45s,border-color .3s;}
+.card:hover{transform:translateY(-6px) scale(1.015);border-color:rgba(201,168,76,.3);box-shadow:0 24px 55px rgba(0,0,0,.75),0 0 28px rgba(201,168,76,.06);}
+@keyframes cin{to{opacity:1;}}
+.card img{width:100%;display:block;aspect-ratio:4/3;object-fit:cover;transition:transform .6s cubic-bezier(.22,1,.36,1),filter .4s;filter:brightness(.88) saturate(.75);}
+#gallery.masonry .card img{aspect-ratio:unset;height:auto;}
+.card:hover img{transform:scale(1.06);filter:brightness(1) saturate(1.05);}
+.card-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.88),transparent 55%);opacity:0;transition:opacity .35s;display:flex;flex-direction:column;justify-content:flex-end;padding:14px;}
+.card:hover .card-ov{opacity:1;}
+.card-name{font-family:'Cormorant Garamond',serif;font-size:1rem;transform:translateY(10px);transition:transform .38s cubic-bezier(.22,1,.36,1);}
+.card-date{font-size:.55rem;color:var(--muted);transform:translateY(10px);transition:transform .38s cubic-bezier(.22,1,.36,1) .04s;letter-spacing:.08em;}
+.card:hover .card-name,.card:hover .card-date{transform:translateY(0);}
+.card-acts{position:absolute;top:10px;right:10px;display:flex;gap:4px;opacity:0;transform:translateY(-6px);transition:all .32s;}
+.card:hover .card-acts{opacity:1;transform:translateY(0);}
+.act{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.75);border:1px solid rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .3s;backdrop-filter:blur(4px);}
+.act:hover{background:var(--gold);border-color:var(--gold);transform:scale(1.12);}
+.act svg{width:12px;height:12px;fill:currentColor;pointer-events:none;}
+.act.is-fav svg{fill:var(--red);}
+.act.is-fav{border-color:rgba(248,113,113,.3);}
 
-  /* EMPTY */
-  #empty{grid-column:1/-1;text-align:center;padding:72px 20px;display:none;}
-  #empty.show{display:block;}
-  .ei{font-size:2.6rem;opacity:0.2;margin-bottom:12px;animation:pulse 3s ease-in-out infinite;}
-  @keyframes pulse{0%,100%{opacity:0.2}50%{opacity:0.42}}
-  .et{font-family:'Cormorant Garamond',serif;font-size:1.65rem;color:var(--muted);}
-  .es{font-size:0.65rem;color:rgba(245,240,235,0.16);letter-spacing:0.09em;margin-top:5px;}
+/* EMPTY */
+#empty{grid-column:1/-1;text-align:center;padding:64px 20px;display:none;}
+#empty.show{display:block;}
+.ei{font-size:2.4rem;opacity:.18;margin-bottom:12px;animation:pulse 3s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.18}50%{opacity:.38}}
+.et{font-family:'Cormorant Garamond',serif;font-size:1.6rem;color:var(--muted);}
+.es{font-size:.63rem;color:rgba(240,235,228,.16);letter-spacing:.09em;margin-top:5px;}
 
-  /* LIGHTBOX */
-  #lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.97);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.45s cubic-bezier(.22,1,.36,1);}
-  #lb.open{opacity:1;pointer-events:all;backdrop-filter:blur(18px);}
-  .lb-wrap{max-width:92vw;max-height:92vh;display:flex;flex-direction:column;transform:scale(0.87) translateY(20px);transition:transform 0.5s cubic-bezier(.22,1,.36,1);}
-  #lb.open .lb-wrap{transform:scale(1) translateY(0);}
-  #lb-img{max-width:92vw;max-height:80vh;object-fit:contain;display:block;border:1px solid rgba(255,255,255,0.05);box-shadow:0 32px 80px rgba(0,0,0,0.9);transition:opacity 0.25s,transform 0.25s;}
-  #lb-img.sw{opacity:0;transform:scale(0.95);}
-  .lb-foot{display:flex;justify-content:space-between;align-items:center;padding:12px 2px 0;}
-  #lb-cap{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-style:italic;}
-  #lb-num{font-size:0.6rem;letter-spacing:0.18em;color:var(--muted);}
-  .lb-x{position:fixed;top:22px;right:26px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.04);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;}
-  .lb-x:hover{background:var(--gold);border-color:var(--gold);transform:rotate(90deg);}
-  .lb-x svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5;}
-  .lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.09);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.3s;backdrop-filter:blur(5px);}
-  .lb-nav:hover{background:var(--gold);border-color:var(--gold);transform:translateY(-50%) scale(1.08);}
-  .lb-nav svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.5;}
-  #lb-prev{left:18px;}#lb-next{right:18px;}
-  #lb-dl{position:fixed;top:22px;left:26px;padding:9px 18px;background:rgba(0,0,0,0.55);border:1px solid rgba(201,168,76,0.35);color:var(--gold);font-size:0.6rem;letter-spacing:0.16em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.3s;font-family:'Montserrat',sans-serif;backdrop-filter:blur(5px);border-radius:2px;}
-  #lb-dl:hover{background:var(--gold);color:var(--black);}
-  #lb-dl svg{width:12px;height:12px;fill:currentColor;}
+/* LIGHTBOX */
+#lb{position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,.96);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .42s;}
+#lb.open{opacity:1;pointer-events:all;backdrop-filter:blur(16px);}
+.lb-inner{max-width:92vw;max-height:92vh;display:flex;flex-direction:column;transform:scale(.88) translateY(18px);transition:transform .48s cubic-bezier(.22,1,.36,1);}
+#lb.open .lb-inner{transform:scale(1) translateY(0);}
+#lbimg{max-width:92vw;max-height:80vh;object-fit:contain;border:1px solid rgba(255,255,255,.05);box-shadow:0 30px 80px rgba(0,0,0,.9);transition:opacity .25s,transform .25s;}
+#lbimg.sw{opacity:0;transform:scale(.95);}
+.lb-foot{display:flex;justify-content:space-between;align-items:center;padding:10px 2px 0;}
+#lb-cap{font-family:'Cormorant Garamond',serif;font-size:1.05rem;font-style:italic;}
+#lb-num{font-size:.58rem;letter-spacing:.17em;color:var(--muted);}
+.lb-x{position:fixed;top:20px;right:24px;width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.04);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;}
+.lb-x:hover{background:var(--gold);border-color:var(--gold);transform:rotate(90deg);}
+.lb-x svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:1.5;}
+.lb-nav{position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.09);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .3s;backdrop-filter:blur(4px);}
+.lb-nav:hover{background:var(--gold);border-color:var(--gold);transform:translateY(-50%) scale(1.08);}
+.lb-nav svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.5;}
+#lbprev{left:16px;}#lbnext{right:16px;}
+#lb-dl{position:fixed;top:20px;left:24px;padding:8px 16px;background:rgba(0,0,0,.55);border:1px solid rgba(201,168,76,.32);color:var(--gold);font-size:.58rem;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .3s;font-family:'Montserrat',sans-serif;backdrop-filter:blur(4px);border-radius:2px;}
+#lb-dl:hover{background:var(--gold);color:var(--bg);}
+#lb-dl svg{width:11px;height:11px;fill:currentColor;}
 
-  /* TOAST */
-  #toast{position:fixed;bottom:26px;right:26px;z-index:600;background:var(--card2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:13px 20px;min-width:260px;max-width:340px;opacity:0;transform:translateX(14px) scale(0.97);transition:all 0.4s cubic-bezier(.22,1,.36,1);pointer-events:none;border-radius:3px;}
-  #toast.show{opacity:1;transform:translateX(0) scale(1);}
-  #toast.err{border-left-color:var(--red);}
-  #toast.ok{border-left-color:var(--green);}
-  #t-title{font-size:0.64rem;letter-spacing:0.13em;color:var(--gold);text-transform:uppercase;margin-bottom:5px;}
-  #toast.err #t-title{color:var(--red);}
-  #toast.ok #t-title{color:var(--green);}
-  #t-msg{font-size:0.72rem;color:var(--muted);margin-bottom:8px;word-break:break-word;}
-  .pbar{height:2px;background:rgba(255,255,255,0.05);}
-  .pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 0.15s;}
+/* TOAST */
+#toast{position:fixed;bottom:24px;right:24px;z-index:600;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gold);padding:12px 18px;min-width:250px;max-width:320px;opacity:0;transform:translateX(12px);transition:all .38s cubic-bezier(.22,1,.36,1);pointer-events:none;border-radius:3px;}
+#toast.show{opacity:1;transform:translateX(0);}
+#toast.terr{border-left-color:var(--red);}
+#toast.tok{border-left-color:var(--green);}
+#t-ttl{font-size:.62rem;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:4px;}
+#toast.terr #t-ttl{color:var(--red);}
+#toast.tok #t-ttl{color:var(--green);}
+#t-msg{font-size:.7rem;color:var(--muted);}
+.pbar{margin-top:8px;height:2px;background:rgba(255,255,255,.05);}
+.pfill{height:100%;width:0%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width .15s;}
 
-  /* CTX */
-  #ctx{position:fixed;z-index:900;background:var(--card2);border:1px solid var(--border);box-shadow:0 16px 50px rgba(0,0,0,0.85);min-width:170px;padding:5px 0;opacity:0;pointer-events:none;transform:scale(0.9) translateY(-6px);transition:opacity 0.2s,transform 0.2s cubic-bezier(.22,1,.36,1);border-radius:3px;}
-  #ctx.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
-  .ci{display:flex;align-items:center;gap:8px;padding:9px 15px;font-size:0.67rem;letter-spacing:0.06em;cursor:pointer;transition:background 0.18s,color 0.18s,padding-left 0.2s;color:var(--muted);}
-  .ci:hover{background:rgba(201,168,76,0.07);color:var(--gold);padding-left:21px;}
-  .ci svg{width:12px;height:12px;fill:currentColor;}
-  .csep{height:1px;background:var(--border);margin:3px 0;}
-  .ci.del:hover{background:rgba(248,113,113,0.07);color:var(--red);}
+/* CTX */
+#ctx{position:fixed;z-index:900;background:var(--surface2);border:1px solid var(--border);box-shadow:0 14px 45px rgba(0,0,0,.85);min-width:165px;padding:5px 0;opacity:0;pointer-events:none;transform:scale(.9) translateY(-5px);transition:all .2s cubic-bezier(.22,1,.36,1);border-radius:3px;}
+#ctx.open{opacity:1;pointer-events:all;transform:scale(1) translateY(0);}
+.ci{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:.65rem;letter-spacing:.06em;cursor:pointer;color:var(--muted);transition:background .18s,color .18s,padding-left .2s;}
+.ci:hover{background:rgba(201,168,76,.07);color:var(--gold);padding-left:20px;}
+.ci svg{width:12px;height:12px;fill:currentColor;}
+.csep{height:1px;background:var(--border);margin:3px 0;}
+.ci.del:hover{background:rgba(248,113,113,.07);color:var(--red);}
 
-  footer{text-align:center;padding:32px 40px;border-top:1px solid var(--border);font-size:0.58rem;letter-spacing:0.18em;color:rgba(245,240,235,0.12);z-index:1;position:relative;}
-  footer b{color:var(--gold);font-weight:300;}
-  ::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--black);}::-webkit-scrollbar-thumb{background:rgba(201,168,76,0.22);}
-  ::selection{background:rgba(201,168,76,0.17);color:var(--gold);}
-  @media(max-width:768px){header{padding:12px 18px;}nav{display:none;}.sec{padding:50px 18px;}#gallery{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));}#gallery.masonry{columns:2;}}
+footer{text-align:center;padding:30px;border-top:1px solid var(--border);font-size:.57rem;letter-spacing:.17em;color:rgba(240,235,228,.1);}
+footer b{color:var(--gold);font-weight:300;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);}
+::selection{background:rgba(201,168,76,.17);color:var(--gold);}
+@media(max-width:700px){header{padding:0 18px;}nav{display:none;}.sec,.gal-sec{padding:50px 16px;}#gallery{grid-template-columns:repeat(auto-fill,minmax(140px,1fr));}#gallery.masonry{columns:2;}}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
   <div class="logo">Obs<em>cura</em></div>
   <nav>
-    <a href="#sec-up">Upload</a>
-    <a href="#sec-gal">Gallery</a>
+    <a href="#sec-upload">Upload</a>
+    <a href="#sec-gallery">Gallery</a>
     <a href="#" id="a-ss">Slideshow</a>
   </nav>
   <div id="status"><div class="dot busy" id="dot"></div><span id="slbl">Connecting…</span></div>
 </header>
 
-<section class="hero">
-  <p class="eyebrow">Your Private Sanctuary</p>
+<!-- HERO -->
+<div class="hero">
+  <p class="hero-eye">Your Private Sanctuary</p>
   <h1>The Art of<br/><em>Memory</em></h1>
-  <p>A refined space for your most precious visual stories.</p>
-  <div class="vline"></div>
-  <p class="scroll-hint">Scroll to begin</p>
-</section>
+  <p class="hero-sub">A refined space for your most precious visual stories.</p>
+  <div class="hero-line"></div>
+</div>
 
-<section class="sec" id="sec-up">
-  <p class="sec-label">Add to collection</p>
+<!-- UPLOAD -->
+<section class="sec" id="sec-upload">
+  <p class="sec-label">Add to Collection</p>
   <h2 class="sec-title">Upload Photographs</h2>
-  <div class="upload-wrap">
-    <div id="diag"></div>
-    <div id="drop-zone">
-      <div class="dz-ring">
+  <div class="upload-box">
+    <div id="dropzone">
+      <div class="dz-icon">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       </div>
-      <p class="dz-title">Drop photographs here</p>
-      <p class="dz-hint">JPG · PNG · WEBP · GIF · any size</p>
-      <button class="upload-btn" id="ubtn">
+      <p class="dz-title">Drop photos here</p>
+      <p class="dz-hint">JPG · PNG · WEBP · GIF · Any size</p>
+      <button id="browse">
         <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        <span>Browse &amp; Upload</span>
+        <span>Choose Photos</span>
       </button>
-      <input type="file" id="fi" multiple accept="image/*"/>
+      <input type="file" id="filein" multiple accept="image/*"/>
     </div>
-    <div class="stats-row">
-      <div class="sbox" id="sb0"><b id="s0">0</b>Photos</div>
-      <div class="sbox" id="sb1"><b id="s1">0</b>Favorites</div>
-      <div class="sbox" id="sb2"><b id="s2">0 MB</b>Stored</div>
-    </div>
-    <div class="notice">
-      <svg viewBox="0 0 24 24" stroke-width="1.4"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-      Photos stored in Supabase — accessible from any device, anywhere.
+    <div class="stats">
+      <div class="stat" id="st0"><b id="s0">0</b>Photos</div>
+      <div class="stat" id="st1"><b id="s1">0</b>Favorites</div>
+      <div class="stat" id="st2"><b id="s2">0 MB</b>Stored</div>
     </div>
   </div>
+  <div id="errbox"></div>
 </section>
 
-<section class="sec" id="sec-gal">
+<!-- GALLERY -->
+<section class="gal-sec" id="sec-gallery">
   <p class="sec-label">Collection</p>
   <h2 class="sec-title">Your Gallery</h2>
   <div class="controls">
@@ -230,15 +227,15 @@
       <button class="ftab on" data-f="all">All</button>
       <button class="ftab" data-f="fav">Favorites</button>
     </div>
-    <div class="row-right">
-      <select class="sort-sel" id="sorter">
+    <div class="cright">
+      <select class="sorter" id="sorter">
         <option value="new">Newest First</option>
         <option value="old">Oldest First</option>
-        <option value="az">Name A–Z</option>
+        <option value="az">A – Z</option>
       </select>
-      <div class="vtoggle">
-        <button class="vbtn on" id="vg"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg></button>
-        <button class="vbtn" id="vm"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="9"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="12" width="6" height="3"/><rect x="9" y="9" width="6" height="6"/></svg></button>
+      <div class="vbtns">
+        <button class="vbtn on" id="vgrid"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="6"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="9" width="6" height="6"/><rect x="9" y="9" width="6" height="6"/></svg></button>
+        <button class="vbtn" id="vmason"><svg viewBox="0 0 16 16"><rect x="1" y="1" width="6" height="9"/><rect x="9" y="1" width="6" height="6"/><rect x="1" y="12" width="6" height="3"/><rect x="9" y="9" width="6" height="6"/></svg></button>
       </div>
     </div>
   </div>
@@ -246,291 +243,353 @@
     <div id="empty" class="show">
       <div class="ei">✦</div>
       <p class="et">Your gallery awaits</p>
-      <p class="es">Upload photographs to begin your collection</p>
+      <p class="es">Upload your first photograph to begin</p>
     </div>
   </div>
 </section>
 
-<footer>Crafted with obsession · <b>Obscura</b> · Powered by Supabase</footer>
+<footer>Crafted with care · <b>Obscura</b> · Powered by Supabase</footer>
 
+<!-- LIGHTBOX -->
 <div id="lb">
   <button class="lb-x" id="lbx"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
   <button id="lb-dl"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</button>
   <button class="lb-nav" id="lbprev"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
   <button class="lb-nav" id="lbnext"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>
-  <div class="lb-wrap">
-    <img id="lb-img" src="" alt=""/>
+  <div class="lb-inner">
+    <img id="lbimg" src="" alt=""/>
     <div class="lb-foot"><div id="lb-cap"></div><div id="lb-num"></div></div>
   </div>
 </div>
 
-<div id="toast"><div id="t-title"></div><div id="t-msg"></div><div class="pbar"><div class="pfill" id="pf"></div></div></div>
+<!-- TOAST -->
+<div id="toast"><div id="t-ttl"></div><div id="t-msg"></div><div class="pbar"><div class="pfill" id="pf"></div></div></div>
 
+<!-- CTX MENU -->
 <div id="ctx">
-  <div class="ci" id="ci0"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>Open</div>
-  <div class="ci" id="ci1"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>Toggle Favorite</div>
-  <div class="ci" id="ci2"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</div>
-  <div class="ci" id="ci3"><svg viewBox="0 0 16 16"><path d="M11 2l3 3L6 13l-4 1 1-4 8-8z"/></svg>Rename</div>
+  <div class="ci" id="c0"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>Open</div>
+  <div class="ci" id="c1"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>Toggle Favorite</div>
+  <div class="ci" id="c2"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>Download</div>
+  <div class="ci" id="c3"><svg viewBox="0 0 16 16"><path d="M11 2l3 3L6 13l-4 1 1-4 8-8z"/></svg>Rename</div>
   <div class="csep"></div>
-  <div class="ci del" id="ci4"><svg viewBox="0 0 16 16"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>Delete</div>
+  <div class="ci del" id="c4"><svg viewBox="0 0 16 16"><polyline points="3,4 13,4"/><path d="M5 4V2h6v2M6 7v5M10 7v5M4 4l1 10h6l1-10"/></svg>Delete</div>
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────────────
-const SUPA_URL = 'https://prlfgswggcexionantal.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
-const BUCKET   = 'photos';
-const TABLE    = 'photos';
+// ─────────────────────────────────────────────
+//  SUPABASE CONFIG
+// ─────────────────────────────────────────────
+const URL_  = 'https://prlfgswggcexionantal.supabase.co';
+const KEY_  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBybGZnc3dnZ2NleGlvbmFudGFsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMDAyOTIsImV4cCI6MjA4Nzg3NjI5Mn0.DRxq9JYIUy5gx_n2Bfw6Ym84118Evvk24jGGzZ9Tbl4';
+const TBL   = 'photos';
+const BKT   = 'photos';
 
-// ── REST HELPERS (no SDK needed) ──────────────────────────────
-const H = (extra={}) => ({ 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY, 'Content-Type':'application/json', ...extra });
+// ─────────────────────────────────────────────
+//  RAW FETCH WRAPPERS  (no SDK dependency)
+// ─────────────────────────────────────────────
+const H = (extra={}) => ({
+  'apikey': KEY_,
+  'Authorization': 'Bearer ' + KEY_,
+  'Content-Type': 'application/json',
+  ...extra
+});
 
-async function dbFetch(path, opts={}){
-  const r = await fetch(SUPA_URL+path, opts);
-  const txt = await r.text();
-  let json; try{ json=JSON.parse(txt); }catch{ json=txt; }
-  if(!r.ok) throw Object.assign(new Error(json?.message||json||r.statusText), {code:json?.code, status:r.status});
+async function apiFetch(path, opts = {}) {
+  const res  = await fetch(URL_ + path, opts);
+  const text = await res.text();
+  let json;
+  try { json = JSON.parse(text); } catch { json = { message: text }; }
+  if (!res.ok) {
+    const msg = json?.message || json?.error_description || text || res.statusText;
+    const err = new Error(msg);
+    err.status = res.status;
+    err.code   = json?.code;
+    throw err;
+  }
   return json;
 }
 
-const db = {
-  all:   ()  => dbFetch(`/rest/v1/${TABLE}?select=*&order=date.desc`, {headers:H({'Prefer':'return=representation'})}),
-  ins:   row => dbFetch(`/rest/v1/${TABLE}`, {method:'POST', headers:H({'Prefer':'return=minimal'}), body:JSON.stringify(row)}),
-  upd:   (id,p)=> dbFetch(`/rest/v1/${TABLE}?id=eq.${id}`, {method:'PATCH', headers:H({'Prefer':'return=minimal'}), body:JSON.stringify(p)}),
-  del:   id  => dbFetch(`/rest/v1/${TABLE}?id=eq.${id}`, {method:'DELETE', headers:H()}),
-  stUp:  (path,file)=> fetch(`${SUPA_URL}/storage/v1/object/${BUCKET}/${path}`, {method:'POST', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':file.type}, body:file}).then(async r=>{ if(!r.ok){const t=await r.text();throw new Error(t);} }),
-  stDel: path=> fetch(`${SUPA_URL}/storage/v1/object/${BUCKET}`, {method:'DELETE', headers:H(), body:JSON.stringify({prefixes:[path]})}).then(r=>{ if(!r.ok) console.warn('Storage delete failed'); }),
-  pubUrl:path=> `${SUPA_URL}/storage/v1/object/public/${BUCKET}/${path}`
+const DB = {
+  list:   ()      => apiFetch(`/rest/v1/${TBL}?select=*&order=created_at.desc`, { headers: H({'Prefer':'return=representation'}) }),
+  insert: row     => apiFetch(`/rest/v1/${TBL}`, { method:'POST', headers: H({'Prefer':'return=minimal'}), body: JSON.stringify(row) }),
+  update: (id, p) => apiFetch(`/rest/v1/${TBL}?id=eq.${id}`, { method:'PATCH', headers: H({'Prefer':'return=minimal'}), body: JSON.stringify(p) }),
+  remove: id      => apiFetch(`/rest/v1/${TBL}?id=eq.${id}`, { method:'DELETE', headers: H() }),
+  upload: async (path, file) => {
+    const res = await fetch(`${URL_}/storage/v1/object/${BKT}/${path}`, {
+      method: 'POST',
+      headers: { 'apikey': KEY_, 'Authorization': 'Bearer ' + KEY_, 'Content-Type': file.type },
+      body: file
+    });
+    if (!res.ok) { const t = await res.text(); throw new Error('Storage: ' + t); }
+  },
+  removeFile: async path => {
+    await fetch(`${URL_}/storage/v1/object/${BKT}`, {
+      method: 'DELETE',
+      headers: H(),
+      body: JSON.stringify({ prefixes: [path] })
+    });
+  },
+  pubUrl: path => `${URL_}/storage/v1/object/public/${BKT}/${path}`
 };
 
-// ── STATE ─────────────────────────────────────────────────────
-let photos=[], filter='all', sort='new', lbIdx=0, ctxId=null;
+// ─────────────────────────────────────────────
+//  STATE
+// ─────────────────────────────────────────────
+let photos = [], filter = 'all', sort = 'new', lbIdx = 0, ctxId = null;
 
-// ── UTILS ─────────────────────────────────────────────────────
-const $  = id => document.getElementById(id);
-const esc = s => String(s).replace(/[<>"'&]/g,c=>({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
-const uid = () => crypto.randomUUID ? crypto.randomUUID() : Date.now()+'_'+Math.random().toString(36).slice(2);
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+const $   = id => document.getElementById(id);
+const esc = s  => String(s).replace(/[<>"'&]/g, c => ({'<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;','&':'&amp;'}[c]));
+const uid = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now()+'_'+Math.random().toString(36).slice(2));
 
-function setStatus(t,lbl){ $('dot').className='dot '+t; $('slbl').textContent=lbl; }
+function setStatus(type, label) { $('dot').className = 'dot ' + type; $('slbl').textContent = label; }
 
-function diag(type, title, msg){
-  const d=$('diag'); d.className='show '+type;
-  d.innerHTML=`<strong>${title}</strong>${msg}`;
-}
+function showErr(html) { const b = $('errbox'); b.innerHTML = html; b.className = 'show'; }
+function hideErr()     { $('errbox').className = ''; }
 
 let toastTimer;
-function toast(type, title, msg, autohide=true){
+function showToast(type, title, msg, stay = false) {
   clearTimeout(toastTimer);
-  const t=$('toast'); t.className='show '+type;
-  $('t-title').textContent=title; $('t-msg').textContent=msg;
-  $('pf').style.width='0%';
-  if(autohide) toastTimer=setTimeout(()=>t.classList.remove('show'),4000);
+  const t = $('toast'); t.className = 'show t'+type;
+  $('t-ttl').textContent = title; $('t-msg').textContent = msg;
+  $('pf').style.width = '0%';
+  if (!stay) toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
 }
-function setBar(p){ $('pf').style.width=p+'%'; }
+function setBar(p) { $('pf').style.width = p + '%'; }
 
-function bump(id){ const e=$(id); e.classList.remove('bump'); void e.offsetWidth; e.classList.add('bump'); }
-
-function updateStats(){
+function bump(id) { const e=$(id); e.classList.remove('bump'); void e.offsetWidth; e.classList.add('bump'); }
+function updateStats() {
   $('s0').textContent = photos.length;
-  $('s1').textContent = photos.filter(p=>p.favorite).length;
-  $('s2').textContent = (photos.reduce((a,p)=>a+(p.size||0),0)/1024/1024).toFixed(1)+' MB';
+  $('s1').textContent = photos.filter(p => p.favorite).length;
+  $('s2').textContent = (photos.reduce((a,p) => a+(p.size||0), 0)/1024/1024).toFixed(1)+' MB';
 }
 
-// ── DRAG & DROP ───────────────────────────────────────────────
-const dz=$('drop-zone'), fi=$('fi');
-$('ubtn').addEventListener('click', e=>{ e.stopPropagation(); fi.click(); });
-dz.addEventListener('click', ()=>fi.click());
-['dragenter','dragover'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('over');}));
-['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{
-  e.preventDefault(); dz.classList.remove('over');
-  if(ev==='drop'&&e.dataTransfer.files.length) processFiles(e.dataTransfer.files);
+// ─────────────────────────────────────────────
+//  UPLOAD
+// ─────────────────────────────────────────────
+$('browse').addEventListener('click', e => { e.stopPropagation(); $('filein').click(); });
+$('dropzone').addEventListener('click', () => $('filein').click());
+['dragenter','dragover'].forEach(ev => $('dropzone').addEventListener(ev, e => { e.preventDefault(); $('dropzone').classList.add('over'); }));
+['dragleave','drop'].forEach(ev => $('dropzone').addEventListener(ev, e => {
+  e.preventDefault(); $('dropzone').classList.remove('over');
+  if (ev === 'drop' && e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
 }));
-fi.addEventListener('change',()=>{ if(fi.files.length) processFiles(fi.files); fi.value=''; });
+$('filein').addEventListener('change', () => { if ($('filein').files.length) handleFiles($('filein').files); $('filein').value = ''; });
 
-function processFiles(files){
-  [...files].filter(f=>f.type.startsWith('image/')).forEach((f,i)=>setTimeout(()=>uploadPhoto(f),i*600));
+function handleFiles(files) {
+  [...files].filter(f => f.type.startsWith('image/')).forEach((f, i) => setTimeout(() => uploadOne(f), i * 700));
 }
 
-// ── UPLOAD ────────────────────────────────────────────────────
-async function uploadPhoto(file){
+async function uploadOne(file) {
   const id   = uid();
-  const ext  = (file.name.split('.').pop()||'jpg').toLowerCase();
-  const path = id+'.'+ext;
-  const name = file.name.replace(/\.[^.]+$/,'');
+  const ext  = (file.name.split('.').pop() || 'jpg').toLowerCase();
+  const path = id + '.' + ext;
+  const name = file.name.replace(/\.[^.]+$/, '');
 
-  toast('', 'Uploading…', file.name, false);
-  let pct=0; const iv=setInterval(()=>{ pct=Math.min(pct+Math.random()*9+5,86); setBar(pct); },130);
+  showToast('', 'Uploading…', file.name, true);
+  let pct = 0;
+  const iv = setInterval(() => { pct = Math.min(pct + Math.random()*10+5, 85); setBar(pct); }, 120);
 
-  try{
-    // Step 1: upload file to Storage
-    await db.stUp(path, file);
-
-    // Step 2: get public URL
-    const url = db.pubUrl(path);
-
-    // Step 3: insert row into database
-    const row = { id, name, url, path, size:file.size, favorite:false, date:new Date().toISOString() };
-    await db.ins(row);
+  try {
+    await DB.upload(path, file);
+    const url = DB.pubUrl(path);
+    const row = { id, name, url, path, size: file.size, favorite: false, created_at: new Date().toISOString() };
+    await DB.insert(row);
 
     clearInterval(iv); setBar(100);
     photos.unshift(row);
-    renderGallery(); bump('sb0'); updateStats();
-    toast('ok','Saved ✓', name+'.'+ext);
-    // clear any error banner on success
-    $('diag').className='';
-  }catch(err){
+    renderGallery(); bump('st0'); updateStats();
+    showToast('ok', 'Saved ✓', name + '.' + ext);
+    hideErr();
+  } catch (err) {
     clearInterval(iv);
-    const msg = err.message||String(err);
-    toast('err','Upload failed', msg, false);
-    diag('error','Upload Error — '+err.code, msg+'<br><br>Make sure your Supabase table & storage bucket have public RLS policies (see console for details).');
+    const m = err.message || String(err);
+    showToast('err', 'Upload Failed', m, true);
+    showErr(buildErrHtml(err, m));
     console.error('Upload error:', err);
   }
 }
 
-// ── DOWNLOAD ─────────────────────────────────────────────────
-async function dlPhoto(p){
-  try{
-    const res=await fetch(p.url); const blob=await res.blob();
-    const ext=(p.path||'').split('.').pop()||'jpg';
-    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=p.name+'.'+ext;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
-  }catch{ window.open(p.url,'_blank'); }
+function buildErrHtml(err, m) {
+  if (err.status === 404 || m.includes('does not exist') || m.includes('bucket'))
+    return `<strong>Storage Bucket Missing</strong>Go to Supabase → Storage → Create bucket called <b>photos</b> (set to Public).<br>Then go to SQL Editor and run the setup SQL.`;
+  if (err.code === '42P01' || m.includes('relation') || m.includes('table'))
+    return `<strong>Table Missing</strong>Run this in Supabase → SQL Editor:<pre>CREATE TABLE photos (
+  id text PRIMARY KEY, name text, url text,
+  path text, size bigint,
+  favorite boolean DEFAULT false,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "open" ON photos FOR ALL
+  USING (true) WITH CHECK (true);</pre>`;
+  if (err.status === 403 || m.includes('policy') || m.includes('permission') || m.includes('RLS'))
+    return `<strong>Permission Denied (RLS)</strong>Run this in Supabase → SQL Editor:<pre>ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "open" ON photos FOR ALL
+  USING (true) WITH CHECK (true);</pre>`;
+  return `<strong>Error (${err.status||'?'})</strong>${m}`;
 }
 
-// ── FAVORITE ─────────────────────────────────────────────────
-async function toggleFav(id){
-  const p=photos.find(x=>x.id===id); if(!p)return;
-  p.favorite=!p.favorite;
-  try{ await db.upd(id,{favorite:p.favorite}); }catch(e){ console.warn('Fav update failed',e); }
+// ─────────────────────────────────────────────
+//  DOWNLOAD
+// ─────────────────────────────────────────────
+async function dlPhoto(p) {
+  try {
+    const res = await fetch(p.url);
+    const blob = await res.blob();
+    const ext  = (p.path||'').split('.').pop() || 'jpg';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = p.name + '.' + ext;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a); URL.revokeObjectURL(a.href);
+  } catch { window.open(p.url, '_blank'); }
 }
 
-// ── LIST ─────────────────────────────────────────────────────
-function getList(){
-  let f=photos.filter(p=>filter==='fav'?p.favorite:true);
-  if(sort==='old')  f=f.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
-  else if(sort==='az') f=f.slice().sort((a,b)=>a.name.localeCompare(b.name));
-  else f=f.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+// ─────────────────────────────────────────────
+//  FAVORITE
+// ─────────────────────────────────────────────
+async function toggleFav(id) {
+  const p = photos.find(x => x.id === id);
+  if (!p) return;
+  p.favorite = !p.favorite;
+  try { await DB.update(id, { favorite: p.favorite }); } catch(e) { console.warn('fav failed', e); }
+}
+
+// ─────────────────────────────────────────────
+//  FILTERED LIST
+// ─────────────────────────────────────────────
+function getList() {
+  let f = photos.filter(p => filter === 'fav' ? p.favorite : true);
+  if (sort === 'old') f = f.slice().sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+  else if (sort === 'az') f = f.slice().sort((a,b) => a.name.localeCompare(b.name));
+  else f = f.slice().sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   return f;
 }
 
-// ── RENDER ───────────────────────────────────────────────────
-function renderGallery(){
-  const g=$('gallery'), em=$('empty');
-  [...g.querySelectorAll('.pc')].forEach(c=>c.remove());
-  const list=getList();
-  if(!list.length){em.classList.add('show');return;}
+// ─────────────────────────────────────────────
+//  RENDER GALLERY
+// ─────────────────────────────────────────────
+function renderGallery() {
+  const g = $('gallery'), em = $('empty');
+  [...g.querySelectorAll('.card')].forEach(c => c.remove());
+  const list = getList();
+  if (!list.length) { em.classList.add('show'); return; }
   em.classList.remove('show');
-  list.forEach((p,i)=>{
-    const c=document.createElement('div'); c.className='pc'; c.dataset.id=p.id;
-    c.style.animationDelay=Math.min(i*0.055,0.44)+'s';
-    const n=esc(p.name), d=new Date(p.date).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-    c.innerHTML=`
+
+  list.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'card'; card.dataset.id = p.id;
+    card.style.animationDelay = Math.min(i * 0.05, 0.4) + 's';
+    const n = esc(p.name);
+    const d = new Date(p.created_at).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'});
+    card.innerHTML = `
       <img src="${p.url}" alt="${n}" loading="lazy"/>
-      <div class="pc-ov"><div class="pc-name">${n}</div><div class="pc-date">${d}</div></div>
-      <div class="pc-btns">
-        <button class="icb${p.favorite?' fav':''}" data-a="fav" title="Favorite"><svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg></button>
-        <button class="icb" data-a="open" title="View"><svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg></button>
-        <button class="icb" data-a="dl" title="Download"><svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg></button>
+      <div class="card-ov">
+        <div class="card-name">${n}</div>
+        <div class="card-date">${d}</div>
+      </div>
+      <div class="card-acts">
+        <button class="act${p.favorite?' is-fav':''}" data-a="fav" title="Favorite">
+          <svg viewBox="0 0 16 16"><path d="M8 13.7l-1.1-1C3 9.4 1 7.7 1 5.6 1 3.9 2.4 2.5 4.1 2.5c1 0 1.9.5 2.5 1.2L8 5l1.4-1.3C10 3 10.9 2.5 11.9 2.5c1.7 0 3.1 1.4 3.1 3.1 0 2.1-2 3.8-5.9 7.1L8 13.7z"/></svg>
+        </button>
+        <button class="act" data-a="open" title="View">
+          <svg viewBox="0 0 16 16"><path d="M10 1h5v5M6 15H1v-5M15 1l-5.5 5.5M1 15l5.5-5.5"/></svg>
+        </button>
+        <button class="act" data-a="dl" title="Download">
+          <svg viewBox="0 0 16 16"><path d="M2 11v3h12v-3M8 2v8M5 7l3 3 3-3"/></svg>
+        </button>
       </div>`;
-    c.querySelectorAll('.icb').forEach(b=>b.addEventListener('click',async e=>{
-      e.stopPropagation(); const a=b.dataset.a;
-      if(a==='fav'){await toggleFav(p.id);renderGallery();bump('sb1');updateStats();}
-      if(a==='open') openLB(p.id);
-      if(a==='dl') dlPhoto(p);
+    card.querySelectorAll('.act').forEach(b => b.addEventListener('click', async e => {
+      e.stopPropagation();
+      const a = b.dataset.a;
+      if (a === 'fav') { await toggleFav(p.id); renderGallery(); bump('st1'); updateStats(); }
+      if (a === 'open') openLB(p.id);
+      if (a === 'dl') dlPhoto(p);
     }));
-    c.addEventListener('click',()=>openLB(p.id));
-    c.addEventListener('contextmenu',e=>{e.preventDefault();ctxId=p.id;openCtx(e.clientX,e.clientY);});
-    g.insertBefore(c,em);
+    card.addEventListener('click', () => openLB(p.id));
+    card.addEventListener('contextmenu', e => { e.preventDefault(); ctxId = p.id; openCtx(e.clientX, e.clientY); });
+    g.insertBefore(card, em);
   });
 }
 
-// ── LIGHTBOX ─────────────────────────────────────────────────
-function openLB(id){ const f=getList(); lbIdx=f.findIndex(x=>x.id===id); showLB(f); $('lb').classList.add('open'); document.body.style.overflow='hidden'; }
-function showLB(f){ const p=f[lbIdx]; if(!p)return; const img=$('lb-img'); img.classList.add('sw'); setTimeout(()=>{ img.src=p.url; $('lb-cap').textContent=p.name; $('lb-num').textContent=`${lbIdx+1} / ${f.length}`; $('lb-dl').onclick=()=>dlPhoto(p); img.classList.remove('sw'); },220); }
-function closeLB(){ $('lb').classList.remove('open'); document.body.style.overflow=''; }
-$('lbx').onclick=closeLB;
-$('lb').addEventListener('click',e=>{ if(e.target===$('lb')) closeLB(); });
-$('lbprev').onclick=()=>{ const f=getList(); lbIdx=(lbIdx-1+f.length)%f.length; showLB(f); };
-$('lbnext').onclick=()=>{ const f=getList(); lbIdx=(lbIdx+1)%f.length; showLB(f); };
-document.addEventListener('keydown',e=>{
-  if(!$('lb').classList.contains('open'))return;
+// ─────────────────────────────────────────────
+//  LIGHTBOX
+// ─────────────────────────────────────────────
+function openLB(id)  { const f=getList(); lbIdx=f.findIndex(x=>x.id===id); showLBPhoto(f); $('lb').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeLB()   { $('lb').classList.remove('open'); document.body.style.overflow=''; }
+function showLBPhoto(f) {
+  const p = f[lbIdx]; if (!p) return;
+  const img = $('lbimg'); img.classList.add('sw');
+  setTimeout(() => { img.src=p.url; $('lb-cap').textContent=p.name; $('lb-num').textContent=`${lbIdx+1} / ${f.length}`; $('lb-dl').onclick=()=>dlPhoto(p); img.classList.remove('sw'); }, 220);
+}
+$('lbx').onclick = closeLB;
+$('lb').addEventListener('click', e => { if (e.target === $('lb')) closeLB(); });
+$('lbprev').onclick = () => { const f=getList(); lbIdx=(lbIdx-1+f.length)%f.length; showLBPhoto(f); };
+$('lbnext').onclick = () => { const f=getList(); lbIdx=(lbIdx+1)%f.length; showLBPhoto(f); };
+document.addEventListener('keydown', e => {
+  if (!$('lb').classList.contains('open')) return;
   const f=getList();
-  if(e.key==='ArrowRight'){lbIdx=(lbIdx+1)%f.length;showLB(f);}
-  if(e.key==='ArrowLeft'){lbIdx=(lbIdx-1+f.length)%f.length;showLB(f);}
-  if(e.key==='Escape')closeLB();
+  if (e.key==='ArrowRight') { lbIdx=(lbIdx+1)%f.length; showLBPhoto(f); }
+  if (e.key==='ArrowLeft')  { lbIdx=(lbIdx-1+f.length)%f.length; showLBPhoto(f); }
+  if (e.key==='Escape') closeLB();
 });
 
-// ── SLIDESHOW ────────────────────────────────────────────────
-let ssT=null;
-$('a-ss').addEventListener('click',e=>{ e.preventDefault(); const f=getList(); if(!f.length)return; openLB(f[0].id); clearInterval(ssT); ssT=setInterval(()=>{ if(!$('lb').classList.contains('open')){clearInterval(ssT);return;} const fr=getList(); lbIdx=(lbIdx+1)%fr.length; showLB(fr); },3500); });
+// SLIDESHOW
+let ssT;
+$('a-ss').addEventListener('click', e => {
+  e.preventDefault(); const f=getList(); if(!f.length)return;
+  openLB(f[0].id); clearInterval(ssT);
+  ssT = setInterval(() => { if(!$('lb').classList.contains('open')){clearInterval(ssT);return;} const fr=getList(); lbIdx=(lbIdx+1)%fr.length; showLBPhoto(fr); }, 3500);
+});
 
-// ── CTX ──────────────────────────────────────────────────────
-const ctx=$('ctx');
-function openCtx(x,y){ ctx.style.left=Math.min(x,innerWidth-185)+'px'; ctx.style.top=Math.min(y,innerHeight-185)+'px'; ctx.classList.add('open'); }
-document.addEventListener('click',()=>ctx.classList.remove('open'));
-$('ci0').onclick=()=>{ if(ctxId)openLB(ctxId); };
-$('ci1').onclick=async()=>{ if(ctxId){await toggleFav(ctxId);renderGallery();updateStats();} };
-$('ci2').onclick=()=>{ const p=photos.find(x=>x.id===ctxId);if(p)dlPhoto(p); };
-$('ci3').onclick=()=>{ const p=photos.find(x=>x.id===ctxId);if(!p)return;const n=prompt('Rename:',p.name);if(n?.trim()){p.name=n.trim();db.upd(p.id,{name:p.name});renderGallery();} };
-$('ci4').onclick=async()=>{
+// ─────────────────────────────────────────────
+//  CTX MENU
+// ─────────────────────────────────────────────
+function openCtx(x,y) { const c=$('ctx'); c.style.left=Math.min(x,innerWidth-180)+'px'; c.style.top=Math.min(y,innerHeight-180)+'px'; c.classList.add('open'); }
+document.addEventListener('click', () => $('ctx').classList.remove('open'));
+$('c0').onclick = () => { if(ctxId) openLB(ctxId); };
+$('c1').onclick = async () => { if(ctxId){await toggleFav(ctxId);renderGallery();updateStats();} };
+$('c2').onclick = () => { const p=photos.find(x=>x.id===ctxId); if(p) dlPhoto(p); };
+$('c3').onclick = () => {
   const p=photos.find(x=>x.id===ctxId); if(!p)return;
-  if(!confirm('Delete this photo permanently?'))return;
-  try{ if(p.path)await db.stDel(p.path); await db.del(p.id); photos=photos.filter(x=>x.id!==ctxId); renderGallery();updateStats(); }
-  catch(e){ toast('err','Delete failed',e.message); }
+  const n=prompt('Rename photo:',p.name); if(n&&n.trim()){p.name=n.trim();DB.update(p.id,{name:p.name});renderGallery();}
+};
+$('c4').onclick = async () => {
+  const p=photos.find(x=>x.id===ctxId); if(!p)return;
+  if(!confirm('Delete permanently?'))return;
+  try { if(p.path) await DB.removeFile(p.path); await DB.remove(p.id); photos=photos.filter(x=>x.id!==ctxId); renderGallery();updateStats(); }
+  catch(e) { showToast('err','Delete failed',e.message); }
 };
 
-// ── FILTERS & SORT ───────────────────────────────────────────
-document.querySelectorAll('.ftab').forEach(b=>b.addEventListener('click',()=>{ document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('on')); b.classList.add('on'); filter=b.dataset.f; renderGallery(); }));
-$('sorter').addEventListener('change',e=>{sort=e.target.value;renderGallery();});
-$('vg').onclick=()=>{ $('gallery').classList.remove('masonry');$('vg').classList.add('on');$('vm').classList.remove('on'); };
-$('vm').onclick=()=>{ $('gallery').classList.add('masonry');$('vm').classList.add('on');$('vg').classList.remove('on'); };
+// ─────────────────────────────────────────────
+//  FILTERS / SORT / VIEW
+// ─────────────────────────────────────────────
+document.querySelectorAll('.ftab').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.ftab').forEach(x=>x.classList.remove('on')); b.classList.add('on'); filter=b.dataset.f; renderGallery();
+}));
+$('sorter').addEventListener('change', e => { sort=e.target.value; renderGallery(); });
+$('vgrid').onclick  = () => { $('gallery').classList.remove('masonry'); $('vgrid').classList.add('on');  $('vmason').classList.remove('on'); };
+$('vmason').onclick = () => { $('gallery').classList.add('masonry');    $('vmason').classList.add('on'); $('vgrid').classList.remove('on'); };
 
-// ── SCROLL HEADER ────────────────────────────────────────────
-window.addEventListener('scroll',()=>document.querySelector('header').style.boxShadow=scrollY>10?'0 4px 30px rgba(0,0,0,0.5)':'none');
-
-// ── INIT ─────────────────────────────────────────────────────
-(async()=>{
-  setStatus('busy','Connecting…');
-  try{
-    // Test storage bucket first
-    const stTest = await fetch(`${SUPA_URL}/storage/v1/bucket/${BUCKET}`, { headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY} });
-    if(!stTest.ok){
-      const t=await stTest.text();
-      throw new Error(`Storage bucket "${BUCKET}" error (${stTest.status}): ${t}`);
-    }
-
-    // Load photos from DB
-    const data = await db.all();
+// ─────────────────────────────────────────────
+//  INIT — LOAD FROM SUPABASE
+// ─────────────────────────────────────────────
+(async () => {
+  setStatus('busy', 'Connecting…');
+  try {
+    const data = await DB.list();
     photos = Array.isArray(data) ? data : [];
-    setStatus('ok','Supabase ✓');
-    $('diag').className=''; // hide any previous error
-    renderGallery(); updateStats();
-  }catch(err){
-    setStatus('err','Failed');
-    const msg = err.message||String(err);
-    console.error('Supabase init error:', err);
-
-    // Show specific guidance based on error
-    if(msg.includes('42P01')||msg.includes('relation')){
-      diag('error','Table Not Found',
-        `The <b>"photos"</b> table doesn't exist in your database.<br><br>
-        Go to <b>Supabase → SQL Editor</b> and run:<br>
-        <pre style="margin-top:8px;padding:10px;background:#0a0a0a;border-radius:3px;font-size:0.65rem;overflow-x:auto;white-space:pre-wrap">CREATE TABLE IF NOT EXISTS photos (
-  id text PRIMARY KEY,
-  name text, url text, path text,
-  size bigint, favorite boolean DEFAULT false,
-  date timestamptz DEFAULT now()
-);
-ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON photos FOR ALL TO public USING (true) WITH CHECK (true);</pre>`);
-    } else if(msg.includes('RLS')||msg.includes('policy')||msg.includes('permission')||msg.includes('403')){
-      diag('error','RLS Policy Blocked',
-        `Run this in <b>Supabase → SQL Editor</b>:<br>
-        <pre style="margin-top:8px;padding:10px;background:#0a0a0a;border-radius:3px;font-size:0.65rem">ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "open" ON photos FOR ALL TO public USING (true) WITH CHECK (true);</pre>`);
-    } else {
-      diag('error','Connection Error', msg+'<br><br>Check your Supabase URL and API key, and ensure your table + storage bucket exist with public RLS policies.');
-    }
+    setStatus('ok', 'Connected ✓');
+    hideErr();
+    renderGallery();
+    updateStats();
+  } catch (err) {
+    setStatus('err', 'Failed');
+    console.error('Init error:', err);
+    showErr(buildErrHtml(err, err.message));
   }
 })();
 </script>
